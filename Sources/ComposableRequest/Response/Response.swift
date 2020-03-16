@@ -23,7 +23,7 @@ public enum Response: Equatable {
     case none
 
     // MARK: Lifecycle
-    init(data: Data,
+    public init(data: Data,
          options: JSONSerialization.ReadingOptions = .allowFragments) throws {
         self = try Response(JSONSerialization.jsonObject(with: data, options: options))
     }
@@ -53,7 +53,7 @@ public enum Response: Equatable {
         }
     }
 
-    func data(options: JSONSerialization.WritingOptions = []) throws -> Data {
+    public func data(options: JSONSerialization.WritingOptions = []) throws -> Data {
         return try JSONSerialization.data(withJSONObject: any(), options: options)
     }
 
