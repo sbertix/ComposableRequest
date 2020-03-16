@@ -25,7 +25,7 @@ Check out our [milestones](https://github.com/sbertix/ComposableRequest/mileston
 1. Paste `https://github.com/sbertix/ComposableRequest.git`.
 1. Follow the steps.
 
-[`Requestable`](https://github.com/sbertix/Swiftagram/wiki/Endpoint) also defines custom [`Publisher`](https://developer.apple.com/documentation/combine/publisher)s when linking against the [**Combine**](https://developer.apple.com/documentation/combine) framework.
+`Requestable` also defines custom [`Publisher`](https://sbertix.github.io/ComposableRequest/Structs/PaginatablePublisher.html)s when linking against the [**Combine**](https://developer.apple.com/documentation/combine) framework.
 
 > Why not CocoaPods, or Carthage, or ~blank~?
 
