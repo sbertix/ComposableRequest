@@ -41,7 +41,7 @@ final class ComposableRequestCombineTests: XCTestCase {
         wait(for: [expectation], timeout: 10)
         XCTAssert(count == 10)
     }
-    
+
     /// Test empty `Pagination`.
     func testEmptyPagination() {
         var count = 0
@@ -57,7 +57,7 @@ final class ComposableRequestCombineTests: XCTestCase {
         wait(for: [expectation], timeout: 10)
         XCTAssert(count == 0)
     }
-    
+
     /// Test `Request` cancelling.
     func testCancel() {
         let expectation = XCTestExpectation()

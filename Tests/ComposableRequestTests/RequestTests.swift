@@ -3,8 +3,17 @@ import XCTest
 
 final class ProtocolTests: XCTestCase {
     let url = URL(string: ["https://gist.githubusercontent.com/sbertix/",
-                                 "8959f2534f815ee3f6018965c6c5f9e2/raw/",
-                                 "c38d855d9aac95fb095b6c5fc75f9a0219183648/Test.json"].joined())!
+                           "8959f2534f815ee3f6018965c6c5f9e2/raw/",
+                           "c38d855d9aac95fb095b6c5fc75f9a0219183648/Test.json"].joined())!
+
+    /// Test `Method` .
+    func testMethod() {
+        XCTAssert(Request.Method.get.resolve(using: Data()) == "GET")
+        XCTAssert(Request.Method.post.resolve(using: nil) == "POST")
+        XCTAssert(Request.Method.default.resolve(using: nil) == "GET")
+        XCTAssert(Request.Method.default.resolve(using: Data()) == "GET")
+        XCTAssert(Request.Method.default.resolve(using: "test".data(using: .utf8)) == "POST")
+    }
 
     /// Test `Expected`.
     func testExpected() {
@@ -21,7 +30,7 @@ final class ProtocolTests: XCTestCase {
             .resume()
         wait(for: [expectation], timeout: 3)
     }
-    
+
     /// Test `Expected` together with `Locked`.
     func testExpectedLocked() {
         let expectation = XCTestExpectation()
@@ -42,7 +51,7 @@ final class ProtocolTests: XCTestCase {
             .resume()
         wait(for: [expectation], timeout: 3)
     }
-    
+
     /// Test `Paginated`.
     func testPaginated() {
         struct Lossless: LosslessStringConvertible {
@@ -50,7 +59,7 @@ final class ProtocolTests: XCTestCase {
             init() { }
             init?(_ description: String) { }
         }
-        
+
         let expectation = XCTestExpectation()
         let languages = ["it", "de", "fr"]
         var offset = 0
@@ -69,13 +78,13 @@ final class ProtocolTests: XCTestCase {
             .resume()
         wait(for: [expectation], timeout: 10)
     }
-    
+
     /// Test `Paginated` together with `Locked`.
     func testPaginatedLocked() {
         struct Secret: Secreted {
-            var headerFields: [String : String] = [:]
+            var headerFields: [String: String] = [:]
         }
-        
+
         let expectation = XCTestExpectation()
         let languages = ["it", "de", "fr"]
         var offset = 0
@@ -108,7 +117,7 @@ final class ProtocolTests: XCTestCase {
             .resume()
         wait(for: [expectation], timeout: 10)
     }
-    
+
     /// Test cancel request.
     func testCancel() {
         Request(url: url)
@@ -140,6 +149,7 @@ final class ProtocolTests: XCTestCase {
         ("Expecting.Paginated", testPaginated),
         ("Expecting.Paginated.Locked", testPaginatedLocked),
         ("Request.Deinit", testDeinit),
-        ("Request.Cancel", testCancel)
+        ("Request.Cancel", testCancel),
+        ("Request.Method", testMethod)
     ]
 }

@@ -28,7 +28,7 @@ public extension Lockable {
 public protocol Unlockable {
     /// The associated `Lockable`.
     associatedtype Locked: Lockable
-    
+
     /// Unlock the underlying `Locked`.
     /// - parameter secrets: A `Dictionary` of `String` representing the authentication header fields.
     func authenticating(with secrets: [String: String]) -> Locked

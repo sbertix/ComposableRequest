@@ -24,7 +24,7 @@ public enum Response: Equatable {
 
     // MARK: Lifecycle
     public init(data: Data,
-         options: JSONSerialization.ReadingOptions = .allowFragments) throws {
+                options: JSONSerialization.ReadingOptions = .allowFragments) throws {
         self = try Response(JSONSerialization.jsonObject(with: data, options: options))
     }
 

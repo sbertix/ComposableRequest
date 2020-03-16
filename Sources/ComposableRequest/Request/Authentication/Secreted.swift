@@ -10,5 +10,5 @@ import Foundation
 /// A `protocol` describing an item providing for authentication `httpHeaderFields`.
 public protocol Secreted {
     /// A valid `Dictionary` of `String`s.
-    var headerFields: [String: String] { get set }
+    var headerFields: [String: String] { get }
 }

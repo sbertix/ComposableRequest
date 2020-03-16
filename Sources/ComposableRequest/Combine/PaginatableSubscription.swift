@@ -33,7 +33,7 @@ where Subscriber.Input: DataMappable, Subscriber.Failure == Error {
     deinit {
         task?.cancel()
     }
-    
+
     /// Init.
     /// - parameters:
     ///     - request: A valid `Endpoint`.

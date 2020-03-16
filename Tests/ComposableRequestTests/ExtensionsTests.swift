@@ -14,7 +14,7 @@ final class ComposableRequestExtensionsTests: XCTestCase {
     func testDataMappable() {
         XCTAssert(Data.process(data: Data()) == Data())
     }
-    
+
     /// Test `HTTPCookie` extensions..
     func testCookie() {
         let cookie = HTTPCookie(properties: [.name: "name",
