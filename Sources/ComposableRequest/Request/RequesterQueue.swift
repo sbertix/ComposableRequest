@@ -18,11 +18,21 @@ public extension Requester {
         case global(qos: DispatchQoS.QoSClass)
 
         /// Perform `block` on the correct `DispatchQueue`.
-        internal func handle(_ work: @escaping () -> Void) {
+        /// - parameters:
+        ///     - waiting: A `ClosedRange` of `TimeInterval`s. Not applied on `.current`.
+        ///     - work: The block that needs executing.
+        internal func handle(waiting: ClosedRange<TimeInterval> = 0...0, _ work: @escaping () -> Void) {
             switch self {
-            case .current: work()
-            case .main: DispatchQueue.main.async(execute: work)
-            case .global(let qos): DispatchQueue.global(qos: qos).async(execute: work)
+            case .current:
+                work()
+            case .main:
+                DispatchQueue.main
+                    .asyncAfter(deadline: .now()+TimeInterval.random(in: waiting),
+                                execute: work)
+            case .global(let qos):
+                DispatchQueue.global(qos: qos)
+                    .asyncAfter(deadline: .now()+TimeInterval.random(in: waiting),
+                                execute: work)
             }
         }
     }

@@ -11,6 +11,13 @@ import Foundation
 public final class Requester {
     /// A shared instance of `Requester` using `URLSession.shared`.
     public static let `default` = Requester()
+    /// A shared instance of `Requester` with no delay between requests.
+    public static let immediate = Requester(configuration: .init(sessionConfiguration: .default,
+                                                                 requestQueue: .main,
+                                                                 mapQueue: .global(qos: .userInitiated),
+                                                                 responseQueue: .main,
+                                                                 waiting: 0...0))
+    
     /// A `Configuration`. Defaults to `.default`.
     public var configuration: Configuration
 

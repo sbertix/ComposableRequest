@@ -11,10 +11,11 @@ public extension Requester {
     /// A `struct` defining a `Requester` settings.
     struct Configuration: Hashable {
         /// The default implementation for `Configuration`.
-        public static let `default` = Configuration(sessionConfiguration: .default,
-                                                    requestQueue: .current,
+        public static var `default` = Configuration(sessionConfiguration: .default,
+                                                    requestQueue: .main,
                                                     mapQueue: .global(qos: .userInitiated),
-                                                    responseQueue: .main)
+                                                    responseQueue: .main,
+                                                    waiting: 0.5...1.5)
 
         /// A `URLSessionConfiguration`.
         public var sessionConfiguration: URLSessionConfiguration
@@ -24,6 +25,10 @@ public extension Requester {
         public var mapQueue: Queue
         /// A valid `Queue` in which to deliver responses.
         public var responseQueue: Queue
+        /// A range of `TimeInterval`s.
+        /// A `randomElement()` in `waiting` will be spent waiting before every request.
+        /// Defaults to `0.5...1`.
+        public var waiting: ClosedRange<TimeInterval>
 
         // MARK: Accessories
         /// Return an associated `URLSession`.

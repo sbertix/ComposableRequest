@@ -38,7 +38,7 @@ final class ComposableRequestCombineTests: XCTestCase {
                   receiveValue: { _ in
                     count += 1
             })
-        wait(for: [expectation], timeout: 10)
+        wait(for: [expectation], timeout: 30)
         XCTAssert(count == 10)
     }
 
@@ -48,7 +48,7 @@ final class ComposableRequestCombineTests: XCTestCase {
         let expectation = XCTestExpectation()
         requestCancellable = request
             .paginating(key: "l", initial: "en", next: { _ in "en" })
-            .publish()
+            .publish(in: .immediate)
             .prefix(0)
             .sink(receiveCompletion: { _ in expectation.fulfill() },
                   receiveValue: { _ in

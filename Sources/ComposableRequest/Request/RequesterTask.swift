@@ -95,7 +95,7 @@ public extension Requester {
                 return
             }
             // Set `task`.
-            configuration.requestQueue.handle {
+            configuration.requestQueue.handle(waiting: configuration.waiting) {
                 self.sessionTask = session.dataTask(with: request) { [weak self] data, response, error in
                     configuration.mapQueue.handle {
                         if let error = error {
