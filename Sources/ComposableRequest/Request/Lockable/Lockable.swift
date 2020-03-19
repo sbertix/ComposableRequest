@@ -27,18 +27,18 @@ public extension Lockable {
 /// A `protocol` defining an element allowing for authentication.
 public protocol Unlockable {
     /// The associated `Lockable`.
-    associatedtype Locked: Lockable
+    associatedtype Lockable: ComposableRequest.Lockable
 
     /// Unlock the underlying `Locked`.
     /// - parameter secrets: A `Dictionary` of `String` representing the authentication header fields.
-    func authenticating(with secrets: [String: String]) -> Locked
+    func authenticating(with secrets: [String: String]) -> Lockable
 }
 
 /// Default extensions for `Unlockable`.
 public extension Unlockable {
     /// Unlock the underlying `Locked`.
     /// - parameter secret: A valid `Secret`.
-    func authenticating<Secret: Secreted>(with secret: Secret) -> Locked {
+    func authenticating<Secret: Secreted>(with secret: Secret) -> Lockable {
         return authenticating(with: secret.headerFields)
     }
 }

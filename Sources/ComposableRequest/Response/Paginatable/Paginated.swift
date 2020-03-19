@@ -20,7 +20,7 @@ public struct Paginated<Expecting: ComposableRequest.Expecting, Response: DataMa
 }
 
 /// Conditional conformacies to `Lockable`.
-extension Paginated: Lockable where Expecting: Lockable {
+extension Paginated: ComposableRequest.Lockable where Expecting: ComposableRequest.Lockable {
     /// Update as the `Unlockable` was unloacked.
     /// - parameters:
     ///     - unlockable: A valid `Unlockable`.
@@ -33,13 +33,13 @@ extension Paginated: Lockable where Expecting: Lockable {
 }
 
 /// Conditional conformacies to `Unlockable`.
-extension Paginated: Unlockable where Expecting: Unlockable, Expecting.Locked: ComposableRequest.Expecting {
+extension Paginated: Unlockable where Expecting: Unlockable, Expecting.Lockable: ComposableRequest.Expecting {
     /// The associated `Lockable`.
-    public typealias Locked = Paginated<Expecting.Locked, Response>
+    public typealias Lockable = Paginated<Expecting.Lockable, Response>
 
     /// Unlock the underlying `Locked`.
     /// - parameter secrets: A `Dictionary` of `String` representing the authentication header fields.
-    public func authenticating(with secrets: [String: String]) -> Locked {
+    public func authenticating(with secrets: [String: String]) -> Lockable {
         return .init(expecting: expecting.authenticating(with: secrets),
                      key: key,
                      initial: initial,

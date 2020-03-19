@@ -14,7 +14,7 @@ public struct Expected<Expecting: ComposableRequest.Expecting, Response: DataMap
 }
 
 /// Conditional conformacies to `Lockable`.
-extension Expected: Lockable where Expecting: Lockable {
+extension Expected: ComposableRequest.Lockable where Expecting: ComposableRequest.Lockable {
     /// Update as the `Unlockable` was unloacked.
     /// - parameters:
     ///     - unlockable: A valid `Unlockable`.
@@ -27,13 +27,13 @@ extension Expected: Lockable where Expecting: Lockable {
 }
 
 /// Conditional conformacies to `Unlockable`.
-extension Expected: Unlockable where Expecting: Unlockable, Expecting.Locked: ComposableRequest.Expecting {
+extension Expected: Unlockable where Expecting: Unlockable, Expecting.Lockable: ComposableRequest.Expecting {
     /// The associated `Lockable`.
-    public typealias Locked = Expected<Expecting.Locked, Response>
+    public typealias Lockable = Expected<Expecting.Lockable, Response>
 
     /// Unlock the underlying `Locked`.
     /// - parameter secrets: A `Dictionary` of `String` representing the authentication header fields.
-    public func authenticating(with secrets: [String: String]) -> Locked {
+    public func authenticating(with secrets: [String: String]) -> Lockable {
         return .init(expecting: expecting.authenticating(with: secrets))
     }
 }

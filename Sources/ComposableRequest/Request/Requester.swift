@@ -17,7 +17,7 @@ public final class Requester {
                                                                  mapQueue: .global(qos: .userInitiated),
                                                                  responseQueue: .main,
                                                                  waiting: 0...0))
-    
+
     /// A `Configuration`. Defaults to `.default`.
     public var configuration: Configuration
 
