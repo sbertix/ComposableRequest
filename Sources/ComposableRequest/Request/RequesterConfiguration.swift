@@ -30,6 +30,20 @@ public extension Requester {
         /// Defaults to `0.5...1`.
         public var waiting: ClosedRange<TimeInterval>
 
+        // MARK: Lifecycle.
+        /// Init.
+        public init(sessionConfiguration: URLSessionConfiguration,
+                    requestQueue: Queue,
+                    mapQueue: Queue,
+                    responseQueue: Queue,
+                    waiting: ClosedRange<TimeInterval>) {
+            self.sessionConfiguration = sessionConfiguration
+            self.requestQueue = requestQueue
+            self.mapQueue = mapQueue
+            self.responseQueue = responseQueue
+            self.waiting = waiting
+        }
+        
         // MARK: Accessories
         /// Return an associated `URLSession`.
         public var session: URLSession { return URLSession(configuration: sessionConfiguration) }
