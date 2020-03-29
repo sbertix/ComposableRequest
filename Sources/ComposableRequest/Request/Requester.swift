@@ -17,6 +17,14 @@ public final class Requester {
                                                                  mapQueue: .global(qos: .userInitiated),
                                                                  responseQueue: .main,
                                                                  waiting: 0...0))
+    /// Change to using `.ephemeral`.
+    public func ephemeral() -> Requester {
+        return .init(configuration: .init(sessionConfiguration: .ephemeral,
+                                          requestQueue: configuration.requestQueue,
+                                          mapQueue: configuration.mapQueue,
+                                          responseQueue: configuration.responseQueue,
+                                          waiting: configuration.waiting))
+    }
 
     /// A `Configuration`. Defaults to `.default`.
     public var configuration: Configuration
