@@ -43,7 +43,7 @@ public extension Requester {
             self.responseQueue = responseQueue
             self.waiting = waiting
         }
-        
+
         // MARK: Accessories
         /// Return an associated `URLSession`.
         public var session: URLSession { return URLSession(configuration: sessionConfiguration) }
