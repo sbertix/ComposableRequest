@@ -19,10 +19,10 @@ final class ProtocolTests: XCTestCase {
     func testExpected() {
         let expectation = XCTestExpectation()
         let request = Request(url: url)
-        request.expecting(String.self)
-            .task {
+        request.expecting(Data.self)
+            .task(by: Requester.default.ephemeral()) {
                 switch $0 {
-                case .success(let string): XCTAssert(string.contains("A random string."))
+                case .success(let data): XCTAssert(String(data: data, encoding: .utf8)!.contains("A random string."))
                 case .failure(let error): XCTFail(error.localizedDescription)
                 }
                 expectation.fulfill()
@@ -31,16 +31,16 @@ final class ProtocolTests: XCTestCase {
         wait(for: [expectation], timeout: 3)
     }
 
-    /// Test `Expected` together with `Locked`.
-    func testExpectedLocked() {
+    /// Test `Expected` together with `Lock`.
+    func testExpectedLock() {
         let expectation = XCTestExpectation()
         let request = Request(url: url.deletingLastPathComponent())
         request.locked()
             .expecting(String.self)
             .append("Test.json")
-            .authenticating(with: ["": "empty.keys.are.not.added"])
+            .authenticating(with: AnySecret(AnySecret(headerFields: ["": "empty.keys.are.not.added"], body: [:])))
             .locked()
-            .authenticating(with: ["": "another.empty.key.that.will.be.trashed"])
+            .authenticating(with: AnySecret(headerFields: ["": "another.empty.key.that.will.be.trashed"], body: [:]))
             .debugTask {
                 switch $0 {
                 case .success(let response): XCTAssert(response.data.contains("A random string."))
@@ -76,15 +76,11 @@ final class ProtocolTests: XCTestCase {
                 expectation.fulfill()
             }) { _ in }
             .resume()
-        wait(for: [expectation], timeout: 10)
+        wait(for: [expectation], timeout: 20)
     }
 
-    /// Test `Paginated` together with `Locked`.
-    func testPaginatedLocked() {
-        struct Secret: Secreted {
-            var headerFields: [String: String] = [:]
-        }
-
+    /// Test `Paginated` together with `Lock`.
+    func testPaginatedLock() {
         let expectation = XCTestExpectation()
         let languages = ["it", "de", "fr"]
         var offset = 0
@@ -95,7 +91,7 @@ final class ProtocolTests: XCTestCase {
         locked.next = { _ in nil }
         XCTAssert(locked.key == "l")
         XCTAssert(locked.initial == "en")
-        XCTAssert(locked.next(.success(.none)) == nil)
+        XCTAssert(locked.next(.success(nil)) == nil)
         locked
             .instagram
             .query("", value: nil)
@@ -109,13 +105,13 @@ final class ProtocolTests: XCTestCase {
                 defer { offset += 1 }
                 return offset < languages.count ? languages[offset] : nil
             }
-            .authenticating(with: Secret())
+            .authenticating(with: AnySecret(headerFields: [:], body: [:]))
             .debugCycleTask(onComplete: {
                 XCTAssert(offset == $0 && $0 == 4)
                 expectation.fulfill()
             }) { _ in }
             .resume()
-        wait(for: [expectation], timeout: 10)
+        wait(for: [expectation], timeout: 20)
     }
 
     /// Test cancel request.
@@ -145,9 +141,9 @@ final class ProtocolTests: XCTestCase {
 
     static var allTests = [
         ("Expenting.Expected", testExpected),
-        ("Expecting.Expected.Locked", testExpectedLocked),
+        ("Expecting.Expected.Lock", testExpectedLock),
         ("Expecting.Paginated", testPaginated),
-        ("Expecting.Paginated.Locked", testPaginatedLocked),
+        ("Expecting.Paginated.Lock", testPaginatedLock),
         ("Request.Deinit", testDeinit),
         ("Request.Cancel", testCancel),
         ("Request.Method", testMethod)

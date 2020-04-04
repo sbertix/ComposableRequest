@@ -158,21 +158,7 @@ extension Request: Composable {
     }
 }
 
-// MARK: Lockable
-/// `Lockable` conformacies.
-extension Request: Lockable {
-    /// Update as the `Unlockable` was unloacked.
-    /// - parameters:
-    ///     - unlockable: A valid `Unlockable`.
-    ///     - secrets:  A `Dictionary` of `String` representing the authentication header fields.
-    /// - warning: Do not call directly.
-    public static func unlock(_ unlockable: Locked<Request>, with secrets: [String: String]) -> Request {
-        return copy(unlockable.lockable) { $0 = $0.header(secrets) }
-    }
-}
-
 // MARK: Requestable
-/// `Requestable` conformacies.
 extension Request: Requestable {
     /// Compute the `URLRequest`.
     /// - returns: An optional `URLRequest`.
@@ -184,5 +170,17 @@ extension Request: Requestable {
             request.allHTTPHeaderFields = headerFields
             return request
         }
+    }
+}
+
+// MARK: Lockable
+extension Request: Lockable {
+    /// Update `self` according to the authentication `Secret`.
+    /// - parameters:
+    ///     - request: An instance of `Self`.
+    ///     - secret: A valid `Secret`.
+    /// - warning: Do not call directly.
+    public static func authenticating(_ request: Request, with secret: Secret) -> Request {
+        return request.header(secret.headerFields).body(secret.body)
     }
 }

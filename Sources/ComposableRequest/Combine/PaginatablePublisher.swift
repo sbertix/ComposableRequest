@@ -11,20 +11,20 @@ import Foundation
 
 /// A `struct` defining a new `Publisher` specific for `Response`s coming from`Endpoint` requests.
 @available(OSX 10.15, iOS 13.0, tvOS 13.0, watchOS 6.0, *)
-public struct PaginatablePublisher<Request: Composable & Requestable & Paginatable>: Publisher {
+public struct PaginatablePublisher<Locked: Composable & Requestable & Paginatable>: Publisher {
     /// Output a `Response` item.
-    public typealias Output = Request.Response
+    public typealias Output = Locked.Response
     /// Fail to any `Error`.
     public typealias Failure = Error
 
     /// A valid `Endpoint`.
-    private var request: Request
+    private var request: Locked
     /// A valid `Requester`.
     private weak var requester: Requester?
 
     /// Init.
     /// - parameter request: A valid `Endpoint`.
-    public init(request: Request, requester: Requester) {
+    public init(request: Locked, requester: Requester) {
         self.request = request
         self.requester = requester
     }

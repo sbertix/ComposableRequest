@@ -9,21 +9,12 @@ import Foundation
 
 /// A `class` used to perform `Request`s.
 public final class Requester {
-    /// A shared instance of `Requester` using `URLSession.shared`.
-    public static let `default` = Requester()
-    /// A shared instance of `Requester` with no delay between requests.
-    public static let immediate = Requester(configuration: .init(sessionConfiguration: .default,
-                                                                 requestQueue: .main,
-                                                                 mapQueue: .global(qos: .userInitiated),
-                                                                 responseQueue: .main,
-                                                                 waiting: 0...0))
-    /// Change to using `.ephemeral`.
+    /// A shared instance of `Requester` using `Request.Configuration.default`.
+    /// Set your own one if you want to.
+    public static var `default` = Requester()
+    /// Change to using an `.ephemeral` `URLSession`.
     public func ephemeral() -> Requester {
-        return .init(configuration: .init(sessionConfiguration: .ephemeral,
-                                          requestQueue: configuration.requestQueue,
-                                          mapQueue: configuration.mapQueue,
-                                          responseQueue: configuration.responseQueue,
-                                          waiting: configuration.waiting))
+        return .init(configuration: configuration.ephemeral())
     }
 
     /// A `Configuration`. Defaults to `.default`.

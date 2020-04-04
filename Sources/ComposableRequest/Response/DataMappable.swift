@@ -14,11 +14,12 @@ public protocol DataMappable {
     static func process(data: Data) -> Self
 }
 
+// MARK: Conformacies
 extension Response: DataMappable {
     /// Accept `data` and returns an element of `Response`.
     /// - parameter data: Some `Data`.
     public static func process(data: Data) -> Response {
-        return (try? Response(data: data)) ?? .none
+        return (try? JSONDecoder().decode(Response.self, from: data)) ?? .empty
     }
 }
 

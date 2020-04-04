@@ -38,9 +38,9 @@ where Subscriber.Input: DataMappable, Subscriber.Failure == Error {
     /// - parameters:
     ///     - request: A valid `Endpoint`.
     ///     - subscriber: The `Subscriber`.
-    public init<Request: Composable & Paginatable & Requestable>(request: Request,
-                                                                 requester: Requester?,
-                                                                 subscriber: Subscriber) where Subscriber.Input == Request.Response {
+    public init<Locked: Composable & Paginatable & Requestable>(request: Locked,
+                                                                requester: Requester?,
+                                                                subscriber: Subscriber) where Subscriber.Input == Locked.Response {
         self.subscriber = subscriber
         self.task = request.cycleTask(by: requester ?? .default,
                                       onComplete: { [weak self] in
@@ -60,7 +60,6 @@ where Subscriber.Input: DataMappable, Subscriber.Failure == Error {
                 }
             }
         }
-        //self.task?.resume()
     }
 
     // MARK: Subscription

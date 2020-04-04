@@ -29,7 +29,6 @@ opt_in_rules:
 included:
     - Examples
     - Sources
-    - Tests
 
 analyzer_rules:
     - explicit_self

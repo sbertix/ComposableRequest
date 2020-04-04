@@ -48,7 +48,7 @@ final class ComposableRequestCombineTests: XCTestCase {
         let expectation = XCTestExpectation()
         requestCancellable = request
             .paginating(key: "l", initial: "en", next: { _ in "en" })
-            .publish(in: .immediate)
+            .publish()
             .prefix(0)
             .sink(receiveCompletion: { _ in expectation.fulfill() },
                   receiveValue: { _ in

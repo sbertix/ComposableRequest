@@ -8,9 +8,9 @@
 import Foundation
 
 /// A `struct` for changing expected `Paginatable`s.
-public struct Paginated<Expecting: ComposableRequest.Expecting, Response: DataMappable>: Paginatable {
+public struct Paginated<Request: Expecting, Response: DataMappable>: Paginatable {
     /// The `Expecting` value.
-    public var expecting: Expecting
+    public var expecting: Request
     /// The `name` of the `URLQueryItem` used for paginating.
     public var key: String
     /// The inital `value` of the `URLQueryItem` used for paginating.
@@ -19,47 +19,44 @@ public struct Paginated<Expecting: ComposableRequest.Expecting, Response: DataMa
     public var next: (Result<Response, Error>) -> String?
 }
 
-/// Conditional conformacies to `Lockable`.
-extension Paginated: ComposableRequest.Lockable where Expecting: ComposableRequest.Lockable {
-    /// Update as the `Unlockable` was unloacked.
-    /// - parameters:
-    ///     - unlockable: A valid `Unlockable`.
-    ///     - secret:  A `Dictionary` of `String` representing the authentication header fields.
-    /// - warning: Do not call directly.
-    public static func unlock(_ unlockable: ComposableRequest.Locked<Paginated<Expecting, Response>>,
-                              with secrets: [String: String]) -> Paginated<Expecting, Response> {
-        return copy(unlockable.lockable) { $0.expecting = Expecting.unlock($0.expecting.locked(), with: secrets) }
-    }
-}
-
-/// Conditional conformacies to `Unlockable`.
-extension Paginated: Unlockable where Expecting: Unlockable, Expecting.Lockable: ComposableRequest.Expecting {
-    /// The associated `Lockable`.
-    public typealias Lockable = Paginated<Expecting.Lockable, Response>
-
-    /// Unlock the underlying `Locked`.
-    /// - parameter secrets: A `Dictionary` of `String` representing the authentication header fields.
-    public func authenticating(with secrets: [String: String]) -> Lockable {
-        return .init(expecting: expecting.authenticating(with: secrets),
-                     key: key,
-                     initial: initial,
-                     next: next)
-    }
-}
-
-/// Conditional conformacies to `Composable`.
-extension Paginated: Composable where Expecting: Composable { }
-extension Paginated: WrappedComposable where Expecting: Composable {
+// MARK: Composable
+extension Paginated: Composable where Request: Composable { }
+extension Paginated: WrappedComposable where Request: Composable {
     /// A valid `Composable`.
-    public var composable: Expecting {
+    public var composable: Request {
         get { return expecting }
         set { expecting = newValue }
     }
 }
 
-/// Conditional conformacies to `Requestable`.
-extension Paginated: Requestable where Expecting: Requestable {
+// MARK: Requestable
+extension Paginated: Requestable where Request: Requestable {
     /// Compute the `URLRequest`.
     /// - returns: An optional `URLRequest`.
     public func request() -> URLRequest? { return expecting.request() }
+}
+
+// MARK: Lockable
+extension Paginated: Lockable where Request: Lockable {
+    /// Update `self` according to the authentication `Secret`.
+    /// - parameters:
+    ///     - request: An instance of `Self`.
+    ///     - secret: A valid `Secret`.
+    /// - warning: Do not call directly.
+    public static func authenticating(_ request: Paginated, with secret: Secret) -> Paginated {
+        return copy(request) { $0.expecting = Request.authenticating($0.expecting, with: secret) }
+    }
+}
+
+// MARK: Unlockable
+extension Paginated: Unlockable where Request: Unlockable, Request.Locked: Expecting {
+    /// Authenticate with a `Secret`.
+    /// - parameter secret: A valid `Secret`.
+    /// - returns: An authenticated `Request`.
+    public func authenticating(with secret: Secret) -> Paginated<Request.Locked, Response> {
+        return .init(expecting: expecting.authenticating(with: secret),
+                     key: key,
+                     initial: initial,
+                     next: next)
+    }
 }

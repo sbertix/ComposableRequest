@@ -70,8 +70,8 @@ public extension Paginatable {
     ///     - response: A concrete `DataMappable` type.
     ///     - next: The next `value` of the `URLQueryItem` user for paginating, based on the last `Response`.
     /// - returns: A modified copy of `self`.
-    func expecting<Response: DataMappable>(_ response: Response.Type,
-                                           next: @escaping (Result<Response, Error>) -> String?) -> Paginated<Self, Response> {
+    func expecting<Response: Decodable>(_ response: Response.Type,
+                                        next: @escaping (Result<Response, Error>) -> String?) -> Paginated<Self, Response> {
         return .init(expecting: self,
                      key: key,
                      initial: initial,

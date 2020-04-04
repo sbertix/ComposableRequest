@@ -10,11 +10,6 @@ final class ComposableRequestExtensionsTests: XCTestCase {
         XCTAssert("BEGIN".beginningWithLowercase == "bEGIN")
     }
 
-    /// Test `DataMappable` extensions.
-    func testDataMappable() {
-        XCTAssert(Data.process(data: Data()) == Data())
-    }
-
     /// Test `HTTPCookie` extensions..
     func testCookie() {
         let cookie = HTTPCookie(properties: [.name: "name",
@@ -26,7 +21,6 @@ final class ComposableRequestExtensionsTests: XCTestCase {
 
     static var allTests = [
         ("Extensions.String", testString),
-        ("Extensions.Data", testDataMappable),
         ("Extensions.Cookie", testCookie)
     ]
 }

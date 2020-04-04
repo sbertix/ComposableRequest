@@ -15,7 +15,7 @@ public extension Requester {
                                                     requestQueue: .main,
                                                     mapQueue: .global(qos: .userInitiated),
                                                     responseQueue: .main,
-                                                    waiting: 0.5...1.5)
+                                                    waiting: 0.0...0.0)
 
         /// A `URLSessionConfiguration`.
         public var sessionConfiguration: URLSessionConfiguration
@@ -27,7 +27,7 @@ public extension Requester {
         public var responseQueue: Queue
         /// A range of `TimeInterval`s.
         /// A `randomElement()` in `waiting` will be spent waiting before every request.
-        /// Defaults to `0.5...1`.
+        /// Defaults to `0.0...0.0`.
         public var waiting: ClosedRange<TimeInterval>
 
         // MARK: Lifecycle.
@@ -42,6 +42,15 @@ public extension Requester {
             self.mapQueue = mapQueue
             self.responseQueue = responseQueue
             self.waiting = waiting
+        }
+
+        /// Make it ephemeral.
+        public func ephemeral() -> Configuration {
+            return .init(sessionConfiguration: .ephemeral,
+                         requestQueue: requestQueue,
+                         mapQueue: mapQueue,
+                         responseQueue: responseQueue,
+                         waiting: waiting)
         }
 
         // MARK: Accessories
