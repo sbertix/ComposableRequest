@@ -18,12 +18,20 @@ public extension Lockable {
     func locking<Unlockable: CustomUnlockable>(into unlockable: Unlockable.Type) -> Unlockable where Unlockable.Locked == Self {
         return Unlockable(request: self)
     }
+
+    /// Lock `self`.
+    /// - parameter authenticator: A `block` accepting `Self` and `Secret` and processing `Self` accordingly.
+    /// - returns: An instance of `CustomLock` wrapping `self`.
+    func locking(authenticator: @escaping (Self, Secret) -> Self) -> CustomLock<Self> {
+        return CustomLock(request: self, authenticator: authenticator)
+    }
 }
 
 /// Default extensions for `Lockable & Composable`.
 public extension Lockable where Self: Composable {
     /// Lock `self`.
     /// - returns: A `Lock<Self>` instance wrapping `self`.
-    /// - note: Prefer calling `locking(into: Lock.self)` directly. This might be removed soon.
+    /// - note: Prefer calling `locking(into: Lock.self)` directly for consistency.
+    /// - warning: `Lockable.locked` will be deprecated in the next minor release.
     func locked() -> Lock<Self> { return locking(into: Lock.self) }
 }

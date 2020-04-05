@@ -35,7 +35,7 @@ final class ProtocolTests: XCTestCase {
     func testExpectedLock() {
         let expectation = XCTestExpectation()
         let request = Request(url: url.deletingLastPathComponent())
-        request.locking(into: Lock.self)
+        request.locking { $0.header($1.headerFields).body($1.body) }
             .expecting(String.self)
             .append("Test.json")
             .authenticating(with: AnySecret(AnySecret(headerFields: ["": "empty.keys.are.not.added"], body: [:])))
@@ -113,6 +113,42 @@ final class ProtocolTests: XCTestCase {
             .resume()
         wait(for: [expectation], timeout: 20)
     }
+    
+    /// Test `Paginated` together with `CustomLock`.
+    func testPaginatedCustomLock() {
+        let expectation = XCTestExpectation()
+        let languages = ["it", "de", "fr"]
+        var offset = 0
+        let request = Request(url: URL(string: "https://instagram.com")!)
+        var locked = request.paginating(key: "key", initial: "value") { _ in "next" }
+            .locking { $0.header($1.headerFields).body($1.body) }
+        locked = locked.key("l").initial("en")
+        locked.next = { _ in nil }
+        XCTAssert(locked.key == "l")
+        XCTAssert(locked.initial == "en")
+        XCTAssert(locked.next(.success(nil)) == nil)
+        locked
+            .instagram
+            .query("", value: nil)
+            .query([URLQueryItem(name: "", value: nil)])
+            .defaultHeader()
+            .header("", value: nil)
+            .body("", value: nil)
+            .body(.parameters([:]))
+            .method(.get)
+            .expecting(String.self) { _ in
+                defer { offset += 1 }
+                return offset < languages.count ? languages[offset] : nil
+            }
+            .authenticating(with: AnySecret(headerFields: [:], body: [:]))
+            .debugCycleTask(onComplete: {
+                XCTAssert(offset == $0 && $0 == 4)
+                expectation.fulfill()
+            }) { _ in }
+            .resume()
+        wait(for: [expectation], timeout: 20)
+    }
+
 
     /// Test cancel request.
     func testCancel() {
@@ -144,6 +180,7 @@ final class ProtocolTests: XCTestCase {
         ("Expecting.Expected.Lock", testExpectedLock),
         ("Expecting.Paginated", testPaginated),
         ("Expecting.Paginated.Lock", testPaginatedLock),
+        ("Expecting.Paginated.CustomLock", testPaginatedCustomLock),
         ("Request.Deinit", testDeinit),
         ("Request.Cancel", testCancel),
         ("Request.Method", testMethod)
