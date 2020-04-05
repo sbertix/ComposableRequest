@@ -17,6 +17,10 @@ public struct Paginated<Request: Expecting, Response: DataMappable>: Paginatable
     public var initial: String?
     /// The next `value` of the `URLQueryItem` user for paginating, based on the last `Response`.
     public var next: (Result<Response, Error>) -> String?
+    /// Additional parameters for the header fields, based on the last `Response`.
+    public var nextHeader: ((Result<Response, Error>) -> [String: String?]?)?
+    /// Additional parameters for the body, based on the last `Response`.
+    public var nextBody: ((Result<Response, Error>) -> [String: String?]?)?
 }
 
 // MARK: Composable
@@ -48,6 +52,8 @@ extension Paginated: Unlockable where Request: Unlockable, Request.Locked: Expec
         return .init(expecting: expecting.authenticating(with: secret),
                      key: key,
                      initial: initial,
-                     next: next)
+                     next: next,
+                     nextHeader: nextHeader,
+                     nextBody: nextBody)
     }
 }
