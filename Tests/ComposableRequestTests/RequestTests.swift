@@ -18,7 +18,7 @@ final class ProtocolTests: XCTestCase {
     /// Test `Expected`.
     func testExpected() {
         let expectation = XCTestExpectation()
-        let request = Request(url: url)
+        let request = Request(url)
         request.expecting(Data.self)
             .task(by: Requester.default.ephemeral()) {
                 switch $0 {
@@ -34,7 +34,7 @@ final class ProtocolTests: XCTestCase {
     /// Test `Expected` together with `Lock`.
     func testExpectedLock() {
         let expectation = XCTestExpectation()
-        let request = Request(url: url.deletingLastPathComponent())
+        let request = Request(url.deletingLastPathComponent())
         request.locking { $0.header($1.headerFields).body($1.body) }
             .expecting(String.self)
             .append("Test.json")
@@ -63,7 +63,7 @@ final class ProtocolTests: XCTestCase {
         let expectation = XCTestExpectation()
         let languages = ["it", "de", "fr"]
         var offset = 0
-        let request = Request(url: URL(string: "https://instagram.com")!)
+        let request = Request(URL(string: "https://instagram.com")!)
         request
             .append(Lossless())
             .paginating(key: "l", initial: "en") { _ in nil }
@@ -118,7 +118,7 @@ final class ProtocolTests: XCTestCase {
         let expectation = XCTestExpectation()
         let languages = ["it", "de", "fr"]
         var offset = 0
-        let request = Request(url: URL(string: "https://instagram.com")!)
+        let request = Request("https://instagram.com")
         var locked = request.paginating(key: "key", initial: "value") { _ in "next" }
             .locking { $0.header($1.headerFields).body($1.body) }
         locked = locked.key("l").initial("en")
@@ -150,7 +150,7 @@ final class ProtocolTests: XCTestCase {
 
     /// Test cancel request.
     func testCancel() {
-        Request(url: url)
+        Request(url)
             .task {
                 switch $0 {
                 case .success: XCTFail("It shouldn't succeed.")

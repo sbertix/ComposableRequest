@@ -7,7 +7,7 @@ import Combine
 @available(OSX 10.15, iOS 13.0, tvOS 13.0, watchOS 6.0, *)
 final class ComposableRequestCombineTests: XCTestCase {
     /// The actual request.
-    let request = Request(url: URL(string: "https://www.instagram.com")!)
+    let request = Request("https://www.instagram.com")
     /// The current cancellable.
     var requestCancellable: AnyCancellable?
 

@@ -70,11 +70,33 @@ public struct Request: Hashable, Singular {
     ///     - method: A valid `Method`. Defaults to `.default`.
     ///     - body: A valid optional `Body`. Defaults to `nil`.
     ///     - headerFields: A valid `Dictionary` of `String`s. Defaults to `[:]`.
+    /// - warning: This method will be removed in the next major release.
+    @available(*, deprecated, renamed: "init(_:method:body:headerFields:)")
     public init(url: URL, method: Method = .default, body: Body? = nil, headerFields: [String: String] = [:]) {
+        self.init(url, method: method, body: body, headerFields: headerFields)
+    }
+    
+    /// Init.
+    /// - parameters:
+    ///     - url: A valid `URL`.
+    ///     - method: A valid `Method`. Defaults to `.default`.
+    ///     - body: A valid optional `Body`. Defaults to `nil`.
+    ///     - headerFields: A valid `Dictionary` of `String`s. Defaults to `[:]`.
+    public init(_ url: URL, method: Method = .default, body: Body? = nil, headerFields: [String: String] = [:]) {
         self.components = URLComponents(url: url, resolvingAgainstBaseURL: false)!
         self.method = method
         self.body = body
         self.headerFields = headerFields
+    }
+    
+    /// Init.
+    /// - parameters:
+    ///     - string: A valid `URL` string.
+    ///     - method: A valid `Method`. Defaults to `.default`.
+    ///     - body: A valid optional `Body`. Defaults to `nil`.
+    ///     - headerFields: A valid `Dictionary` of `String`s. Defaults to `[:]`.
+    public init(_ string: String, method: Method = .default, body: Body? = nil, headerFields: [String: String] = [:]) {
+        self.init(URL(string: string)!, method: method, body: body, headerFields: headerFields)
     }
 }
 

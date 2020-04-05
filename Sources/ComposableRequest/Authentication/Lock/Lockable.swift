@@ -31,7 +31,6 @@ public extension Lockable {
 public extension Lockable where Self: Composable {
     /// Lock `self`.
     /// - returns: A `Lock<Self>` instance wrapping `self`.
-    /// - note: Prefer calling `locking(into: Lock.self)` directly for consistency.
-    /// - warning: `Lockable.locked` will be deprecated in the next minor release.
+    @available(*, deprecated, message: "use `locking(into: Lock.self)` instead")
     func locked() -> Lock<Self> { return locking(into: Lock.self) }
 }
