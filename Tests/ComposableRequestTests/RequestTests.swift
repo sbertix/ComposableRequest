@@ -96,7 +96,6 @@ final class ProtocolTests: XCTestCase {
             .instagram
             .query("", value: nil)
             .query([URLQueryItem(name: "", value: nil)])
-            .defaultHeader()
             .header("", value: nil)
             .body("", value: nil)
             .body(.parameters([:]))
@@ -131,7 +130,6 @@ final class ProtocolTests: XCTestCase {
             .instagram
             .query("", value: nil)
             .query([URLQueryItem(name: "", value: nil)])
-            .defaultHeader()
             .header("", value: nil)
             .body("", value: nil)
             .body(.parameters([:]))
