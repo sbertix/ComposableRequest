@@ -84,7 +84,7 @@ final class ProtocolTests: XCTestCase {
         let expectation = XCTestExpectation()
         let languages = ["it", "de", "fr"]
         var offset = 0
-        let request = Request(url: URL(string: "https://instagram.com")!)
+        let request = Request(URL(string: "https://instagram.com")!)
         var locked = request.paginating(key: "key", initial: "value") { _ in "next" }
             .locking(into: Lock.self)
         locked = locked.key("l").initial("en")

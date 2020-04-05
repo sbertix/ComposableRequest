@@ -59,4 +59,14 @@ extension CustomLock: Paginatable where Locked: Paginatable {
         get { return request.next }
         set { request.next = newValue }
     }
+    /// Additional parameters for the header fields, based on the last `Response`.
+    public var nextHeader: ((Result<Response, Error>) -> [String: String?]?)? {
+        get { return request.nextHeader }
+        set { request.nextHeader = newValue }
+    }
+    /// Additional parameters for the body, based on the last `Response`.
+    public var nextBody: ((Result<Response, Error>) -> [String: String?]?)? {
+        get { return request.nextBody }
+        set { request.nextBody = newValue }
+    }
 }

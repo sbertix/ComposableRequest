@@ -36,6 +36,8 @@ public extension Requestable where Self: Paginatable, Self: Composable {
                                 var nextEndpoint: Self?
                                 if let nextValue = self.next(mapped) {
                                     nextEndpoint = self.query(self.key, value: nextValue)
+                                        .header(self.nextHeader?(mapped) ?? [:])
+                                        .body(self.nextBody?(mapped) ?? [:])
                                 }
                                 // Notify completion.
                                 count += 1
@@ -68,6 +70,8 @@ public extension Requestable where Self: Paginatable, Self: Composable {
                                 var nextEndpoint: Self?
                                 if let nextValue = self.next(mapped.map { $0.data }) {
                                     nextEndpoint = self.query(self.key, value: nextValue)
+                                        .header(self.nextHeader?(mapped.map { $0.data }))
+                                        .body(self.nextBody?(mapped.map { $0.data }))
                                 }
                                 // Notify completion.
                                 count += 1
