@@ -35,11 +35,11 @@ final class ProtocolTests: XCTestCase {
     func testExpectedLock() {
         let expectation = XCTestExpectation()
         let request = Request(url: url.deletingLastPathComponent())
-        request.locked()
+        request.locking(into: Lock.self)
             .expecting(String.self)
             .append("Test.json")
             .authenticating(with: AnySecret(AnySecret(headerFields: ["": "empty.keys.are.not.added"], body: [:])))
-            .locked()
+            .locking(into: Lock.self)
             .authenticating(with: AnySecret(headerFields: ["": "another.empty.key.that.will.be.trashed"], body: [:]))
             .debugTask {
                 switch $0 {
@@ -86,7 +86,7 @@ final class ProtocolTests: XCTestCase {
         var offset = 0
         let request = Request(url: URL(string: "https://instagram.com")!)
         var locked = request.paginating(key: "key", initial: "value") { _ in "next" }
-            .locked()
+            .locking(into: Lock.self)
         locked = locked.key("l").initial("en")
         locked.next = { _ in nil }
         XCTAssert(locked.key == "l")

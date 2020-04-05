@@ -8,20 +8,19 @@
 import Foundation
 
 /// A `struct` holding reference to a `Locked` in need of authentication.
-public struct Lock<Locked: Lockable>: Unlockable {
+public struct Lock<Locked: Lockable>: CustomUnlockable where Locked: Composable {
     /// The original `Locked`.
     internal var request: Locked
 
     /// Init.
     /// - parameter request: A valid `Lockable`.
-    /// - note: use `lockable.locked()` instead.
-    internal init(request: Locked) { self.request = request }
+    public init(request: Locked) { self.request = request }
 
     /// Authenticate with a `Secret`.
     /// - parameter secret: A valid `Secret`.
     /// - returns: An authenticated `Request`.
     public func authenticating(with secret: Secret) -> Locked {
-        return Locked.authenticating(request, with: secret)
+        return request.header(secret.headerFields).body(secret.body)
     }
 }
 
