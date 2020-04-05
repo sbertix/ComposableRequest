@@ -1,32 +1,35 @@
 //
-//  Lock.swift
+//  CustomLock.swift
 //  ComposableRequest
 //
-//  Created by Stefano Bertagno on 02/04/2020.
+//  Created by Stefano Bertagno on 05/04/2020.
 //
 
 import Foundation
 
-/// A `struct` holding reference to a `Locked` in need of authentication.
-public struct Lock<Locked: Lockable>: CustomUnlockable where Locked: Composable {
+/// A `struct` holding reference to a user-defined `Unlockable`.
+public struct CustomLock<Locked: Lockable>: Unlockable {
     /// The original `Locked`.
     internal var request: Locked
+    /// The authenticator.
+    public var authenticator: (Locked, Secret) -> Locked
 
     /// Init.
     /// - parameter request: A valid `Lockable`.
-    public init(request: Locked) { self.request = request }
+    public init(request: Locked, authenticator: @escaping (Locked, Secret) -> Locked) {
+        self.request = request
+        self.authenticator = authenticator
+    }
 
     /// Authenticate with a `Secret`.
     /// - parameter secret: A valid `Secret`.
     /// - returns: An authenticated `Request`.
-    public func authenticating(with secret: Secret) -> Locked {
-        return request.header(secret.headerFields).body(secret.body)
-    }
+    public func authenticating(with secret: Secret) -> Locked { return authenticator(request, secret) }
 }
 
 // MARK: Composable
-extension Lock: Composable where Locked: Composable { }
-extension Lock: WrappedComposable where Locked: Composable {
+extension CustomLock: Composable where Locked: Composable { }
+extension CustomLock: WrappedComposable where Locked: Composable {
     /// A valid `Composable`.
     public var composable: Locked {
         get { return request }
@@ -35,12 +38,12 @@ extension Lock: WrappedComposable where Locked: Composable {
 }
 
 // MARK: Expecting
-extension Lock: Expecting where Locked: Expecting {
+extension CustomLock: Expecting where Locked: Expecting {
     /// The associated `Response` type.
     public typealias Response = Locked.Response
 }
-extension Lock: Singular where Locked: Singular { }
-extension Lock: Paginatable where Locked: Paginatable {
+extension CustomLock: Singular where Locked: Singular { }
+extension CustomLock: Paginatable where Locked: Paginatable {
     /// The `name` of the `URLQueryItem` used for paginating.
     public var key: String {
         get { return request.key }

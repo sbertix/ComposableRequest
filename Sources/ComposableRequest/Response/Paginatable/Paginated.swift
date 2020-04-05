@@ -37,16 +37,7 @@ extension Paginated: Requestable where Request: Requestable {
 }
 
 // MARK: Lockable
-extension Paginated: Lockable where Request: Lockable {
-    /// Update `self` according to the authentication `Secret`.
-    /// - parameters:
-    ///     - request: An instance of `Self`.
-    ///     - secret: A valid `Secret`.
-    /// - warning: Do not call directly.
-    public static func authenticating(_ request: Paginated, with secret: Secret) -> Paginated {
-        return copy(request) { $0.expecting = Request.authenticating($0.expecting, with: secret) }
-    }
-}
+extension Paginated: Lockable where Request: Lockable { }
 
 // MARK: Unlockable
 extension Paginated: Unlockable where Request: Unlockable, Request.Locked: Expecting {

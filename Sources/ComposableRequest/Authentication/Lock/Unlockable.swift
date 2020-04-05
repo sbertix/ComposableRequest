@@ -17,3 +17,10 @@ public protocol Unlockable {
     /// - returns: An authenticated `Locked`.
     func authenticating(with secret: Secret) -> Locked
 }
+
+/// A `protocol` defining an `Unlockable` item allowing for direct initialization.
+public protocol CustomUnlockable: Unlockable {
+    /// Init.
+    /// - parameter request: A valid instance of `Locked`.
+    init(request: Locked)
+}
