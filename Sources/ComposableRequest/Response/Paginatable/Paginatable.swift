@@ -17,10 +17,10 @@ public protocol Paginatable: Expecting {
 
     /// The next `value` of the `URLQueryItem` user for paginating, based on the last `Response`.
     var next: (Result<Response, Error>) -> String? { get set }
-    
+
     /// Additional parameters for the header fields, based on the last `Response`.
     var nextHeader: ((Result<Response, Error>) -> [String: String?]?)? { get set }
-    
+
     /// Additional parameters for the body, based on the last `Response`.
     var nextBody: ((Result<Response, Error>) -> [String: String?]?)? { get set }
 }

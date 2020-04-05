@@ -75,7 +75,7 @@ public struct Request: Hashable, Singular {
     public init(url: URL, method: Method = .default, body: Body? = nil, headerFields: [String: String] = [:]) {
         self.init(url, method: method, body: body, headerFields: headerFields)
     }
-    
+
     /// Init.
     /// - parameters:
     ///     - url: A valid `URL`.
@@ -88,7 +88,7 @@ public struct Request: Hashable, Singular {
         self.body = body
         self.headerFields = headerFields
     }
-    
+
     /// Init.
     /// - parameters:
     ///     - string: A valid `URL` string.
