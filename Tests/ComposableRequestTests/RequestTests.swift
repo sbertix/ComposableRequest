@@ -91,7 +91,7 @@ final class ProtocolTests: XCTestCase {
         locked.next = { _ in nil }
         XCTAssert(locked.key == "l")
         XCTAssert(locked.initial == "en")
-        XCTAssert(locked.next(.success(nil)) == nil)
+        XCTAssert(locked.next(.success(.empty)) == nil)
         locked
             .instagram
             .query("", value: nil)
@@ -125,7 +125,7 @@ final class ProtocolTests: XCTestCase {
         locked.next = { _ in nil }
         XCTAssert(locked.key == "l")
         XCTAssert(locked.initial == "en")
-        XCTAssert(locked.next(.success(nil)) == nil)
+        XCTAssert(locked.next(.success(.empty)) == nil)
         locked
             .instagram
             .query("", value: nil)

@@ -24,7 +24,7 @@ final class ComposableRequestResponseTests: XCTestCase {
         XCTAssert(first?.dictionary()?["double"]?.double() == 2.3, "`Double` is not `Double`.")
         XCTAssert(first?["url"].url() != nil, "`URL` is not `URL`.")
         // check literals.
-        response = nil
+        response = .empty
         XCTAssert(response.description == "<null>")
         response = false
         XCTAssert(response.bool() == false)
@@ -41,7 +41,6 @@ final class ComposableRequestResponseTests: XCTestCase {
         response = 1000
         XCTAssert(response.date()?.timeIntervalSince1970 == 1000)
         response = .empty
-        XCTAssert(response == nil)
         XCTAssert(response.debugDescription == "Response(<null>)")
         // check equality.
         value.first?.forEach { _, value in XCTAssert(Response(value) == Response(value)) }

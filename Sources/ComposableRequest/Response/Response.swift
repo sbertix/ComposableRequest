@@ -22,7 +22,7 @@ public struct Response {
 
     /// An empty response.
     /// - returns: A `Response` wrapping `NSNull`.
-    public static var empty: Response { return nil }
+    public static var empty: Response { return .init(NSNull()) }
 }
 
 // MARK: Accessories
@@ -69,7 +69,6 @@ public extension Response {
     /// An optional `String`.
     func string() -> String? {
         return value as? String
-            ?? String(describing: value)
     }
 
     /// An optional `URL`.
@@ -148,13 +147,6 @@ extension Response: Codable {
             let context = EncodingError.Context(codingPath: container.codingPath, debugDescription: "Invalid type for `Response`.")
             throw EncodingError.invalidValue(value, context)
         }
-    }
-}
-extension Response: ExpressibleByNilLiteral {
-    /// Init.
-    /// - parameter nilLeteral: `nil`.
-    public init(nilLiteral _: ()) {
-        self.init(NSNull())
     }
 }
 extension Response: ExpressibleByBooleanLiteral {
