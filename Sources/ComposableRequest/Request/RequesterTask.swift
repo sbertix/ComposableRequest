@@ -16,14 +16,14 @@ public extension Requester {
             public let value: Result<Value, Swift.Error>
             /// A valid optional `HTTPURLResponse`.
             public let response: HTTPURLResponse?
-            
+
             /// Init.
             internal init(value: Result<Value, Swift.Error>, response: HTTPURLResponse? = nil) {
                 self.value = value
                 self.response = response
             }
         }
-        
+
         /// An `enum` holding reference to the current `Task` state.
         public enum State: Hashable {
             /// The task has not been resumed yet.
@@ -35,24 +35,24 @@ public extension Requester {
             /// The task has completed (without being cancelled).
             case completed
         }
-        
+
         /// A valid identifier.
         internal let identifier: UUID = .init()
         /// The current state.
         public private(set) var state: State
-        
+
         /// The current request.
         public private(set) var current: (Composable & Requestable)?
         /// The next request.
         public private(set) var next: (Composable & Requestable)?
-        
+
         /// A weak reference to a `Requester`. Defaults to `.default`.
         public private(set) weak var requester: Requester?
         /// A valid `URLSessionDataTask` for the current request.
         internal var sessionTask: URLSessionDataTask?
         /// A block to fetch the next request and whether it should be resumed or not.
         internal let paginator: (Response<Data>) -> ((Composable & Requestable)?, shouldResume: Bool)
-        
+
         // MARK: Lifecycle
         /// Init.
         /// - parameters:
@@ -67,7 +67,7 @@ public extension Requester {
             self.paginator = paginator
             self.state = .initiated
         }
-        
+
         // MARK: State
         /// Cancel the ongoing request and all future ones.
         /// Calling `resume` on a cancelled `Task` makes it start agaain.
@@ -98,7 +98,7 @@ public extension Requester {
             // Remove from `requester`.
             if request == nil { self.requester?.cancel(self) }
         }
-        
+
         /// Fetch the next request.
         /// - returns: `self` if there are no active tasks, the request was valid and `requester` still in memory, `nil` otherwise.
         @discardableResult
@@ -116,7 +116,7 @@ public extension Requester {
             requester.schedule(self)
             return self
         }
-        
+
         /// Fetch using a given `session`.
         /// - parameters:
         ///     - session: A `URLSession`.
@@ -157,11 +157,11 @@ public extension Requester {
                 self.sessionTask?.resume()
             }
         }
-        
+
         // MARK: Hashable
         /// Conform to hashable.
         public func hash(into hasher: inout Hasher) { hasher.combine(identifier) }
-        
+
         /// Conform to equatable.
         public static func ==(lhs: Task, rhs: Task) -> Bool { return lhs.identifier == rhs.identifier }
     }
