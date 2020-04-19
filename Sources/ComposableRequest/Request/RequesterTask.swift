@@ -26,10 +26,10 @@ public extension Requester {
         
         /// An `enum` holding reference to the current `Task` state.
         public enum State: Hashable {
+            /// The task has not been resumed yet.
+            case initiated
             /// The task is currently being serviced by the requester.
             case running
-            /// The task was suspended.
-            case suspended
             /// The task has received a `cancel` message.
             case canceling
             /// The task has completed (without being cancelled).
@@ -37,7 +37,7 @@ public extension Requester {
         }
         
         /// A valid identifier.
-        public let identifier: UUID = .init()
+        internal let identifier: UUID = .init()
         /// The current state.
         public private(set) var state: State
         
@@ -47,7 +47,7 @@ public extension Requester {
         public private(set) var next: (Composable & Requestable)?
         
         /// A weak reference to a `Requester`. Defaults to `.default`.
-        public weak var requester: Requester?
+        public private(set) weak var requester: Requester?
         /// A valid `URLSessionDataTask` for the current request.
         internal var sessionTask: URLSessionDataTask?
         /// A block to fetch the next request and whether it should be resumed or not.
@@ -65,36 +65,29 @@ public extension Requester {
             self.next = request
             self.requester = requester
             self.paginator = paginator
-            self.state = .suspended
+            self.state = .initiated
         }
         
         // MARK: State
         /// Cancel the ongoing request and all future ones.
-        /// Calling `resume` on a cancelled `Task` does nothing.
+        /// Calling `resume` on a cancelled `Task` makes it start agaain.
         public func cancel() {
-            // Remove from `requester`.
-            requester?.cancel(self)
-            // Update state.
-            state = .canceling
-            sessionTask?.cancel()
-            sessionTask = nil
-            // Adjust requests.
-            next = current
-            current = nil
+            requester?.configuration.dispatcher.request.handle { [weak self] in
+                guard let self = self else { return }
+                // Update state.
+                self.state = .canceling
+                self.sessionTask?.cancel()
+                self.sessionTask = nil
+                // Adjust requests.
+                self.next = self.current ?? self.next
+                self.current = nil
+            }
         }
-        
-        /// Suspend the ongoing request.
-        /// Calling `resume` on a suspended `Task` resumes it.
-        public func suspend() {
-            state = .suspended
-            sessionTask?.suspend()
-        }
-        
+
         /// Complete the ongoing request.
         /// - parameter request: The next request.
         internal func complete(with request: (Composable & Requestable)?) {
-            // Remove from `requester`.
-            requester?.cancel(self)
+            guard state != .canceling else { self.requester?.cancel(self); return }
             // Update state.
             state = .completed
             sessionTask?.cancel()
@@ -102,20 +95,16 @@ public extension Requester {
             // Adjust requests.
             next = request
             current = nil
+            // Remove from `requester`.
+            if request == nil { self.requester?.cancel(self) }
         }
         
         /// Fetch the next request.
         /// - returns: `self` if there are no active tasks, the request was valid and `requester` still in memory, `nil` otherwise.
         @discardableResult
         public func resume() -> Task? {
-            // Check for suspended.
-            if state == .suspended, sessionTask?.state == .suspended {
-                sessionTask?.resume()
-                return self
-            }
             // Check for a valid status.
-            guard state != .canceling,
-                sessionTask == nil,
+            guard sessionTask == nil,
                 next?.request() != nil,
                 let requester = requester else {
                     return nil

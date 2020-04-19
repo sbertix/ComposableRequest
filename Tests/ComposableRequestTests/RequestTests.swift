@@ -84,6 +84,37 @@ final class ProtocolTests: XCTestCase {
         wait(for: [expectation], timeout: 20)
     }
     
+    /// Test step-wise `Paginated`.
+    func testStepwisePaginated() {
+        let expectations = [XCTestExpectation(description: "A"),
+                            XCTestExpectation(description: "B"),
+                            XCTestExpectation(description: "C"),
+                            XCTestExpectation(description: "D")]
+        let languages = ["it", "de", "fr"]
+        let requester = Requester(configuration: Requester.Configuration()
+            .sessionConfiguration(.default)
+            .dispatcher(.init())
+            .waiting(0...0))
+        var offset = 0
+        // prepare request.
+        let request = Request("https://instagram.com")
+            .paginating(key: "l",
+                        initial: "en",
+                        next: { _ in offset < languages.count ? languages[offset] : nil })
+            .task(maxLength: 1, by: requester) { _ in expectations[offset].fulfill(); offset += 1 }
+            .resume()
+        // wait for it.
+        wait(for: [expectations[0]], timeout: 10)
+        request?.resume()
+        wait(for: [expectations[1]], timeout: 10)
+        request?.resume()
+        wait(for: [expectations[2]], timeout: 10)
+        XCTAssert(request?.next != nil)
+        request?.resume()
+        wait(for: [expectations[3]], timeout: 10)
+        XCTAssert(request?.next == nil)
+    }
+    
     /// Test `Paginated` together with `Lock`.
     func testPaginatedLock() {
         let expectation = XCTestExpectation()
@@ -152,18 +183,27 @@ final class ProtocolTests: XCTestCase {
         wait(for: [expectation], timeout: 20)
     }
     
-    
     /// Test cancel request.
     func testCancel() {
-        Request(url)
+        let cancelExpectation = XCTestExpectation()
+        let successExpectation = XCTestExpectation()
+        // request it.
+        let task = Request("http://deelay.me/100/http://google.com")
             .task {
                 switch $0 {
-                case .success: XCTFail("It shouldn't succeed.")
-                case .failure(let error): XCTAssert(String(describing: error).contains("-999"))
+                case .success:
+                    successExpectation.fulfill()
+                case .failure(let error):
+                    XCTAssert(String(describing: error).contains("-999"))
+                    cancelExpectation.fulfill()
                 }
-        }
-        .resume()?
-        .cancel()
+            }.resume()
+        // cancel it.
+        task?.cancel()
+        wait(for: [cancelExpectation], timeout: 5)
+        // resume it again.
+        DispatchQueue.main.asyncAfter(deadline: .now()+1) { task?.resume() }
+        wait(for: [successExpectation], timeout: 10)
     }
     
     /// Test `deinit` `Requester`.
@@ -182,6 +222,7 @@ final class ProtocolTests: XCTestCase {
         ("Expenting.Expected", testExpected),
         ("Expecting.Expected.Lock", testExpectedLock),
         ("Expecting.Paginated", testPaginated),
+        ("Expecting.StepwisePaginated", testStepwisePaginated),
         ("Expecting.Paginated.Lock", testPaginatedLock),
         ("Expecting.Paginated.CustomLock", testPaginatedCustomLock),
         ("Request.Deinit", testDeinit),
