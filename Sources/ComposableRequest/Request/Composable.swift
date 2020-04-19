@@ -30,7 +30,7 @@ public protocol Composable {
     /// - parameter parameters: An optional `Dictionary` of  option`String`s.
     func body(_ parameters: [String: String?]?) -> Self
 
-    /// Append to `headerFields`. Empty `headerFields` if `nil`.
+    /// Append to `header`. Empty `header` if `nil`.
     /// - parameter fields: An optional `Dictionary` of  option`String`s.
     func header(_ fields: [String: String?]?) -> Self
 }
@@ -71,7 +71,7 @@ public extension Composable {
         return body([key: value])
     }
 
-    /// Append to `headerFields`.
+    /// Append to `header`.
     /// - parameters:
     ///     - key: A `String`.
     ///     - value: An optional `String`.

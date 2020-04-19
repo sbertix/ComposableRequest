@@ -12,11 +12,13 @@ final class ComposableRequestExtensionsTests: XCTestCase {
 
     /// Test `HTTPCookie` extensions..
     func testCookie() {
-        let cookie = HTTPCookie(properties: [.name: "name",
-                                             .value: "value",
-                                             .domain: "domain",
-                                             .path: "path"])!
-        XCTAssert(HTTPCookie(data: cookie.data) == cookie)
+        let cookie = CodableHTTPCookie(properties: [.name: "name",
+                                                    .value: "value",
+                                                    .domain: "domain",
+                                                    .path: "path"])!
+        let decoded = try! JSONDecoder().decode(CodableHTTPCookie.self,
+                                                from: JSONEncoder().encode(cookie))
+        XCTAssert(decoded == cookie)
     }
 
     static var allTests = [

@@ -35,10 +35,10 @@ extension Expected: Lockable where Request: Lockable { }
 
 // MARK: Unlockable
 extension Expected: Unlockable where Request: Unlockable, Request.Locked: Expecting {
-    /// Authenticate with a `Secret`.
-    /// - parameter secret: A valid `Secret`.
+    /// Authenticate with a `Key`.
+    /// - parameter key: A valid `Key`.
     /// - returns: An authenticated `Request`.
-    public func authenticating(with secret: Secret) -> Expected<Request.Locked, Response> {
-        return .init(expecting: expecting.authenticating(with: secret))
+    public func unlocking(with key: Key) -> Expected<Request.Locked, Response> {
+        return .init(expecting: expecting.unlocking(with: key))
     }
 }

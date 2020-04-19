@@ -42,10 +42,11 @@ where Subscriber.Input: DataMappable, Subscriber.Failure == Error {
                                                                 requester: Requester?,
                                                                 subscriber: Subscriber) where Subscriber.Input == Locked.Response {
         self.subscriber = subscriber
-        self.task = request.cycleTask(by: requester ?? .default,
-                                      onComplete: { [weak self] in
-                                        guard let self = self, $0 < self.max else { return }
-                                        subscriber.receive(completion: .finished)
+        self.task = request.task(maxLength: .max,
+                                 by: requester ?? .default,
+                                 onComplete: { [weak self] in
+                                    guard let self = self, $0 < self.max else { return }
+                                    subscriber.receive(completion: .finished)
         }) { [weak self] in
             guard let self = self else { return subscriber.receive(completion: .finished) }
             switch $0 {

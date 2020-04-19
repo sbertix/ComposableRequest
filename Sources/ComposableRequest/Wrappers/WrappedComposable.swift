@@ -47,7 +47,7 @@ public extension WrappedComposable {
         return copy(self) { $0.composable = $0.composable.body(parameters) }
     }
 
-    /// Append to `headerFields`. Empty `headerFields` if `nil`.
+    /// Append to `header`. Empty `header` if `nil`.
     /// - parameter fields: An optional `Dictionary` of  option`String`s.
     func header(_ fields: [String: String?]?) -> Self {
         return copy(self) { $0.composable = $0.composable.header(fields) }

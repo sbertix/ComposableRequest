@@ -9,7 +9,7 @@ import Foundation
 
 /// A `struct` representing a composable `URLRequest`.
 @dynamicMemberLookup
-public struct Request: Hashable, Singular {
+public struct Request: Hashable, Lockable, Singular {
     /// `ComposableRequest` defaults to `Response`.
     public typealias Response = ComposableRequest.Response
 
@@ -61,7 +61,7 @@ public struct Request: Hashable, Singular {
     /// A valid `Body`.
     public var body: Body?
     /// A valid `Dictionary` of `String`s referencing the request header fields.
-    public var headerFields: [String: String]
+    public var header: [String: String]
 
     // MARK: Lifecycle
     /// Init.
@@ -69,24 +69,12 @@ public struct Request: Hashable, Singular {
     ///     - url: A valid `URL`.
     ///     - method: A valid `Method`. Defaults to `.default`.
     ///     - body: A valid optional `Body`. Defaults to `nil`.
-    ///     - headerFields: A valid `Dictionary` of `String`s. Defaults to `[:]`.
-    /// - warning: This method will be removed in the next major release.
-    @available(*, deprecated, renamed: "init(_:method:body:headerFields:)")
-    public init(url: URL, method: Method = .default, body: Body? = nil, headerFields: [String: String] = [:]) {
-        self.init(url, method: method, body: body, headerFields: headerFields)
-    }
-
-    /// Init.
-    /// - parameters:
-    ///     - url: A valid `URL`.
-    ///     - method: A valid `Method`. Defaults to `.default`.
-    ///     - body: A valid optional `Body`. Defaults to `nil`.
-    ///     - headerFields: A valid `Dictionary` of `String`s. Defaults to `[:]`.
-    public init(_ url: URL, method: Method = .default, body: Body? = nil, headerFields: [String: String] = [:]) {
+    ///     - header: A valid `Dictionary` of `String`s. Defaults to `[:]`.
+    public init(_ url: URL, method: Method = .default, body: Body? = nil, header: [String: String] = [:]) {
         self.components = URLComponents(url: url, resolvingAgainstBaseURL: false)!
         self.method = method
         self.body = body
-        self.headerFields = headerFields
+        self.header = header
     }
 
     /// Init.
@@ -94,9 +82,9 @@ public struct Request: Hashable, Singular {
     ///     - string: A valid `URL` string.
     ///     - method: A valid `Method`. Defaults to `.default`.
     ///     - body: A valid optional `Body`. Defaults to `nil`.
-    ///     - headerFields: A valid `Dictionary` of `String`s. Defaults to `[:]`.
-    public init(_ string: String, method: Method = .default, body: Body? = nil, headerFields: [String: String] = [:]) {
-        self.init(URL(string: string)!, method: method, body: body, headerFields: headerFields)
+    ///     - header: A valid `Dictionary` of `String`s. Defaults to `[:]`.
+    public init(_ string: String, method: Method = .default, body: Body? = nil, header: [String: String] = [:]) {
+        self.init(URL(string: string)!, method: method, body: body, header: header)
     }
 }
 
@@ -166,16 +154,16 @@ extension Request: Composable {
         }
     }
 
-    /// Append to `headerFields`. Empty `headerFields` if `nil`.
+    /// Append to `header`. Empty `header` if `nil`.
     /// - parameter fields: An optional `Dictionary` of  option`String`s.
     public func header(_ fields: [String: String?]?) -> Request {
         return copy(self) {
-            var dictionary = $0.headerFields
+            var dictionary = $0.header
             fields?.forEach {
                 guard !$0.key.isEmpty else { return }
                 dictionary[$0.key] = $0.value
             }
-            $0.headerFields = dictionary
+            $0.header = dictionary
         }
     }
 }
@@ -189,20 +177,8 @@ extension Request: Requestable {
             var request = URLRequest(url: $0)
             request.httpBody = body?.data
             request.httpMethod = method.resolve(using: request.httpBody)
-            request.allHTTPHeaderFields = headerFields
+            request.allHTTPHeaderFields = header
             return request
         }
-    }
-}
-
-// MARK: Lockable
-extension Request: Lockable {
-    /// Update `self` according to the authentication `Secret`.
-    /// - parameters:
-    ///     - request: An instance of `Self`.
-    ///     - secret: A valid `Secret`.
-    /// - warning: Do not call directly.
-    public static func authenticating(_ request: Request, with secret: Secret) -> Request {
-        return request.header(secret.headerFields).body(secret.body)
     }
 }

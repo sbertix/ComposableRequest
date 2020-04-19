@@ -18,21 +18,21 @@ public protocol Requestable {
 public extension Requestable where Self: Paginatable, Self: Composable {
     /// Prepare a pagination `Requester.Task`.
     /// - parameters:
-    ///     - max: The maximum amount of time we should keep calling `next`. Defaults to `.max`. Must be bigger than `0`.
-    ///     - requester:  A `Requester`. Defaults to `.default`.
-    ///     - onComplete: A block called when `maxLength` is reached or no next endpoint is provided, passing how many pages it fetched.
-    ///     - onChange: A block accepting a `DataMappable` and returning the next max id value.
-    /// - returns: A `Requester.Task`. You need to `resume()` it for it to start.
-    func cycleTask(maxLength: Int = .max,
-                   by requester: Requester = .default,
-                   onComplete: ((Int) -> Void)? = nil,
-                   onChange: @escaping (Result<Response, Error>) -> Void) -> Requester.Task {
-        precondition(maxLength > 0, "`cycleTask` requires a positive `max` value")
+    ///     - maxLength: The maximum amount of pages that should be returned. Pass `.max` to keep fetching until no next requet is found.
+    ///     - requester: A valid `Requester`. Defaults to `.default`.
+    ///     - onComplete: An optional block called when `maxLength` is reached or no next endpoint is provided.
+    ///     - onChange: A block called everytime a new page is fetched.
+    /// - returns: A `Requester.Task`. You need to `resume` it for it to start.
+    func task(maxLength: Int,
+              by requester: Requester = .default,
+              onComplete: ((_ length: Int) -> Void)? = nil,
+              onChange: @escaping (Result<Response, Error>) -> Void) -> Requester.Task {
+        precondition(maxLength > 0, "`cycleTask` requires a positive `maxLength` value")
         var count = 0
-        return Requester.Task(endpoint: self.query(self.key, value: self.initial),
+        return Requester.Task(request: self.query(self.key, value: self.initial),
                               requester: requester) {
                                 // Get the next `Endpoint`.
-                                let mapped = $0.map { Response.process(data: $0.data) }
+                                let mapped = $0.value.map(Response.process)
                                 var nextEndpoint: Self?
                                 if let nextValue = self.next(mapped) {
                                     nextEndpoint = self.query(self.key, value: nextValue)
@@ -41,46 +41,46 @@ public extension Requestable where Self: Paginatable, Self: Composable {
                                 }
                                 // Notify completion.
                                 count += 1
-                                requester.configuration.responseQueue.handle {
+                                requester.configuration.dispatcher.response.handle {
                                     onChange(mapped)
                                     if count >= maxLength || nextEndpoint == nil { onComplete?(count) }
                                 }
                                 // Return the new endpoint.
-                                return count < maxLength ? nextEndpoint : nil
+                                return (nextEndpoint, shouldResume: count < maxLength)
         }
     }
 
     /// Prepare a pagination `Requester.Task`.
     /// - parameters:
-    ///     - max: The maximum amount of time we should keep calling `next`. Defaults to `.max`. Must be bigger than `0`.
-    ///     - requester:  A `Requester`. Defaults to `.default`.
-    ///     - onComplete: A block called when `maxLength` is reached or no next endpoint is provided, passing how many pages it fetched.
-    ///     - onChange: A block accepting a `DataMappable` and returning the next max id value.
-    /// - returns: A `Requester.Task`. You need to `resume()` it for it to start.
-    func debugCycleTask(maxLength: Int = .max,
-                        by requester: Requester = .default,
-                        onComplete: ((Int) -> Void)? = nil,
-                        onChange: @escaping (Requester.Task.Result<Response>) -> Void) -> Requester.Task {
-        precondition(maxLength > 0, "`cycleTask` requires a positive `max` value")
+    ///     - maxLength: The maximum amount of pages that should be returned. Pass `.max` to keep fetching until no next requet is found.
+    ///     - requester: A valid `Requester`. Defaults to `.default`.
+    ///     - onComplete: An optional block called when `maxLength` is reached or no next endpoint is provided.
+    ///     - onChange: A block called everytime a new page is fetched.
+    /// - returns: A `Requester.Task`. You need to `resume` it for it to start.
+    func debugTask(maxLength: Int,
+                   by requester: Requester = .default,
+                   onComplete: ((Int) -> Void)? = nil,
+                   onChange: @escaping (Requester.Task.Response<Response>) -> Void) -> Requester.Task {
+        precondition(maxLength > 0, "`cycleTask` requires a positive `maxLength` value")
         var count = 0
-        return Requester.Task(endpoint: self.query(self.key, value: self.initial),
+        return Requester.Task(request: self.query(self.key, value: self.initial),
                               requester: requester) {
                                 // Get the next `Endpoint`.
-                                let mapped = $0.map { (data: Response.process(data: $0.data), response: $0.response) }
+                                let mapped = Requester.Task.Response<Response>(value: $0.value.map(Response.process), response: $0.response)
                                 var nextEndpoint: Self?
-                                if let nextValue = self.next(mapped.map { $0.data }) {
+                                if let nextValue = self.next(mapped.value) {
                                     nextEndpoint = self.query(self.key, value: nextValue)
-                                        .header(self.nextHeader?(mapped.map { $0.data }))
-                                        .body(self.nextBody?(mapped.map { $0.data }))
+                                        .header(self.nextHeader?(mapped.value))
+                                        .body(self.nextBody?(mapped.value))
                                 }
                                 // Notify completion.
                                 count += 1
-                                requester.configuration.responseQueue.handle {
+                                requester.configuration.dispatcher.response.handle {
                                     onChange(mapped)
                                     if count >= maxLength || nextEndpoint == nil { onComplete?(count) }
                                 }
                                 // Return the new endpoint.
-                                return count < maxLength ? nextEndpoint : nil
+                                return (nextEndpoint, shouldResume: count < maxLength)
         }
     }
 }
@@ -90,34 +90,34 @@ public extension Requestable where Self: Singular, Self: Composable {
     /// Prepare a `Requester.Task`.
     /// - parameters:
     ///     - requester:  A `Requester`. Defaults to `.default`.
-    ///     - onCompleted: A block accepting a `DataMappable` and returning the next max id value.
+    ///     - onComplete: A block accepting a `DataMappable` and returning the next max id value.
     /// - returns: A `Requester.Task`. You need to `resume()` it for it to start.
     func task(by requester: Requester = .default,
-              onCompleted: @escaping (Result<Response, Error>) -> Void) -> Requester.Task {
-        return Requester.Task(endpoint: self,
+              onComplete: @escaping (Result<Response, Error>) -> Void) -> Requester.Task {
+        return Requester.Task(request: self,
                               requester: requester) {
                                 // Get the next `Endpoint`.
-                                let mapped = $0.map { Response.process(data: $0.data) }
+                                let mapped = $0.value.map(Response.process)
                                 // Notify completion.
-                                requester.configuration.responseQueue.handle { onCompleted(mapped) }
-                                return nil
+                                requester.configuration.dispatcher.response.handle { onComplete(mapped) }
+                                return (nil, shouldResume: false)
         }
     }
 
     /// Prepare a `Requester.Task`.
     /// - parameters:
     ///     - requester:  A `Requester`. Defaults to `.default`.
-    ///     - onCompleted: A block accepting a `DataMappable` and returning the next max id value.
+    ///     - onComplete: A block accepting a `DataMappable` and returning the next max id value.
     /// - returns: A `Requester.Task`. You need to `resume()` it for it to start.
     func debugTask(by requester: Requester = .default,
-                   onCompleted: @escaping (Requester.Task.Result<Response>) -> Void) -> Requester.Task {
-        return Requester.Task(endpoint: self,
+                   onComplete: @escaping (Requester.Task.Response<Response>) -> Void) -> Requester.Task {
+        return Requester.Task(request: self,
                               requester: requester) {
                                 // Get the next `Endpoint`.
-                                let mapped = $0.map { (data: Response.process(data: $0.data), response: $0.response) }
+                                let mapped = Requester.Task.Response<Response>(value: $0.value.map(Response.process), response: $0.response)
                                 // Notify completion.
-                                requester.configuration.responseQueue.handle { onCompleted(mapped) }
-                                return nil
+                                requester.configuration.dispatcher.response.handle { onComplete(mapped) }
+                                return (nil, shouldResume: false)
         }
     }
 }

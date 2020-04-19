@@ -7,30 +7,26 @@
 
 import Foundation
 
-/// A `protocol` defining an element requiring a `Secret` to be resolved.
+/// A `protocol` defining an element requiring a `Key` to be resolved.
 public protocol Lockable { }
 
 /// Default extensions for `Lockable`.
 public extension Lockable {
     /// Lock `self`.
-    /// - parameter unlockable: A concrete type conforming to `CustomUnlockable`.
-    /// - returns: An instance of `Unlockable` wrapping `self`.
-    func locking<Unlockable: CustomUnlockable>(into unlockable: Unlockable.Type) -> Unlockable where Unlockable.Locked == Self {
-        return Unlockable(request: self)
+    /// - parameter authenticator: A `block` accepting `Unlocking` and processing `Self` accordingly.
+    /// - returns: An instance of `Lock` wrapping `self`.
+    /// - note: We suggest extending `Unlocking` with custom properties, e.g. `locking(authenticator: \.header)`.
+    func locking(authenticator: @escaping Authenticator<Self>) -> Lock<Self> {
+        return Lock(request: self, authenticator: authenticator)
     }
 
+    #if swift(<5.2)
     /// Lock `self`.
-    /// - parameter authenticator: A `block` accepting `Self` and `Secret` and processing `Self` accordingly.
-    /// - returns: An instance of `CustomLock` wrapping `self`.
-    func locking(authenticator: @escaping (Self, Secret) -> Self) -> CustomLock<Self> {
-        return CustomLock(request: self, authenticator: authenticator)
+    /// - parameter keyPath: A `KeyPath` on `Unlocking` returning `Self`.
+    /// - returns: An instance of `Lock` wrapping `self`.
+    /// - note: We suggest extending `Unlocking` with custom properties, e.g. `locking(authenticator: \.header)`.
+    func locking(authenticator keyPath: KeyPath<Unlocking<Self>, Self>) -> Lock<Self> {
+        return Lock(request: self) { $0[keyPath: keyPath] }
     }
-}
-
-/// Default extensions for `Lockable & Composable`.
-public extension Lockable where Self: Composable {
-    /// Lock `self`.
-    /// - returns: A `Lock<Self>` instance wrapping `self`.
-    @available(*, deprecated, message: "use `locking(into: Lock.self)` instead")
-    func locked() -> Lock<Self> { return locking(into: Lock.self) }
+    #endif
 }
