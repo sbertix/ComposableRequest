@@ -12,15 +12,8 @@ public protocol Unlockable {
     /// The `Locked` type.
     associatedtype Locked: Lockable
 
-    /// Authenticate with a `Secret`.
-    /// - parameter secret: A valid `Secret`.
+    /// Authenticate with a `Key`.
+    /// - parameter key: A valid `Key`.
     /// - returns: An authenticated `Locked`.
-    func authenticating(with secret: Secret) -> Locked
-}
-
-/// A `protocol` defining an `Unlockable` item allowing for direct initialization.
-public protocol CustomUnlockable: Unlockable {
-    /// Init.
-    /// - parameter request: A valid instance of `Locked`.
-    init(request: Locked)
+    func unlocking(with key: Key) -> Locked
 }
