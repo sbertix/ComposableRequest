@@ -142,15 +142,13 @@ extension Request: Composable {
     /// - parameter parameters: An optional `Dictionary` of  option`String`s.
     public func body(_ parameters: [String: String?]?) -> Request {
         return copy(self) {
-            guard let body = $0.body, case .parameters(var dictionary) = body else {
-                $0.body = parameters.flatMap { .parameters($0.compactMapValues { $0 }) }
-                return
-            }
-            parameters?.forEach {
-                guard !$0.key.isEmpty else { return }
-                dictionary[$0.key] = $0.value
-            }
-            $0.body = dictionary.isEmpty ? nil : .parameters(dictionary)
+            // `nil` means empty all.
+            guard let parameters = parameters else { $0.body = nil; return }
+            // Update `parameters`.
+            var dictionary: [String: String] = [:]
+            if case .parameters(let stored) = $0.body { dictionary.merge(stored) { _, rhs in rhs }}
+            parameters.forEach { dictionary[$0] = $1 }
+            $0.body = .parameters(dictionary)
         }
     }
 
@@ -158,11 +156,11 @@ extension Request: Composable {
     /// - parameter fields: An optional `Dictionary` of  option`String`s.
     public func header(_ fields: [String: String?]?) -> Request {
         return copy(self) {
-            var dictionary = $0.header
-            fields?.forEach {
-                guard !$0.key.isEmpty else { return }
-                dictionary[$0.key] = $0.value
-            }
+            // `nil` means empty all.
+            guard let fields = fields else { $0.header = [:]; return }
+            // Update header.
+            var dictionary: [String: String] = $0.header
+            fields.forEach { dictionary[$0] = $1 }
             $0.header = dictionary
         }
     }

@@ -8,7 +8,7 @@
 import Foundation
 
 /// A `subclass` of `HTTPCookie` conforming to `Codable`.
-internal final class CodableHTTPCookie: HTTPCookie, Codable {
+public final class CodableHTTPCookie: HTTPCookie, Codable {
     /// Init.
     /// - parameter properties: A valid `Dictionary` of `Any`.
     override public init?(properties: [HTTPCookiePropertyKey: Any]) {

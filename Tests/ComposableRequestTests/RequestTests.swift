@@ -41,11 +41,11 @@ final class ProtocolTests: XCTestCase {
         }
         .expecting(String.self)
         .append("Test.json")
-        .unlocking(with: .init(cookies: [HTTPCookie(properties: [.name: "key",
-                                                                 .value: "value",
-                                                                 .path: "/",
-                                                                 .domain: "test.com"])!],
-                               userInfo: ["key": "value"]))
+        .unlocking(with: AnyKey(cookies: [HTTPCookie(properties: [.name: "key",
+                                                                  .value: "value",
+                                                                  .path: "/",
+                                                                  .domain: "test.com"])!],
+                                userInfo: ["key": "value"]))
         .debugTask {
             switch $0.value {
             case .success(let response): XCTAssert(response.contains("A random string."))
@@ -106,12 +106,12 @@ final class ProtocolTests: XCTestCase {
         // wait for it.
         wait(for: [expectations[0]], timeout: 10)
         request?.resume()
-        wait(for: [expectations[1]], timeout: 10)
+        wait(for: [expectations[1]], timeout: 20)
         request?.resume()
-        wait(for: [expectations[2]], timeout: 10)
+        wait(for: [expectations[2]], timeout: 30)
         XCTAssert(request?.next != nil)
         request?.resume()
-        wait(for: [expectations[3]], timeout: 10)
+        wait(for: [expectations[3]], timeout: 40)
         XCTAssert(request?.next == nil)
     }
     
@@ -140,7 +140,7 @@ final class ProtocolTests: XCTestCase {
                 defer { offset += 1 }
                 return offset < languages.count ? languages[offset] : nil
         }
-        .unlocking(with: Key(cookies: []))
+        .unlocking(with: AnyKey(cookies: []))
         .debugTask(maxLength: .max, onComplete: {
             XCTAssert(offset == $0 && $0 == 4)
             expectation.fulfill()
@@ -174,7 +174,7 @@ final class ProtocolTests: XCTestCase {
                 defer { offset += 1 }
                 return offset < languages.count ? languages[offset] : nil
         }
-        .unlocking(with: Key(cookies: []))
+        .unlocking(with: AnyKey(cookies: []))
         .debugTask(maxLength: .max, onComplete: {
             XCTAssert(offset == $0 && $0 == 4)
             expectation.fulfill()
