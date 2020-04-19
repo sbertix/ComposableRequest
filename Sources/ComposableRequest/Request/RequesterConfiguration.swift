@@ -10,51 +10,56 @@ import Foundation
 public extension Requester {
     /// A `struct` defining a `Requester` settings.
     struct Configuration: Hashable {
-        /// The default implementation for `Configuration`.
-        public static var `default` = Configuration(sessionConfiguration: .default,
-                                                    requestQueue: .main,
-                                                    mapQueue: .global(qos: .userInitiated),
-                                                    responseQueue: .main,
-                                                    waiting: 0.0...0.0)
-
         /// A `URLSessionConfiguration`.
-        public var sessionConfiguration: URLSessionConfiguration
-        /// A valid `Queue` in which to perform requests.
-        public var requestQueue: Queue
-        /// A valid `Queue` in which to perform a `Completion`'s `Data` manipulation.
-        public var mapQueue: Queue
-        /// A valid `Queue` in which to deliver responses.
-        public var responseQueue: Queue
+        public private(set) var sessionConfiguration: URLSessionConfiguration
+
+        /// The `Dispatcher`. Defaults to `.init()`.
+        public private(set) var dispatcher: Dispatcher = .init()
+
         /// A range of `TimeInterval`s.
         /// A `randomElement()` in `waiting` will be spent waiting before every request.
         /// Defaults to `0.0...0.0`.
-        public var waiting: ClosedRange<TimeInterval>
+        public private(set) var waiting: ClosedRange<TimeInterval>
 
-        // MARK: Lifecycle.
+        // MARK: Lifecycle
         /// Init.
-        public init(sessionConfiguration: URLSessionConfiguration,
-                    requestQueue: Queue,
-                    mapQueue: Queue,
-                    responseQueue: Queue,
-                    waiting: ClosedRange<TimeInterval>) {
+        /// - parameters:
+        ///     - sessionConfiguration: A valid `URLSessionConfiguration`. Defaults to `.default`.
+        ///     - dispatcher: A valid `Dispatcher`. Defaults to `.init()`.
+        ///     - waiting: A `ClosedRange` of `TimeInterval`s. Defaults to `0.0...0.0`.
+        public init(sessionConfiguration: URLSessionConfiguration = .default,
+                    dispatcher: Dispatcher = .init(),
+                    waiting: ClosedRange<TimeInterval> = 0...0) {
             self.sessionConfiguration = sessionConfiguration
-            self.requestQueue = requestQueue
-            self.mapQueue = mapQueue
-            self.responseQueue = responseQueue
+            self.dispatcher = dispatcher
             self.waiting = waiting
         }
 
-        /// Make it ephemeral.
-        public func ephemeral() -> Configuration {
-            return .init(sessionConfiguration: .ephemeral,
-                         requestQueue: requestQueue,
-                         mapQueue: mapQueue,
-                         responseQueue: responseQueue,
-                         waiting: waiting)
+        // MARK: Transform
+        /// Set the `sessionConfiguration`.
+        /// - parameter sessionConfiguration: A valid `URLSessionConfiguration`.
+        /// - returns: A modified copy of `self`.
+        public func sessionConfiguration(_ sessionConfiguration: URLSessionConfiguration) -> Configuration {
+            return copy(self) { $0.sessionConfiguration = sessionConfiguration }
+        }
+
+        /// Set the `dispatcher`.
+        /// - parameter dispatcher: A valid `Dispatcher`.
+        /// - returns: A modified copy of `self`.
+        public func dispatcher(_ dispatcher: Dispatcher) -> Configuration {
+            return copy(self) { $0.dispatcher = dispatcher }
+        }
+
+        /// Set the `waiting`.
+        /// - parameter waiting: A `ClosedRange` of `TimeInterval`s.
+        /// - returns: A modified copy of `self`.
+        public func waiting(_ waiting: ClosedRange<TimeInterval>) -> Configuration {
+            return copy(self) { $0.waiting = waiting }
         }
 
         // MARK: Accessories
-        /// Return an associated `URLSession`.
-        public var session: URLSession { return URLSession(configuration: sessionConfiguration) }
+        /// Instantiate an associated `URLSession`.
+        /// - returns: A `URLSession` from the related `sessionConfiguration`.
+        public func session() -> URLSession { return URLSession(configuration: sessionConfiguration) }
     }
 }
