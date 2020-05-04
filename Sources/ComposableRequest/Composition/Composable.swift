@@ -9,14 +9,10 @@ import Foundation
 
 /// A `protocol` representing a composable `URLRequest`.
 @dynamicMemberLookup
-public protocol Composable {
+public protocol Composable: QueryComposable {
     /// Append `pathComponent`.
     /// - parameter pathComponent: A `String` representing a path component.
     func append(_ pathComponent: String) -> Self
-
-    /// Append to `queryItems`. Empty `queryItems` if `nil`.
-    /// - parameter method: A `Request.Method` value.
-    func query(_ items: [String: String?]?) -> Self
 
     /// Set `method`.
     /// - parameter method: A `Request.Method` value.
@@ -46,21 +42,6 @@ public extension Composable {
     /// - parameter pathComponent: A `CustomStringConvertible` representing a path component.
     func append<PathComponent: CustomStringConvertible>(_ pathComponent: PathComponent) -> Self {
         return append(pathComponent.description)
-    }
-
-    /// Set `queryItems`.
-    /// - parameter items: An `Array` of `URLQueryItem`s.
-    func query(_ items: [URLQueryItem]) -> Self {
-        return query(nil)
-            .query(Dictionary(uniqueKeysWithValues: items.map { ($0.name, $0.value) }))
-    }
-
-    /// Append to `queryItems`.
-    /// - parameters:
-    ///     - key: A `String` representing a `URLQueryItem.name`.
-    ///     - value: An optional `String` representing a `URLQueryItem.value`.
-    func query(_ key: String, value: String?) -> Self {
-        return query([key: value])
     }
 
     /// Append to `Request.Body.parameters`.

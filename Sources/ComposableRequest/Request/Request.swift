@@ -146,7 +146,7 @@ extension Request: Composable {
             guard let parameters = parameters else { $0.body = nil; return }
             // Update `parameters`.
             var dictionary: [String: String] = [:]
-            if case .parameters(let stored) = $0.body { dictionary.merge(stored) { _, rhs in rhs }}
+            if let body = $0.body, case .parameters(let stored) = body { dictionary.merge(stored) { _, rhs in rhs }}
             parameters.forEach { dictionary[$0] = $1 }
             $0.body = .parameters(dictionary)
         }

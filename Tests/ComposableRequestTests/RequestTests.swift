@@ -104,14 +104,14 @@ final class ProtocolTests: XCTestCase {
             .task(maxLength: 1, by: requester) { _ in expectations[offset].fulfill(); offset += 1 }
             .resume()
         // wait for it.
-        wait(for: [expectations[0]], timeout: 10)
+        wait(for: [expectations[0]], timeout: 60)
         request?.resume()
-        wait(for: [expectations[1]], timeout: 20)
+        wait(for: [expectations[1]], timeout: 60)
         request?.resume()
-        wait(for: [expectations[2]], timeout: 30)
+        wait(for: [expectations[2]], timeout: 60)
         XCTAssert(request?.next != nil)
         request?.resume()
-        wait(for: [expectations[3]], timeout: 40)
+        wait(for: [expectations[3]], timeout: 60)
         XCTAssert(request?.next == nil)
     }
     

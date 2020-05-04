@@ -23,7 +23,7 @@ final class ComposableRequestCombineTests: XCTestCase {
                 }
                 expectation.fulfill()
             }, receiveValue: { _ in })
-        wait(for: [expectation], timeout: 5)
+        wait(for: [expectation], timeout: 10)
     }
 
     /// Test `Pagination`.
