@@ -14,7 +14,7 @@ public struct Expected<Request: Expecting, Response: DataMappable>: Singular {
 }
 
 // MARK: Composable
-extension Expected: Composable where Request: Composable { }
+extension Expected: Composable, QueryComposable where Request: Composable { }
 extension Expected: WrappedComposable where Request: Composable {
     /// A valid `Composable`.
     public var composable: Request {

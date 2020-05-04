@@ -24,7 +24,7 @@ public struct Paginated<Request: Expecting, Response: DataMappable>: Paginatable
 }
 
 // MARK: Composable
-extension Paginated: Composable where Request: Composable { }
+extension Paginated: Composable, QueryComposable where Request: Composable { }
 extension Paginated: WrappedComposable where Request: Composable {
     /// A valid `Composable`.
     public var composable: Request {

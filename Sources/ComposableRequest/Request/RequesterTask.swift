@@ -42,26 +42,26 @@ public extension Requester {
         public private(set) var state: State
 
         /// The current request.
-        public private(set) var current: (Composable & Requestable)?
+        public private(set) var current: Requestable?
         /// The next request.
-        public private(set) var next: (Composable & Requestable)?
+        public private(set) var next: Requestable?
 
         /// A weak reference to a `Requester`. Defaults to `.default`.
         public private(set) weak var requester: Requester?
         /// A valid `URLSessionDataTask` for the current request.
         internal var sessionTask: URLSessionDataTask?
         /// A block to fetch the next request and whether it should be resumed or not.
-        internal let paginator: (Response<Data>) -> ((Composable & Requestable)?, shouldResume: Bool)
+        internal let paginator: (Response<Data>) -> (Requestable?, shouldResume: Bool)
 
         // MARK: Lifecycle
         /// Init.
         /// - parameters:
-        ///     - request: A concrete instance conforming to `Composable` and `Requestable`.
+        ///     - request: A concrete instance conforming to `Requestable`.
         ///     - requester: A valid, strongly referenced, `Requester`. Defaults to `.default`.
         ///     - paginator: A block turning a `Response` into an optional `Composable` and `Requestable`.
-        internal init(request: Composable & Requestable,
+        internal init(request: Requestable,
                       requester: Requester = .default,
-                      paginator: @escaping (Response<Data>) -> ((Composable & Requestable)?, shouldResume: Bool)) {
+                      paginator: @escaping (Response<Data>) -> (Requestable?, shouldResume: Bool)) {
             self.next = request
             self.requester = requester
             self.paginator = paginator
@@ -86,7 +86,7 @@ public extension Requester {
 
         /// Complete the ongoing request.
         /// - parameter request: The next request.
-        internal func complete(with request: (Composable & Requestable)?) {
+        internal func complete(with request: Requestable?) {
             guard state != .canceling else { self.requester?.cancel(self); return }
             // Update state.
             state = .completed
@@ -140,7 +140,7 @@ public extension Requester {
                     guard let self = self else { return }
                     configuration.dispatcher.process.handle {
                         // Prepare next.
-                        var next: (Composable & Requestable)?
+                        var next: Requestable?
                         var shouldResume = false
                         // Switch response.
                         if let error = error {

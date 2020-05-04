@@ -32,7 +32,7 @@ public struct Lock<Locked: Lockable>: Unlockable {
 }
 
 // MARK: Composable
-extension Lock: Composable, WrappedComposable where Locked: Composable {
+extension Lock: Composable, QueryComposable, WrappedComposable where Locked: Composable {
     /// A valid `Composable`.
     public var composable: Locked {
         get { return request }
