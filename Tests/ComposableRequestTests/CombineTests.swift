@@ -1,3 +1,10 @@
+//
+//  ComposableTests.swift
+//  ComposableRequestTests
+//
+//  Created by Stefano Bertagno on 06/05/2020.
+//
+
 @testable import ComposableRequest
 import XCTest
 
@@ -5,7 +12,7 @@ import XCTest
 import Combine
 
 @available(OSX 10.15, iOS 13.0, tvOS 13.0, watchOS 6.0, *)
-final class ComposableRequestCombineTests: XCTestCase {
+final class CombineTests: XCTestCase {
     /// The actual request.
     let request = Request("https://www.instagram.com")
     /// The current cancellable.
@@ -15,7 +22,7 @@ final class ComposableRequestCombineTests: XCTestCase {
     func testRequest() {
         let expectation = XCTestExpectation()
         requestCancellable = request
-            .prepare { String(data: $0, encoding: .utf8) ?? "" }
+            .prepare { $0.map { String(data: $0, encoding: .utf8) ?? "" }}
             .publish()
             .sink(receiveCompletion: {
                 switch $0 {
@@ -32,8 +39,8 @@ final class ComposableRequestCombineTests: XCTestCase {
         var count = 0
         let expectation = XCTestExpectation()
         requestCancellable = request
-            .prepare(map: { String(data: $0, encoding: .utf8) ?? "" },
-                     cycling: { request, _ in request.replace(query: "l", with: "en") })
+            .prepare(processor: { $0.map { String(data: $0, encoding: .utf8) ?? "" }},
+                     pager: { request, _ in request.replace(query: "l", with: "en") })
             .publish()
             .prefix(10)
             .sink(receiveCompletion: { _ in expectation.fulfill() },

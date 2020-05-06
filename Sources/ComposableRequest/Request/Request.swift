@@ -89,15 +89,16 @@ extension Request: Composable {
 }
 
 // MARK: Requestable
-extension Request: Fetchable {    
+extension Request: Requestable {    
     /// Compute the `URLRequest`.
     /// - returns: An optional `URLRequest`.
     public func request() -> URLRequest? {
         // Create the components.
         guard var components = URLComponents(url: url, resolvingAgainstBaseURL: false) else { return nil }
-        components.queryItems = query.map { URLQueryItem(name: $0, value: $1) }
+        let queryItems = query.map { URLQueryItem(name: $0, value: $1) }
+        components.queryItems = queryItems.isEmpty ? nil : queryItems
         guard var request = components.url.flatMap({ URLRequest(url: $0) }) else { return nil }
-        request.allHTTPHeaderFields = header
+        request.allHTTPHeaderFields = header.isEmpty ? nil : header
         request.httpBody = body
         request.httpMethod = method.rawValue != "" ? method.rawValue : (body?.isEmpty == false ? "POST" : "GET")
         return request

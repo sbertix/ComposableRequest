@@ -11,7 +11,7 @@ import Foundation
 
 /// A `class` defining a new `Subscription` specific for `Response`s coming from `PaginatableRequestable` requests.
 @available(OSX 10.15, iOS 13.0, tvOS 13.0, watchOS 6.0, *)
-public final class FetcherSubscription<Fetcher: PaginatedRequestable, Subscriber: Combine.Subscriber>: Subscription
+public final class FetcherSubscription<Fetcher: PaginatedFetchable, Subscriber: Combine.Subscriber>: Subscription
 where Subscriber.Input == Fetcher.Response, Subscriber.Failure == Error {
     /// A `Subscriber`.
     private var subscriber: Subscriber?

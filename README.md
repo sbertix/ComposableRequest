@@ -33,7 +33,7 @@ Supporting multiple _dependency managers_ makes maintaining a library exponentia
 Furthermore, with the integration of the **Swift Package Manager** in **Xcode 11** and greater, we expect the need for alternative solutions to fade quickly.
 
 ## Usage
-Visit the (_auto-generated_) [Documentation](https://sbertix.github.io/ComposableRequest) to learn about use cases.  
+Visit the (_auto-generated_) [Documentation](https://sbertix.github.io/ComposableRequest) to learn about use cases, or check out [**Swiftagram**](https://github.com/sbertix/Swiftagram) for implementation details.
 
 ## Contributions
 [Pull requests](https://github.com/sbertix/ComposableRequest/pulls) and [issues](https://github.com/sbertix/ComposableRequest/issues) are more than welcome.

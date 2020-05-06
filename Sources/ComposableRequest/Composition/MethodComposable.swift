@@ -22,11 +22,3 @@ public protocol WrappedMethodComposable: MethodComposable {
     /// A valid `MethodComposable`.
     var methodComposable: Method { get set }
 }
-
-public extension WrappedMethodComposable {
-    /// Replace the current `method` with `method`.
-    /// - parameter method: A valid `Request.Method`.
-    func replace(method: Request.Method) -> Self {
-        return copy(self) { $0.methodComposable = $0.methodComposable.replace(method: method) }
-    }
-}

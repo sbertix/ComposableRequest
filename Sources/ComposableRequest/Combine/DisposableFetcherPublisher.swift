@@ -9,9 +9,9 @@
 import Combine
 import Foundation
 
-/// A `struct` defining a new `Publisher` specific for `Response`s coming from`DisposableRequestable` requests.
+/// A `struct` defining a new `Publisher` specific for `Response`s coming from`DisposableFetchable` requests.
 @available(OSX 10.15, iOS 13.0, tvOS 13.0, watchOS 6.0, *)
-public struct DisposableFetcherPublisher<Fetcher: DisposableRequestable>: Publisher {
+public struct DisposableFetcherPublisher<Fetcher: DisposableFetchable>: Publisher {
     /// Output a `Response` item.
     public typealias Output = Fetcher.Response
     /// Fail to any `Error`.
@@ -42,7 +42,7 @@ public struct DisposableFetcherPublisher<Fetcher: DisposableRequestable>: Publis
 
 /// A combine extension for `Request`.
 @available(OSX 10.15, iOS 13.0, tvOS 13.0, watchOS 6.0, *)
-public extension DisposableRequestable {
+public extension DisposableFetchable {
     /// Return a `Response` publisher.
     /// - parameter requester: A valid `Requester`. Defaults to `.default`.
     /// - note: Call `.prefix(_)` or `.first()` to control the maximum amount of outputs to receive, otherwise it will exhaust them before completing.

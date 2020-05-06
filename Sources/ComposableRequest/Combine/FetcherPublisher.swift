@@ -11,7 +11,7 @@ import Foundation
 
 /// A `struct` defining a new `Publisher` specific for `Response`s coming from`PaginatableRequestable` requests.
 @available(OSX 10.15, iOS 13.0, tvOS 13.0, watchOS 6.0, *)
-public struct FetcherPublisher<Fetcher: PaginatedRequestable>: Publisher {
+public struct FetcherPublisher<Fetcher: PaginatedFetchable>: Publisher {
     /// Output a `Response` item.
     public typealias Output = Fetcher.Response
     /// Fail to any `Error`.
@@ -42,7 +42,7 @@ public struct FetcherPublisher<Fetcher: PaginatedRequestable>: Publisher {
 
 /// A combine extension for `Request`.
 @available(OSX 10.15, iOS 13.0, tvOS 13.0, watchOS 6.0, *)
-public extension PaginatedRequestable {
+public extension PaginatedFetchable {
     /// Return a `Response` publisher.
     /// - parameter requester: A valid `Requester`. Defaults to `.default`.
     /// - note: Call `.prefix(_)` or `.first()` to control the maximum amount of outputs to receive, otherwise it will exhaust them before completing.

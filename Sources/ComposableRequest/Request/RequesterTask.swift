@@ -22,6 +22,12 @@ public extension Requester {
                 self.value = value
                 self.response = response
             }
+            
+            /// Map `value` to a new one.
+            public func map<NewValue>(_ handler: (Value) throws -> NewValue) -> Response<NewValue> {
+                return .init(value: value.flatMap { value in Result { try handler(value) }},
+                             response: response)
+            }
         }
 
         /// An `enum` holding reference to the current `Task` state.
@@ -42,26 +48,26 @@ public extension Requester {
         public private(set) var state: State
 
         /// The current request.
-        public private(set) var current: Fetchable?
+        public private(set) var current: Requestable?
         /// The next request.
-        public private(set) var next: Fetchable?
+        public private(set) var next: Requestable?
 
         /// A weak reference to a `Requester`. Defaults to `.default`.
         public private(set) weak var requester: Requester?
         /// A valid `URLSessionDataTask` for the current request.
         internal var sessionTask: URLSessionDataTask?
         /// A block to fetch the next request and whether it should be resumed or not.
-        internal let paginator: (Fetchable?, Response<Data>) -> (Fetchable?, shouldResume: Bool)
+        internal let paginator: (Requestable?, Response<Data>) -> (Requestable?, shouldResume: Bool)
 
         // MARK: Lifecycle
         /// Init.
         /// - parameters:
-        ///     - request: A concrete instance conforming to `Fetchable`.
+        ///     - request: A concrete instance conforming to `Requestable`.
         ///     - requester: A valid, strongly referenced, `Requester`. Defaults to `.default`.
-        ///     - paginator: A block turning a `Response` into an optional `Composable` and `Fetchable`.
-        internal init(request: Fetchable,
+        ///     - paginator: A block turning a `Response` into an optional `Composable` and `Requestable`.
+        internal init(request: Requestable,
                       requester: Requester = .default,
-                      paginator: @escaping (Fetchable?, Response<Data>) -> (Fetchable?, shouldResume: Bool)) {
+                      paginator: @escaping (Requestable?, Response<Data>) -> (Requestable?, shouldResume: Bool)) {
             self.next = request
             self.requester = requester
             self.paginator = paginator
@@ -86,7 +92,7 @@ public extension Requester {
 
         /// Complete the ongoing request.
         /// - parameter request: The next request.
-        internal func complete(with request: Fetchable?) {
+        internal func complete(with request: Requestable?) {
             guard state != .canceling else { self.requester?.cancel(self); return }
             // Update state.
             state = .completed
@@ -140,7 +146,7 @@ public extension Requester {
                     guard let self = self else { return }
                     configuration.dispatcher.process.handle {
                         // Prepare next.
-                        var next: Fetchable?
+                        var next: Requestable?
                         var shouldResume = false
                         // Switch response.
                         if let error = error {

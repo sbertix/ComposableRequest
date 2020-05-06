@@ -1,7 +1,14 @@
+//
+//  ComposableTests.swift
+//  ComposableRequestTests
+//
+//  Created by Stefano Bertagno on 06/05/2020.
+//
+
 @testable import ComposableRequest
 import XCTest
 
-final class ComposableRequestResponseTests: XCTestCase {
+final class ResponseTests: XCTestCase {
     /// Test responses.
     func testResponse() {
         let value = [["integer": 1,

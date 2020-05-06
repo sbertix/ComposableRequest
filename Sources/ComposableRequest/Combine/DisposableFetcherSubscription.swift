@@ -9,9 +9,9 @@
 import Combine
 import Foundation
 
-/// A `class` defining a new `Subscription` specific for `Response`s coming from `DisposableRequestable` requests.
+/// A `class` defining a new `Subscription` specific for `Response`s coming from `DisposableFetchable` requests.
 @available(OSX 10.15, iOS 13.0, tvOS 13.0, watchOS 6.0, *)
-public final class DisposableFetcherSubscription<Fetcher: DisposableRequestable, Subscriber: Combine.Subscriber>: Subscription
+public final class DisposableFetcherSubscription<Fetcher: DisposableFetchable, Subscriber: Combine.Subscriber>: Subscription
 where Subscriber.Input == Fetcher.Response, Subscriber.Failure == Error {
     /// A `Subscriber`.
     private var subscriber: Subscriber?

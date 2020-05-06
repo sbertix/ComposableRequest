@@ -34,20 +34,3 @@ public extension BodyComposable {
         )
     }
 }
-
-/// A `protocol` representing a wrapped `BodyComposable`.
-public protocol WrappedBodyComposable: BodyComposable {
-    /// A valid `Body`.
-    associatedtype Body: BodyComposable
-    
-    /// A valid `BodyComposable`.
-    var bodyComposable: Body { get set }
-}
-
-public extension WrappedBodyComposable {
-    /// Replace the current `httpBody` with `data`.
-    /// - parameter data: An optional `Data`.
-    func replace(body data: Data?) -> Self {
-        return copy(self) { $0.bodyComposable = $0.bodyComposable.replace(body: data) }
-    }
-}

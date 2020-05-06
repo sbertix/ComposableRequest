@@ -35,26 +35,3 @@ public extension HeaderComposable {
         return replace(header: [key: value])
     }
 }
-
-/// A `protocol` representing a wrapped `HeaderComposable`.
-public protocol WrappedHeaderComposable: HeaderComposable {
-    /// A valid `Header`.
-    associatedtype Header: HeaderComposable
-    
-    /// A valid `HeaderComposable`.
-    var headerComposable: Header { get set }
-}
-
-public extension WrappedHeaderComposable {
-    /// Append `parameters` to the current `allHTTPHeaderFields`.
-    /// - parameter parameters: A `Dictionary` of optional `String`s.
-    func append(header parameters: [String: String?]) -> Self {
-        return copy(self) { $0.headerComposable = $0.headerComposable.append(header: parameters) }
-    }
-    
-    /// Replace the current `allHTTPHeaderFields` with `parameters`.
-    /// - parameter parameters: A `Dictionary` of optional `String`s.
-    func replace(header parameters: [String: String?]) -> Self {
-        return copy(self) { $0.headerComposable = $0.headerComposable.replace(header: parameters) }
-    }
-}
