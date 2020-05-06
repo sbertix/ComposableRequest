@@ -15,6 +15,7 @@ final class ComposableRequestCombineTests: XCTestCase {
     func testRequest() {
         let expectation = XCTestExpectation()
         requestCancellable = request
+            .prepare { String(data: $0, encoding: .utf8) ?? "" }
             .publish()
             .sink(receiveCompletion: {
                 switch $0 {
@@ -31,7 +32,8 @@ final class ComposableRequestCombineTests: XCTestCase {
         var count = 0
         let expectation = XCTestExpectation()
         requestCancellable = request
-            .paginating(key: "l", initial: "en", next: { _ in "en" })
+            .prepare(map: { String(data: $0, encoding: .utf8) ?? "" },
+                     cycling: { request, _ in request.replace(query: "l", with: "en") })
             .publish()
             .prefix(10)
             .sink(receiveCompletion: { _ in expectation.fulfill() },
@@ -47,7 +49,7 @@ final class ComposableRequestCombineTests: XCTestCase {
         var count = 0
         let expectation = XCTestExpectation()
         requestCancellable = request
-            .paginating(key: "l", initial: "en", next: { _ in "en" })
+            .prepare { request, _ in request.replace(query: "l", with: "en") }
             .publish()
             .prefix(0)
             .sink(receiveCompletion: { _ in expectation.fulfill() },
@@ -62,6 +64,7 @@ final class ComposableRequestCombineTests: XCTestCase {
     func testCancel() {
         let expectation = XCTestExpectation()
         request
+            .prepare()
             .publish()
             .handleEvents(receiveCancel: { expectation.fulfill() })
             .sink(receiveCompletion: { _ in }, receiveValue: { _ in })

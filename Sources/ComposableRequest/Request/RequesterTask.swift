@@ -42,26 +42,26 @@ public extension Requester {
         public private(set) var state: State
 
         /// The current request.
-        public private(set) var current: Requestable?
+        public private(set) var current: Fetchable?
         /// The next request.
-        public private(set) var next: Requestable?
+        public private(set) var next: Fetchable?
 
         /// A weak reference to a `Requester`. Defaults to `.default`.
         public private(set) weak var requester: Requester?
         /// A valid `URLSessionDataTask` for the current request.
         internal var sessionTask: URLSessionDataTask?
         /// A block to fetch the next request and whether it should be resumed or not.
-        internal let paginator: (Response<Data>) -> (Requestable?, shouldResume: Bool)
+        internal let paginator: (Fetchable?, Response<Data>) -> (Fetchable?, shouldResume: Bool)
 
         // MARK: Lifecycle
         /// Init.
         /// - parameters:
-        ///     - request: A concrete instance conforming to `Requestable`.
+        ///     - request: A concrete instance conforming to `Fetchable`.
         ///     - requester: A valid, strongly referenced, `Requester`. Defaults to `.default`.
-        ///     - paginator: A block turning a `Response` into an optional `Composable` and `Requestable`.
-        internal init(request: Requestable,
+        ///     - paginator: A block turning a `Response` into an optional `Composable` and `Fetchable`.
+        internal init(request: Fetchable,
                       requester: Requester = .default,
-                      paginator: @escaping (Response<Data>) -> (Requestable?, shouldResume: Bool)) {
+                      paginator: @escaping (Fetchable?, Response<Data>) -> (Fetchable?, shouldResume: Bool)) {
             self.next = request
             self.requester = requester
             self.paginator = paginator
@@ -86,7 +86,7 @@ public extension Requester {
 
         /// Complete the ongoing request.
         /// - parameter request: The next request.
-        internal func complete(with request: Requestable?) {
+        internal func complete(with request: Fetchable?) {
             guard state != .canceling else { self.requester?.cancel(self); return }
             // Update state.
             state = .completed
@@ -128,7 +128,7 @@ public extension Requester {
                 configuration.dispatcher.process.handle { [weak self] in
                     guard let self = self else { return }
                     // Complete and load next.
-                    let (next, shouldResume) = self.paginator(.init(value: .failure(Error.invalidEndpoint)))
+                    let (next, shouldResume) = self.paginator(self.current, .init(value: .failure(Error.invalidEndpoint)))
                     self.complete(with: next)
                     if shouldResume { configuration.dispatcher.request.handle { self.resume() }}
                 }
@@ -140,15 +140,16 @@ public extension Requester {
                     guard let self = self else { return }
                     configuration.dispatcher.process.handle {
                         // Prepare next.
-                        var next: Requestable?
+                        var next: Fetchable?
                         var shouldResume = false
                         // Switch response.
                         if let error = error {
-                            (next, shouldResume) = self.paginator(.init(value: .failure(error)))
+                            (next, shouldResume) = self.paginator(self.current, .init(value: .failure(error)))
                         } else if let data = data {
-                            (next, shouldResume) = self.paginator(.init(value: .success(data), response: response as? HTTPURLResponse))
+                            (next, shouldResume) = self.paginator(self.current, .init(value: .success(data),
+                                                                                 response: response as? HTTPURLResponse))
                         } else {
-                            (next, shouldResume) = self.paginator(.init(value: .failure(Error.invalidData)))
+                            (next, shouldResume) = self.paginator(self.current, .init(value: .failure(Error.invalidData)))
                         }
                         self.complete(with: next)
                         if shouldResume { configuration.dispatcher.request.handle { self.resume() }}

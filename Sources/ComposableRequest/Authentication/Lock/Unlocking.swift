@@ -54,5 +54,5 @@ public extension Unlocking where Locked: Composable {
 
     /// Apply `key.header` to `request`.
     /// - returns: An unlocked `Locked`.
-    var header: Locked { return request.header(HTTPCookie.requestHeaderFields(with: key.cookies)) }
+    var header: Locked { return request.append(query: HTTPCookie.requestHeaderFields(with: key.cookies)) }
 }

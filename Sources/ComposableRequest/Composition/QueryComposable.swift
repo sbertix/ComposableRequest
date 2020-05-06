@@ -9,24 +9,60 @@ import Foundation
 
 /// A `protocol` representing a composable `URLRequest` query.
 public protocol QueryComposable {
-    /// Append to `queryItems`. Empty `queryItems` if `nil`.
-    /// - parameter method: A `Request.Method` value.
-    func query(_ items: [String: String?]?) -> Self
+    /// Append `items` to the current `queryItems`.
+    /// - parameter items: A `Collection` of `URLQueryItem`s.
+    func append<C: Collection>(query items: C) -> Self where C.Element == URLQueryItem
+    
+    /// Replace the current `queryItems` with `items`.
+    /// - parameter items: A `Collection` of `URLQueryItem`s.
+    func replace<C: Collection>(query items: C) -> Self where C.Element == URLQueryItem
 }
 
 public extension QueryComposable {
-    /// Set `queryItems`.
-    /// - parameter items: An `Array` of `URLQueryItem`s.
-    func query(_ items: [URLQueryItem]) -> Self {
-        return query(nil)
-            .query(Dictionary(uniqueKeysWithValues: items.map { ($0.name, $0.value) }))
+    /// Append `parameters` to the current `queryItems`.
+    /// - parameter parameters: A `Dictionary` of optional `String`s.
+    func append(query parameters: [String: String?]) -> Self {
+        return append(query: parameters.compactMap { key, value in
+            value.flatMap { URLQueryItem(name: key, value: $0) }
+        })
     }
-
-    /// Append to `queryItems`.
+    
+    /// Replace the current `queryItems` with `parameters`.
+    /// - parameter parameters: A `Dictionary` of optional `String`s.
+    func replace(query parameters: [String: String?]) -> Self {
+        return replace(query: parameters.compactMap { key, value in
+            value.flatMap { URLQueryItem(name: key, value: $0) }
+        })
+    }
+    
+    /// Replace matching `key` with `value` in the current `queryItems`.
     /// - parameters:
-    ///     - key: A `String` representing a `URLQueryItem.name`.
-    ///     - value: An optional `String` representing a `URLQueryItem.value`.
-    func query(_ key: String, value: String?) -> Self {
-        return query([key: value])
+    ///     - key: A `String`.
+    ///     - value: An optional `String`.
+    func replace(query key: String, with value: String?) -> Self {
+        return replace(query: [key: value])
+    }
+}
+
+/// A `protocol` representing a wrapped `QueryComposable`.
+public protocol WrappedQueryComposable: QueryComposable {
+    /// A valid `Query`.
+    associatedtype Query: QueryComposable
+    
+    /// A valid `QueryComposable`.
+    var queryComposable: Query { get set }
+}
+
+public extension WrappedQueryComposable {
+    /// Append `items` to the current `queryItems`.
+    /// - parameter items: A `Collection` of `URLQueryItem`s.
+    func append<C: Collection>(query items: C) -> Self where C.Element == URLQueryItem {
+        return copy(self) { $0.queryComposable = $0.queryComposable.append(query: items) }
+    }
+    
+    /// Replace the current `queryItems` with `items`.
+    /// - parameter items: A `Collection` of `URLQueryItem`s.
+    func replace<C: Collection>(query items: C) -> Self where C.Element == URLQueryItem {
+        return copy(self) { $0.queryComposable = $0.queryComposable.replace(query: items) }
     }
 }

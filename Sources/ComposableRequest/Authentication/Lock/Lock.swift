@@ -32,24 +32,18 @@ public struct Lock<Locked: Lockable>: Unlockable {
 }
 
 // MARK: Composable
-extension Lock: Composable, QueryComposable, WrappedComposable where Locked: Composable {
-    /// A valid `Composable`.
-    public var composable: Locked {
-        get { return request }
-        set { request = newValue }
-    }
+extension Lock: WrappedBodyComposable, BodyComposable where Locked: BodyComposable {
+    public var bodyComposable: Locked { get { return request } set { request = newValue }}
 }
-
-// MARK: Expecting
-extension Lock: Expecting where Locked: Expecting {
-    /// The associated `Response` type.
-    public typealias Response = Locked.Response
+extension Lock: WrappedHeaderComposable, HeaderComposable where Locked: HeaderComposable {
+    public var headerComposable: Locked { get { return request } set { request = newValue }}
 }
-extension Lock: Singular where Locked: Singular { }
-extension Lock: Paginatable, WrappedPaginatable where Locked: Paginatable {
-    /// A valid `Paginatable`.
-    public var paginatable: Locked {
-        get { return request }
-        set { request = newValue }
-    }
+extension Lock: WrappedMethodComposable, MethodComposable where Locked: MethodComposable {
+    public var methodComposable: Locked { get { return request } set { request = newValue }}
+}
+extension Lock: WrappedPathComposable, PathComposable where Locked: PathComposable {
+    public var pathComposable: Locked { get { return request } set { request = newValue }}
+}
+extension Lock: WrappedQueryComposable, QueryComposable where Locked: QueryComposable {
+    public var queryComposable: Locked { get { return request } set { request = newValue }}
 }

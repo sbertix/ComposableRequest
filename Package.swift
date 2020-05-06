@@ -9,8 +9,6 @@ let package = Package(
             name: "ComposableRequest",
             targets: ["ComposableRequest"])
     ],
-    dependencies: [
-    ],
     targets: [
         .target(
             name: "ComposableRequest",

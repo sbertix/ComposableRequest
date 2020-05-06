@@ -8,26 +8,31 @@ final class ProtocolTests: XCTestCase {
     
     /// Test `Method` .
     func testMethod() {
-        XCTAssert(Request.Method.get.resolve(using: Data()) == "GET")
-        XCTAssert(Request.Method.post.resolve(using: nil) == "POST")
-        XCTAssert(Request.Method.default.resolve(using: nil) == "GET")
-        XCTAssert(Request.Method.default.resolve(using: Data()) == "GET")
-        XCTAssert(Request.Method.default.resolve(using: "test".data(using: .utf8)) == "POST")
+        XCTAssert(Request.Method.get.rawValue == "GET")
+        XCTAssert(Request.Method.header.rawValue == "HEADER")
+        XCTAssert(Request.Method.post.rawValue == "POST")
+        XCTAssert(Request.Method.put.rawValue == "PUT")
+        XCTAssert(Request.Method.delete.rawValue == "DELETE")
+        XCTAssert(Request.Method.connect.rawValue == "CONNECT")
+        XCTAssert(Request.Method.options.rawValue == "OPTIONS")
+        XCTAssert(Request.Method.trace.rawValue == "TRACE")
+        XCTAssert(Request.Method.patch.rawValue == "PATCH")
     }
     
     /// Test `Expected`.
     func testExpected() {
         let expectation = XCTestExpectation()
         let request = Request(url)
-        request.expecting(Data.self)
+        request.prepare { $0 }
+            .fixed()
             .task(by: .ephemeral) {
                 switch $0 {
                 case .success(let data): XCTAssert(String(data: data, encoding: .utf8)!.contains("A random string."))
                 case .failure(let error): XCTFail(error.localizedDescription)
                 }
                 expectation.fulfill()
-        }
-        .resume()
+            }
+            .resume()
         wait(for: [expectation], timeout: 3)
     }
     
@@ -35,51 +40,46 @@ final class ProtocolTests: XCTestCase {
     func testExpectedLock() {
         let expectation = XCTestExpectation()
         let request = Request(url.deletingLastPathComponent())
-        request.locking {
-            XCTAssert($0.key.userInfo["key"] == "value")
-            return $0.request.header(HTTPCookie.requestHeaderFields(with: $0.key.cookies))
-        }
-        .expecting(String.self)
-        .append("Test.json")
-        .unlocking(with: AnyKey(cookies: [HTTPCookie(properties: [.name: "key",
-                                                                  .value: "value",
-                                                                  .path: "/",
-                                                                  .domain: "test.com"])!],
-                                userInfo: ["key": "value"]))
-        .debugTask {
-            switch $0.value {
-            case .success(let response): XCTAssert(response.contains("A random string."))
-            case .failure(let error): XCTFail(error.localizedDescription)
+        request
+            .prepare { String(data: $0, encoding: .utf8) ?? "" }
+            .locking {
+                XCTAssert($0.key.userInfo["key"] == "value")
+                return $0.request.replace(header: HTTPCookie.requestHeaderFields(with: $0.key.cookies))
             }
-            expectation.fulfill()
-        }
-        .resume()
+            .append(path: "Test.json")
+            .unlocking(with: AnyKey(AnyKey(cookies: [HTTPCookie(properties: [.name: "key",
+                                                                             .value: "value",
+                                                                             .path: "/",
+                                                                             .domain: "test.com"])!],
+                                           userInfo: ["key": "value"])))
+            .fixed()
+            .debugTask {
+                switch $0.value {
+                case .success(let response): XCTAssert(response.contains("A random string."))
+                case .failure(let error): XCTFail(error.localizedDescription)
+                }
+                expectation.fulfill()
+            }
+            .resume()
         wait(for: [expectation], timeout: 3)
     }
     
     /// Test `Paginated`.
     func testPaginated() {
-        struct Lossless: LosslessStringConvertible {
-            let description: String = "instagram"
-            init() { }
-            init?(_ description: String) { }
-        }
-        
         let expectation = XCTestExpectation()
-        let languages = ["it", "de", "fr"]
+        let languages = ["en", "it", "de", "fr"]
         var offset = 0
         let request = Request(URL(string: "https://instagram.com")!)
         request
-            .append(Lossless())
-            .paginating(key: "l", initial: "en") { _ in nil }
-            .expecting(String.self) { _ in
+            .prepare(map: { String(data: $0, encoding: .utf8) ?? "" }) { request, _ in
                 defer { offset += 1 }
-                return offset < languages.count ? languages[offset] : nil
-        }
-        .task(maxLength: .max, onComplete: {
-            XCTAssert(offset == $0 && $0 == 4)
-            expectation.fulfill()
-        }) { _ in }
+                return offset < languages.count
+                    ? request.replace(query: "l", with: languages[offset])
+                    : nil
+            }
+            .task(maxLength: .max,
+                  onComplete: { XCTAssert(offset == $0+1 && $0 == 4); expectation.fulfill() },
+                  onChange: { _ in })
             .resume()
         wait(for: [expectation], timeout: 20)
     }
@@ -90,7 +90,7 @@ final class ProtocolTests: XCTestCase {
                             XCTestExpectation(description: "B"),
                             XCTestExpectation(description: "C"),
                             XCTestExpectation(description: "D")]
-        let languages = ["it", "de", "fr"]
+        let languages = ["en", "it", "de", "fr"]
         let requester = Requester(configuration: Requester.Configuration()
             .sessionConfiguration(.default)
             .dispatcher(.init())
@@ -98,9 +98,12 @@ final class ProtocolTests: XCTestCase {
         var offset = 0
         // prepare request.
         let request = Request("https://instagram.com")
-            .paginating(key: "l",
-                        initial: "en",
-                        next: { _ in offset < languages.count ? languages[offset] : nil })
+            .prepare(map: { String(data: $0, encoding: .utf8) ?? "" }) { request, _ in
+                return offset < languages.count
+                    ? request.replace(query: "l", with: languages[offset])
+                    : nil
+            }
+            .fixed()
             .task(maxLength: 1, by: requester) { _ in expectations[offset].fulfill(); offset += 1 }
             .resume()
         // wait for it.
@@ -112,39 +115,35 @@ final class ProtocolTests: XCTestCase {
         XCTAssert(request?.next != nil)
         request?.resume()
         wait(for: [expectations[3]], timeout: 60)
-        XCTAssert(request?.next == nil)
     }
     
     /// Test `Paginated` together with `Lock`.
     func testPaginatedLock() {
         let expectation = XCTestExpectation()
-        let languages = ["it", "de", "fr"]
+        let languages = ["en", "it", "de", "fr"]
         var offset = 0
         let request = Request(URL(string: "https://instagram.com")!)
-        var locked = request.paginating(key: "key", initial: "value") { _ in "next" }
-            .locking(authenticator: Unlocking.concat(\.header))
-        locked = locked.key("l").initial("en")
-        locked.next = { _ in nil }
-        XCTAssert(locked.key == "l")
-        XCTAssert(locked.initial == "en")
-        XCTAssert(locked.next(.success(.empty)) == nil)
+        let locked = request
+            .prepare(map: { String(data: $0, encoding: .utf8) ?? "" }) { request, _ in
+                defer { offset += 1 }
+                return offset < languages.count
+                    ? request.replace(query: "l", with: languages[offset])
+                    : nil
+        }
+        .locking(authenticator: Unlocking.concat(\.header))
         locked
             .instagram
-            .query("", value: nil)
-            .query([URLQueryItem(name: "", value: nil)])
-            .header("", value: nil)
-            .body("", value: nil)
-            .body(.parameters([:]))
-            .method(.get)
-            .expecting(String.self) { _ in
-                defer { offset += 1 }
-                return offset < languages.count ? languages[offset] : nil
-        }
-        .unlocking(with: AnyKey(cookies: []))
-        .debugTask(maxLength: .max, onComplete: {
-            XCTAssert(offset == $0 && $0 == 4)
-            expectation.fulfill()
-        }) { _ in }
+            .replace(query: "", with: nil)
+            .replace(query: [URLQueryItem(name: "", value: nil)])
+            .append(header: "", with: nil)
+            .replace(body: [], serializationOptions: [])
+            .replace(body: nil)
+            .replace(method: .get)
+            .unlocking(with: AnyKey(cookies: []))
+            .fixed()
+            .debugTask(maxLength: .max,
+                       onComplete: { XCTAssert(offset == $0+1 && $0 == 4); expectation.fulfill() },
+                       onChange: { _ in })
             .resume()
         wait(for: [expectation], timeout: 20)
     }
@@ -152,33 +151,28 @@ final class ProtocolTests: XCTestCase {
     /// Test `Paginated` together with `CustomLock`.
     func testPaginatedCustomLock() {
         let expectation = XCTestExpectation()
-        let languages = ["it", "de", "fr"]
+        let languages = ["en", "it", "de", "fr"]
         var offset = 0
         let request = Request("https://instagram.com")
-        var locked = request.paginating(key: "key", initial: "value") { _ in "next" }
-            .locking { $0.request.header(HTTPCookie.requestHeaderFields(with: $0.key.cookies)) }
-        locked = locked.key("l").initial("en")
-        locked.next = { _ in nil }
-        XCTAssert(locked.key == "l")
-        XCTAssert(locked.initial == "en")
-        XCTAssert(locked.next(.success(.empty)) == nil)
+        let locked = request
+            .prepare(map: { String(data: $0, encoding: .utf8) ?? "" }) { request, _ in
+                defer { offset += 1 }
+                return offset < languages.count
+                    ? request.replace(query: "l", with: languages[offset])
+                    : nil
+        }
+        .locking { $0.request.replace(header: HTTPCookie.requestHeaderFields(with: $0.key.cookies)) }
         locked
             .instagram
-            .query("", value: nil)
-            .query([URLQueryItem(name: "", value: nil)])
-            .header("", value: nil)
-            .body("", value: nil)
-            .body(.parameters([:]))
-            .method(.get)
-            .expecting(String.self) { _ in
-                defer { offset += 1 }
-                return offset < languages.count ? languages[offset] : nil
-        }
-        .unlocking(with: AnyKey(cookies: []))
-        .debugTask(maxLength: .max, onComplete: {
-            XCTAssert(offset == $0 && $0 == 4)
-            expectation.fulfill()
-        }) { _ in }
+            .replace(query: "", with: nil)
+            .append(query: [URLQueryItem(name: "", value: nil)])
+            .replace(header: "", with: nil)
+            .replace(body: [:])
+            .replace(method: .get)
+            .unlocking(with: AnyKey(cookies: []))
+            .debugTask(maxLength: .max,
+                       onComplete: { XCTAssert(offset == $0+1 && $0 == 4); expectation.fulfill() },
+                       onChange: { _ in })
             .resume()
         wait(for: [expectation], timeout: 20)
     }
@@ -189,6 +183,7 @@ final class ProtocolTests: XCTestCase {
         let successExpectation = XCTestExpectation()
         // request it.
         let task = Request("http://deelay.me/100/http://google.com")
+            .prepare { String(data: $0, encoding: .utf8) ?? "" }
             .task {
                 switch $0 {
                 case .success:
@@ -197,7 +192,8 @@ final class ProtocolTests: XCTestCase {
                     XCTAssert(String(describing: error).contains("-999"))
                     cancelExpectation.fulfill()
                 }
-            }.resume()
+            }
+            .resume()
         // cancel it.
         task?.cancel()
         wait(for: [cancelExpectation], timeout: 5)
