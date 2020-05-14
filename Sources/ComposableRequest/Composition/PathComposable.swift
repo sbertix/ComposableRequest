@@ -12,13 +12,13 @@ import Foundation
 public protocol PathComposable {
     /// Append `pathComponent` to the current `path`.
     /// - parameter pathComponent: A `String` representing a path component.
-    func append(path pathComponent: String) -> Self
+    func appending(path pathComponent: String) -> Self
 }
 
 public extension PathComposable {
     /// Append `pathComponent` to the current `path`.
     /// - parameter pathComponent: A `String` representing a path component.
     subscript(dynamicMember pathComponent: String) -> Self {
-        return append(path: pathComponent)
+        return appending(path: pathComponent)
     }
 }

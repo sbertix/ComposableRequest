@@ -32,7 +32,7 @@ public extension Preprocessable where Self: Fetchable, Preprocessed: HeaderCompo
     /// - parameter secret: A `Key` metatype.
     /// - returns: A `Locker` unwrapping `self`.
     func locking<Secret>(_ secret: Secret.Type) -> Locker<Self, Secret> {
-        return locking(Secret.self, with: { $0.append(header: HTTPCookie.requestHeaderFields(with: $1.cookies)) })
+        return locking(Secret.self, with: { $0.appending(header: HTTPCookie.requestHeaderFields(with: $1.cookies)) })
     }
     
     /// Return a `Locker` using the `header` as `Unlocker`.

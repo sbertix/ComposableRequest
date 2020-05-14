@@ -59,31 +59,31 @@ public struct Request: Hashable {
 // MARK: Composable
 /// `Composable` conformacies.
 extension Request: Composable {
-    public func replace(method: Method) -> Request {
+    public func replacing(method: Method) -> Request {
         return copy(self) { $0.method = method }
     }
     
-    public func replace(body data: Data?) -> Request {
+    public func replacing(body data: Data?) -> Request {
         return copy(self) { $0.body = data }
     }
     
-    public func append(header parameters: [String : String?]) -> Request {
+    public func appending(header parameters: [String : String?]) -> Request {
         return copy(self) { this in parameters.forEach { this.header[$0.key] = $0.value }}
     }
     
-    public func replace(header parameters: [String : String?]) -> Request {
+    public func replacing(header parameters: [String : String?]) -> Request {
         return copy(self) { $0.header = parameters.compactMapValues { $0 }}
     }
     
-    public func append(path pathComponent: String) -> Request {
+    public func appending(path pathComponent: String) -> Request {
         return copy(self) { $0.url.appendPathComponent(pathComponent) }
     }
     
-    public func append<C>(query items: C) -> Request where C : Collection, C.Element == URLQueryItem {
+    public func appending<C>(query items: C) -> Request where C : Collection, C.Element == URLQueryItem {
         return copy(self) { this in items.forEach { this.query[$0.name] = $0.value }}
     }
     
-    public func replace<C>(query items: C) -> Request where C : Collection, C.Element == URLQueryItem {
+    public func replacing<C>(query items: C) -> Request where C : Collection, C.Element == URLQueryItem {
         return copy(self) { this in this.query = [:]; items.forEach { this.query[$0.name] = $0.value }}
     }
 }

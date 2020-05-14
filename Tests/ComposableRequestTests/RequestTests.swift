@@ -48,11 +48,11 @@ final class RequestsTests: XCTestCase {
         let expectation = XCTestExpectation()
         let request = Request(url.deletingLastPathComponent())
         request
-            .append(path: "Test.json")
+            .appending(path: "Test.json")
             .prepare { $0.map { String(data: $0, encoding: .utf8) ?? "" }}
             .locking {
                 XCTAssert($1.userInfo["key"] == "value")
-                return $0.replace(header: HTTPCookie.requestHeaderFields(with: $1.cookies))
+                return $0.replacing(header: HTTPCookie.requestHeaderFields(with: $1.cookies))
             }
             .unlocking(with: AnyKey(AnyKey(cookies: [HTTPCookie(properties: [.name: "key",
                                                                              .value: "value",
@@ -81,7 +81,7 @@ final class RequestsTests: XCTestCase {
                      pager: { request, _ in
                         defer { offset += 1 }
                         return offset < languages.count
-                            ? request.replace(query: "l", with: languages[offset])
+                            ? request.appending(query: "l", with: languages[offset])
                             : nil
                     })
             .task(maxLength: .max,
@@ -108,7 +108,7 @@ final class RequestsTests: XCTestCase {
             .prepare(processor: { $0.map { String(data: $0, encoding: .utf8) ?? "" }},
                      pager: { request, _ in
                         return offset < languages.count
-                            ? request.replace(query: "l", with: languages[offset])
+                            ? request.appending(query: "l", with: languages[offset])
                             : nil
                     })
             .task(maxLength: 1, by: requester) { _ in expectations[offset].fulfill(); offset += 1 }
@@ -132,17 +132,17 @@ final class RequestsTests: XCTestCase {
         let request = Request(URL(string: "https://instagram.com")!)
         request
             .instagram
-            .replace(query: "", with: nil)
-            .replace(query: [URLQueryItem(name: "", value: nil)])
-            .append(header: "", with: nil)
-            .replace(body: [], serializationOptions: [])
-            .replace(body: nil)
-            .replace(method: .get)
+            .appending(query: "", with: nil)
+            .appending(query: [URLQueryItem(name: "", value: nil)])
+            .appending(header: "", with: nil)
+            .replacing(body: [], serializationOptions: [])
+            .replacing(body: nil)
+            .replacing(method: .get)
             .prepare(processor: { $0.map { String(data: $0, encoding: .utf8) ?? "" }},
                      pager: { request, _ in
                         defer { offset += 1 }
                         return offset < languages.count
-                            ? request.replace(query: "l", with: languages[offset])
+                            ? request.appending(query: "l", with: languages[offset])
                             : nil
                     })
             .locking()
@@ -162,19 +162,19 @@ final class RequestsTests: XCTestCase {
         let request = Request("https://instagram.com")
         request
             .instagram
-            .replace(query: "", with: nil)
-            .append(query: [URLQueryItem(name: "", value: nil)])
-            .replace(header: "", with: nil)
-            .replace(body: [:])
-            .replace(method: .get)
+            .appending(query: "", with: nil)
+            .appending(query: [URLQueryItem(name: "", value: nil)])
+            .replacing(header: "", with: nil)
+            .replacing(body: [:])
+            .replacing(method: .get)
             .prepare(processor: { $0.map { String(data: $0, encoding: .utf8) ?? "" }},
                      pager: { request, _ in
                         defer { offset += 1 }
                         return offset < languages.count
-                            ? request.replace(query: "l", with: languages[offset])
+                            ? request.appending(query: "l", with: languages[offset])
                             : nil
                     })
-            .locking(AnyKey.self) { $0.replace(header: HTTPCookie.requestHeaderFields(with: $1.cookies)) }
+            .locking(AnyKey.self) { $0.replacing(header: HTTPCookie.requestHeaderFields(with: $1.cookies)) }
             .unlocking(with: AnyKey(cookies: []))
             .debugTask(maxLength: .max,
                        onComplete: { XCTAssert(offset == $0+1 && $0 == 4); expectation.fulfill() },

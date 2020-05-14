@@ -40,7 +40,7 @@ final class CombineTests: XCTestCase {
         let expectation = XCTestExpectation()
         requestCancellable = request
             .prepare(processor: { $0.map { String(data: $0, encoding: .utf8) ?? "" }},
-                     pager: { request, _ in request.replace(query: "l", with: "en") })
+                     pager: { request, _ in request.appending(query: "l", with: "en") })
             .publish()
             .prefix(10)
             .sink(receiveCompletion: { _ in expectation.fulfill() },
@@ -56,7 +56,7 @@ final class CombineTests: XCTestCase {
         var count = 0
         let expectation = XCTestExpectation()
         requestCancellable = request
-            .prepare { request, _ in request.replace(query: "l", with: "en") }
+            .prepare { request, _ in request.appending(query: "l", with: "en") }
             .publish()
             .prefix(0)
             .sink(receiveCompletion: { _ in expectation.fulfill() },

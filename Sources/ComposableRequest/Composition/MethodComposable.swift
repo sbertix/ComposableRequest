@@ -11,7 +11,7 @@ import Foundation
 public protocol MethodComposable {
     /// Replace the current `method` with `method`.
     /// - parameter method: A valid `Request.Method`.
-    func replace(method: Request.Method) -> Self
+    func replacing(method: Request.Method) -> Self
 }
 
 /// A `protocol` representing a wrapped `MethodComposable`.

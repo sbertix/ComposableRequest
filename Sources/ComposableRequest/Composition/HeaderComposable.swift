@@ -11,11 +11,11 @@ import Foundation
 public protocol HeaderComposable {
     /// Append `parameters` to the current `allHTTPHeaderFields`.
     /// - parameter parameters: A `Dictionary` of optional `String`s.
-    func append(header parameters: [String: String?]) -> Self
+    func appending(header parameters: [String: String?]) -> Self
     
     /// Replace the current `allHTTPHeaderFields` with `parameters`.
     /// - parameter parameters: A `Dictionary` of optional `String`s.
-    func replace(header parameters: [String: String?]) -> Self
+    func replacing(header parameters: [String: String?]) -> Self
 }
 
 public extension HeaderComposable {
@@ -23,15 +23,15 @@ public extension HeaderComposable {
     /// - parameters:
     ///     - key: A `String`.
     ///     - value: An optional `String`.
-    func append(header key: String, with value: String?) -> Self {
-        return append(header: [key: value])
+    func appending(header key: String, with value: String?) -> Self {
+        return appending(header: [key: value])
     }
     
     /// Replace matching `key` with `value` in the current `allHTTPHeaderFields`.
     /// - parameters:
     ///     - key: A `String`.
     ///     - value: An optional `String`.
-    func replace(header key: String, with value: String?) -> Self {
-        return replace(header: [key: value])
+    func replacing(header key: String, with value: String?) -> Self {
+        return replacing(header: [key: value])
     }
 }
