@@ -140,6 +140,13 @@ public extension Requester {
                 }
                 return
             }
+            // Log current request if needed.
+            if Logger.level >= Logger.Level.requests, let url = request.url {
+                let body = request.httpBody.flatMap { String(data: $0, encoding: .utf8) } ?? "—"
+                let headers = request.allHTTPHeaderFields ?? [:]
+                // Print.
+                print(Date(), url, request.httpMethod ?? "GET", body, headers)
+            }
             // Set `task`.
             configuration.dispatcher.request.handle(waiting: configuration.waiting) {
                 self.sessionTask = session.dataTask(with: request) { [weak self] data, response, error in
