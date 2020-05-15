@@ -13,7 +13,7 @@ public struct Logger {
     public enum Level: Int, Comparable {
         /// No logging.
         case none
-        /// Loggin requests only.
+        /// Logging requests only.
         case requests
         
         /// Compare levels.

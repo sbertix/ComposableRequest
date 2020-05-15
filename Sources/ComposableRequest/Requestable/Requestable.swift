@@ -33,15 +33,28 @@ public extension Requestable {
     
     /// Returns a `Fetcher.Paginated`, returning a valid JSON.
     /// - parameters:
+    ///     - type: A `DynamicResponse` metatype.
+    ///     - preprocessor: An optional `Preprocessor`.
+    ///     - pager: A valid `Pager`.
+    /// - returns: A `Fetcher.Paginated` wrapping `self`.
+    func prepare<Response: DynamicResponse & Decodable>(_ type: Response.Type,
+                                                        preprocessor: Fetcher<Self, Response>.Preprocessor? = nil,
+                                                        pager: @escaping Fetcher<Self, Response>.Pager) -> Fetcher<Self, Response>.Paginated {
+        return prepare(preprocessor: preprocessor,
+                       processor: { $0.flatMap { data in Result { try JSONDecoder().decode(Response.self, from: data) }}},
+                       pager: pager)
+    }
+
+    /// Returns a `Fetcher.Paginated`, returning a valid JSON.
+    /// - parameters:
     ///     - preprocessor: An optional `Preprocessor`.
     ///     - pager: A valid `Pager`.
     /// - returns: A `Fetcher.Paginated` wrapping `self`.
     func prepare(preprocessor: Fetcher<Self, Response>.Preprocessor? = nil,
                  pager: @escaping Fetcher<Self, Response>.Pager) -> Fetcher<Self, Response>.Paginated {
-        return .init(request: self,
-                     preprocessor: preprocessor,
-                     processor: { $0.flatMap { data in Result { try JSONDecoder().decode(Response.self, from: data) }}},
-                     pager: pager)
+        return prepare(Response.self,
+                       preprocessor: preprocessor,
+                       pager: pager)
     }
     
     /// Returns a `Fetcher.Disposable`.
@@ -56,12 +69,22 @@ public extension Requestable {
                      processor: processor)
     }
     
+    /// Returns a `Fetcher.Disposable`.
+    /// - parameters:
+    ///     - type: A `DynamicResponse` metatype.
+    ///     - preprocessor: An optional `Preprocessor`.
+    /// - returns: A `Fetcher.Disposable` wrapping `self`.
+    func prepare<Response: DynamicResponse & Decodable>(_ type: Response.Type,
+                                                        preprocessor: Fetcher<Self, Response>.Preprocessor? = nil) -> Fetcher<Self, Response>.Disposable {
+        return prepare(preprocessor: preprocessor,
+                       processor: { $0.flatMap { data in Result { try JSONDecoder().decode(Response.self, from: data) }}})
+    }
+
+    
     /// Returns a `Fetcher.Disposable`, returning a valid JSON.
     /// - parameter preprocessor: An optional `Preprocessor`.
     /// - returns: A `Fetcher.Disposable` wrapping `self`.
     func prepare(preprocessor: Fetcher<Self, Response>.Preprocessor? = nil) -> Fetcher<Self, Response>.Disposable {
-        return .init(request: self,
-                     preprocessor: preprocessor,
-                     processor: { $0.flatMap { data in Result { try JSONDecoder().decode(Response.self, from: data) }}})
+        return prepare(Response.self, preprocessor: preprocessor)
     }
 }

@@ -7,11 +7,11 @@
 
 import Foundation
 
+/// A `protocol` holding reference to authentication.
+public protocol Key: Codable { }
+
 /// A `protocol` holding reference to authentication `HTTPCookie`s.
-public protocol Key: Codable {
+public protocol CookieKey: Key {
     /// A list of `CodableHTTPCookie`s.
     var cookies: [CodableHTTPCookie] { get }
-
-    /// A custom `Dictionary`. Defaults to empty.
-    var userInfo: [String: String] { get }
 }

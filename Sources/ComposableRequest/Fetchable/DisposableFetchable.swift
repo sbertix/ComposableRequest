@@ -26,7 +26,7 @@ public protocol DisposableFetchable: Fetchable {
                    onComplete: @escaping (Requester.Task.Response<Response>) -> Void) -> Requester.Task
 }
 
-extension DisposableFetchable {
+public extension DisposableFetchable {
     /// Prepare a `Requester.Task`.
     /// - parameters:
     ///     - requester:  A `Requester`.

@@ -9,7 +9,7 @@ import Foundation
 
 /// A `struct` holding reference to a type-erased `Codable`.
 @dynamicMemberLookup
-public struct Response {
+public struct Response: DynamicResponse {
     /// The wrapped value.
     public let value: Any
 

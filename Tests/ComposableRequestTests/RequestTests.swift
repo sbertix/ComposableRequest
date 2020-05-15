@@ -51,14 +51,12 @@ final class RequestsTests: XCTestCase {
             .appending(path: "Test.json")
             .prepare { $0.map { String(data: $0, encoding: .utf8) ?? "" }}
             .locking {
-                XCTAssert($1.userInfo["key"] == "value")
                 return $0.replacing(header: HTTPCookie.requestHeaderFields(with: $1.cookies))
             }
-            .unlocking(with: AnyKey(AnyKey(cookies: [HTTPCookie(properties: [.name: "key",
+            .unlocking(with: AnyCookieKey(AnyCookieKey(cookies: [HTTPCookie(properties: [.name: "key",
                                                                              .value: "value",
                                                                              .path: "/",
-                                                                             .domain: "test.com"])!],
-                                           userInfo: ["key": "value"])))
+                                                                             .domain: "test.com"])!])))
             .debugTask {
                 switch $0.value {
                 case .success(let response): XCTAssert(response.contains("A random string."))
@@ -146,7 +144,7 @@ final class RequestsTests: XCTestCase {
                             : nil
                     })
             .locking()
-            .unlocking(with: AnyKey(cookies: []))
+            .unlocking(with: AnyCookieKey(cookies: []))
             .debugTask(maxLength: .max,
                        onComplete: { XCTAssert(offset == $0+1 && $0 == 4); expectation.fulfill() },
                        onChange: { _ in })
@@ -174,8 +172,8 @@ final class RequestsTests: XCTestCase {
                             ? request.appending(query: "l", with: languages[offset])
                             : nil
                     })
-            .locking(AnyKey.self) { $0.replacing(header: HTTPCookie.requestHeaderFields(with: $1.cookies)) }
-            .unlocking(with: AnyKey(cookies: []))
+            .locking(AnyCookieKey.self) { $0.replacing(header: HTTPCookie.requestHeaderFields(with: $1.cookies)) }
+            .unlocking(with: AnyCookieKey(cookies: []))
             .debugTask(maxLength: .max,
                        onComplete: { XCTAssert(offset == $0+1 && $0 == 4); expectation.fulfill() },
                        onChange: { _ in })
