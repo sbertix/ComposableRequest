@@ -11,13 +11,13 @@ import Foundation
 public protocol Preprocessable {
     /// An associated `Preprocessed`.
     associatedtype Preprocessed: Requestable
-    
+
     /// An associated `Preprocessor`.
     typealias Preprocessor = (_ request: Preprocessed) -> Preprocessed
-    
+
     /// An optional transformation.
     var preprocessor: Preprocessor? { get }
-    
+
     /// Update `preprocessor`.
     /// - parameter processor: An optional `Preprocessor`.
     /// - returns: An instance of `Self`.
@@ -30,6 +30,6 @@ public extension Preprocessable {
     /// - parameter processor: An optional `Preprocessor`.
     /// - returns: An instance of `Self`.
     func appending(preprocessor: @escaping Preprocessor) -> Self {
-        replacing(preprocessor: { preprocessor(self.preprocessor?($0) ?? $0) })
+        return replacing(preprocessor: { preprocessor(self.preprocessor?($0) ?? $0) })
     }
 }

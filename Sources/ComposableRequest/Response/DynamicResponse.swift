@@ -26,17 +26,17 @@ public protocol DynamicResponse {
 
     /// An optional `Int`.
     func int() -> Int?
-    
+
     /// An optional `String`.
     func string() -> String?
-    
+
     /// An optional `URL`.
     func url() -> URL?
-    
+
     /// Interrogate `.dictionary`.
     /// - parameter member: A valid `Dictionary` key.
     subscript(dynamicMember member: String) -> Self { get }
-    
+
     /// Interrogate `.dictionary`.
     /// - parameter key: A valid `Dictionary` key.
     subscript(key: String) -> Self { get }

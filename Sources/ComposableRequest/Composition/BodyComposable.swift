@@ -21,9 +21,9 @@ public extension BodyComposable {
     ///     - serializationOptions: A set of `JSONSerialization.WritingOptions`.
     func replacing(body value: Any, serializationOptions: JSONSerialization.WritingOptions) -> Self {
         return replacing(body: try? JSONSerialization.data(withJSONObject: value,
-                                                         options: serializationOptions))
+                                                           options: serializationOptions))
     }
-    
+
     /// Replace the current `httpBody` with body-encoded `parameters`.
     /// - parameter parameters: A `Dictionary` of optional `String`s.
     func replacing(body parameters: [String: String?]) -> Self {

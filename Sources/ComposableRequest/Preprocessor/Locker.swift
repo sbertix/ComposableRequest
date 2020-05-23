@@ -18,15 +18,15 @@ public struct Locker<Request: Fetchable & Preprocessable, Secret: Key> {
         /// Through query. Not recommended.
         case query
     }
-    
+
     /// A `typealias` for the unlocking function.
     public typealias Unlocker = (_ request: Request.Preprocessed, _ secret: Secret) -> Request.Preprocessed
-    
+
     /// The underlying `Request`.
     internal private(set) var request: Request
     /// The `Unlocker`.
     internal private(set) var unlocker: Unlocker
-    
+
     /// Init.
     /// - parameters:
     ///     - request: A valid `Request`.
@@ -35,7 +35,7 @@ public struct Locker<Request: Fetchable & Preprocessable, Secret: Key> {
         self.request = request
         self.unlocker = unlocker
     }
-    
+
     /// Unlock with `secret`.
     /// - parameter secret: A valid `Secret`.
     /// - returns: An updated fixed `Request`.

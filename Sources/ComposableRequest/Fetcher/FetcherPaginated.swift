@@ -18,7 +18,7 @@ public extension Fetcher {
         internal private(set) var processor: Processor
         /// The pager.
         internal private(set) var pager: Pager
-                
+
         /// Init.
         /// - parameters:
         ///     - request: A valid `Request`.
@@ -33,7 +33,7 @@ public extension Fetcher {
             self.processor = processor
             self.pager = pager
         }
-        
+
         /// Update `Preprocessor`.
         /// - parameter preprocessor: An optional `Preprocessor`.
         /// - returns: An instance of `Self`.
@@ -61,7 +61,7 @@ extension Fetcher.Paginated: PaginatedFetchable {
         }
         // Start cycling.
         var count = 0
-        return Requester.Task(request:  request, requester: requester) {
+        return Requester.Task(request: request, requester: requester) {
             // Get the next `Endpoint`.
             let mapped = self.processor($1.value)
             let next = $0.flatMap { $0 as? Request }
@@ -86,16 +86,16 @@ extension Fetcher.Paginated: PaginatedFetchable {
     ///     - onChange: A block called everytime a new page is fetched.
     /// - returns: A `Requester.Task`. You need to `resume` it for it to start.
     public func debugTask(maxLength: Int,
-                   by requester: Requester,
-                   onComplete: ((Int) -> Void)?,
-                   onChange: @escaping (Requester.Task.Response<Response>) -> Void) -> Requester.Task {
+                          by requester: Requester,
+                          onComplete: ((Int) -> Void)?,
+                          onChange: @escaping (Requester.Task.Response<Response>) -> Void) -> Requester.Task {
         precondition(maxLength > 0, "`debugTask` requires a positive `maxLength` value")
         guard let request = pager(preprocessor?(self.request) ?? self.request, nil) else {
             fatalError("`debugTask` requires for the `pager` to return a valid initial request when `response == nil`.")
         }
         // Start cycling.
         var count = 0
-        return Requester.Task(request:  request, requester: requester) {
+        return Requester.Task(request: request, requester: requester) {
             // Get the next `Endpoint`.
             let mapped = $1.map { try self.processor(.success($0)).get() }
             let next = $0.flatMap { $0 as? Request }

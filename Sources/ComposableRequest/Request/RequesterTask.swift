@@ -22,7 +22,7 @@ public extension Requester {
                 self.value = value
                 self.response = response
             }
-            
+
             /// Map `value` to a new one.
             public func map<NewValue>(_ handler: (Value) throws -> NewValue) -> Response<NewValue> {
                 return .init(value: value.flatMap { value in Result { try handler(value) }},

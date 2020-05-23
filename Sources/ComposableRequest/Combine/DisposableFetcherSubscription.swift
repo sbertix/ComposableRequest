@@ -46,7 +46,7 @@ where Subscriber.Input == Fetcher.Response, Subscriber.Failure == Error {
             }
         }
     }
-    
+
     // MARK: Subscription
     /// Request. The default implementation does nothing.
     public func request(_ demand: Subscribers.Demand) {

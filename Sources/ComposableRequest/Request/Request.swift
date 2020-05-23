@@ -12,7 +12,7 @@ import Foundation
 public struct Request: Hashable {
     /// `ComposableRequest` defaults to `Response`.
     public typealias Response = ComposableRequest.Response
-    
+
     /// A valid `Method`.
     public var method: Method
     /// A valid `URL`.
@@ -62,34 +62,34 @@ extension Request: Composable {
     public func replacing(method: Method) -> Request {
         return copy(self) { $0.method = method }
     }
-    
+
     public func replacing(body data: Data?) -> Request {
         return copy(self) { $0.body = data }
     }
-    
-    public func appending(header parameters: [String : String?]) -> Request {
+
+    public func appending(header parameters: [String: String?]) -> Request {
         return copy(self) { this in parameters.forEach { this.header[$0.key] = $0.value }}
     }
-    
-    public func replacing(header parameters: [String : String?]) -> Request {
+
+    public func replacing(header parameters: [String: String?]) -> Request {
         return copy(self) { $0.header = parameters.compactMapValues { $0 }}
     }
-    
+
     public func appending(path pathComponent: String) -> Request {
         return copy(self) { $0.url.appendPathComponent(pathComponent) }
     }
-    
-    public func appending<C>(query items: C) -> Request where C : Collection, C.Element == URLQueryItem {
+
+    public func appending<C>(query items: C) -> Request where C: Collection, C.Element == URLQueryItem {
         return copy(self) { this in items.forEach { this.query[$0.name] = $0.value }}
     }
-    
-    public func replacing<C>(query items: C) -> Request where C : Collection, C.Element == URLQueryItem {
+
+    public func replacing<C>(query items: C) -> Request where C: Collection, C.Element == URLQueryItem {
         return copy(self) { this in this.query = [:]; items.forEach { this.query[$0.name] = $0.value }}
     }
 }
 
 // MARK: Requestable
-extension Request: Requestable {    
+extension Request: Requestable {
     /// Compute the `URLRequest`.
     /// - returns: An optional `URLRequest`.
     public func request() -> URLRequest? {
@@ -100,7 +100,7 @@ extension Request: Requestable {
         guard var request = components.url.flatMap({ URLRequest(url: $0) }) else { return nil }
         request.allHTTPHeaderFields = header.isEmpty ? nil : header
         request.httpBody = body
-        request.httpMethod = method.rawValue != "" ? method.rawValue : (body?.isEmpty == false ? "POST" : "GET")
+        request.httpMethod = !method.rawValue.isEmpty ? method.rawValue : (body?.isEmpty == false ? "POST" : "GET")
         return request
     }
 }

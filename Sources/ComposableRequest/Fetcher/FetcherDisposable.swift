@@ -16,7 +16,7 @@ public extension Fetcher {
         public private(set) var preprocessor: Preprocessor?
         /// The processor.
         internal private(set) var processor: Processor
-                
+
         /// Init.
         /// - parameters:
         ///     - request: A valid `Request`.
@@ -29,7 +29,7 @@ public extension Fetcher {
             self.preprocessor = preprocessor
             self.processor = processor
         }
-        
+
         /// Update `Preprocessor`.
         /// - parameter preprocessor: An optional `Preprocessor`.
         /// - returns: An instance of `Self`.

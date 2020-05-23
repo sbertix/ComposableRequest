@@ -18,7 +18,7 @@ public extension Preprocessable where Self: Fetchable {
                               with unlocker: @escaping Locker<Self, Secret>.Unlocker) -> Locker<Self, Secret> {
         return .init(request: self, unlocker: unlocker)
     }
-    
+
     /// Return a `Locker`.
     /// - parameter unlocker: A valid `Unlocker`.
     /// - returns: A `Locker` unwrapping `self`.
@@ -34,7 +34,7 @@ public extension Preprocessable where Self: Fetchable, Preprocessed: HeaderCompo
     func locking<Secret>(_ secret: Secret.Type) -> Locker<Self, Secret> where Secret: CookieKey {
         return locking(Secret.self, with: { $0.appending(header: HTTPCookie.requestHeaderFields(with: $1.cookies)) })
     }
-    
+
     /// Return a `Locker` using the `header` as `Unlocker`.
     /// - returns: A `Locker` unwrapping `self`.
     func locking() -> Locker<Self, AnyCookieKey> {

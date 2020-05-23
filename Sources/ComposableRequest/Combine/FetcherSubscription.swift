@@ -40,8 +40,8 @@ where Subscriber.Input == Fetcher.Response, Subscriber.Failure == Error {
     ///     - requester: A valid `Requester`. Defaults to `.default`.
     ///     - subscriber: The `Subscriber`.
     internal init(fetcher: Fetcher,
-                requester: Requester = .default,
-                subscriber: Subscriber) {
+                  requester: Requester = .default,
+                  subscriber: Subscriber) {
         self.subscriber = subscriber
         self.task = fetcher.task(maxLength: .max,
                                  by: requester,
@@ -63,7 +63,7 @@ where Subscriber.Input == Fetcher.Response, Subscriber.Failure == Error {
             }
         }
     }
-    
+
     // MARK: Subscription
     /// Request. The default implementation does nothing.
     public func request(_ demand: Subscribers.Demand) {

@@ -18,7 +18,7 @@ public protocol MethodComposable {
 public protocol WrappedMethodComposable: MethodComposable {
     /// A valid `Method`.
     associatedtype Method: MethodComposable
-    
+
     /// A valid `MethodComposable`.
     var methodComposable: Method { get set }
 }

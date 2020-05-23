@@ -16,7 +16,7 @@ public protocol DisposableFetchable: Fetchable {
     /// - returns: A `Requester.Task`. You need to `resume()` it for it to start.
     func task(by requester: Requester,
               onComplete: @escaping (Result<Response, Error>) -> Void) -> Requester.Task
-    
+
     /// Prepare a `Requester.Task`.
     /// - parameters:
     ///     - requester:  A `Requester`.
@@ -35,7 +35,7 @@ public extension DisposableFetchable {
     func task(requester: Requester = .default, onComplete: @escaping (Result<Response, Error>) -> Void) -> Requester.Task {
         return task(by: requester, onComplete: onComplete)
     }
-    
+
     /// Prepare a `Requester.Task`.
     /// - parameters:
     ///     - requester:  A `Requester`.

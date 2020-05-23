@@ -20,7 +20,7 @@ public protocol PaginatedFetchable: Fetchable {
               by requester: Requester,
               onComplete: ((_ length: Int) -> Void)?,
               onChange: @escaping (Result<Response, Error>) -> Void) -> Requester.Task
-    
+
     /// Prepare a pagination `Requester.Task`.
     /// - parameters:
     ///     - maxLength: The maximum amount of pages that should be returned. Pass `.max` to keep fetching until no next requet is found.

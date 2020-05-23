@@ -12,7 +12,7 @@ public protocol HeaderComposable {
     /// Append `parameters` to the current `allHTTPHeaderFields`.
     /// - parameter parameters: A `Dictionary` of optional `String`s.
     func appending(header parameters: [String: String?]) -> Self
-    
+
     /// Replace the current `allHTTPHeaderFields` with `parameters`.
     /// - parameter parameters: A `Dictionary` of optional `String`s.
     func replacing(header parameters: [String: String?]) -> Self
@@ -26,7 +26,7 @@ public extension HeaderComposable {
     func appending(header key: String, with value: String?) -> Self {
         return appending(header: [key: value])
     }
-    
+
     /// Replace matching `key` with `value` in the current `allHTTPHeaderFields`.
     /// - parameters:
     ///     - key: A `String`.

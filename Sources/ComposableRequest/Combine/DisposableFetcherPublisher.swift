@@ -35,8 +35,8 @@ public struct DisposableFetcherPublisher<Fetcher: DisposableFetchable>: Publishe
     /// - parameter subscriber: A valid `Subscriber`.
     public func receive<S>(subscriber: S) where S: Subscriber, Failure == S.Failure, Output == S.Input {
         subscriber.receive(subscription: DisposableFetcherSubscription(fetcher: fetcher,
-                                                             requester: requester ?? .default,
-                                                             subscriber: subscriber))
+                                                                       requester: requester ?? .default,
+                                                                       subscriber: subscriber))
     }
 }
 
@@ -51,4 +51,3 @@ public extension DisposableFetchable {
     }
 }
 #endif
-

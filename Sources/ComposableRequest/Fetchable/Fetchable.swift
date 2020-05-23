@@ -13,7 +13,7 @@ public protocol Fetchable {
     associatedtype Request: Requestable
     /// An associated `Response`.
     associatedtype Response
-    
+
     /// The underlying `Request`.
     var request: Request { get }
 }

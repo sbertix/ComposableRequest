@@ -15,7 +15,7 @@ public struct Logger {
         public let rawValue: Int
         /// Requested at date.
         public var requestedAt: Date?
-        
+
         /// HTTP request URL. Dispatched at request time.
         public static let url = Level(rawValue: 1 << 0)
         /// HTTP method. Dispatched at request time.
@@ -24,7 +24,7 @@ public struct Logger {
         public static let header = Level(rawValue: 1 << 2)
         /// HTTP body. Dispatched at request time.
         public static let body = Level(rawValue: 1 << 3)
-        
+
         /// HTTP response URL. Dispatched at response time.
         public static let responseURL = Level(rawValue: 1 << 10)
         /// HTTP response status code. Dispatched at response time.
@@ -35,7 +35,7 @@ public struct Logger {
         public static let responseHeader = Level(rawValue: 1 << 13)
         /// Time to complete. Dispatched at response time.
         public static let time = Level(rawValue: 1 << 14)
-        
+
         /// None.
         public static var none: Level { return [] }
         /// Basic.
@@ -44,11 +44,11 @@ public struct Logger {
         public static let request: Level = [.url, .method, .header, .body, .time]
         /// Full.
         public static let full: Level = [.url, .method, .header, .body, .time, .responseURL, .responseStatusCode, .responseError, .responseHeader]
-        
+
         /// Init.
         /// - parameter rawValue: A valid `Int`.
         public init(rawValue: Int) { self.rawValue = rawValue }
-        
+
         // MARK: Log
         /// Log request.
         internal mutating func log(request: URLRequest) {
@@ -68,7 +68,7 @@ public struct Logger {
                 print((["Request:"]+[url, method, header, body].compactMap { $0 }).joined(separator: "\n"))
             }
         }
-        
+
         /// Log response.
         internal mutating func log(response: HTTPURLResponse?, error: Error?) {
             // Update request.
@@ -88,7 +88,7 @@ public struct Logger {
             }
         }
     }
-    
+
     /// The current level. Defaults to `.none`.
     public static var level: Level = .none
 }

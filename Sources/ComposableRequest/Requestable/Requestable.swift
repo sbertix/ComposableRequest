@@ -30,7 +30,7 @@ public extension Requestable {
                      processor: processor,
                      pager: pager)
     }
-    
+
     /// Returns a `Fetcher.Paginated`, returning a valid JSON.
     /// - parameters:
     ///     - type: A `DynamicResponse` metatype.
@@ -56,7 +56,7 @@ public extension Requestable {
                        preprocessor: preprocessor,
                        pager: pager)
     }
-    
+
     /// Returns a `Fetcher.Disposable`.
     /// - parameters:
     ///     - preprocessor: An optional `Preprocessor`.
@@ -68,19 +68,19 @@ public extension Requestable {
                      preprocessor: preprocessor,
                      processor: processor)
     }
-    
+
     /// Returns a `Fetcher.Disposable`.
     /// - parameters:
     ///     - type: A `DynamicResponse` metatype.
     ///     - preprocessor: An optional `Preprocessor`.
     /// - returns: A `Fetcher.Disposable` wrapping `self`.
     func prepare<Response: DynamicResponse & Decodable>(_ type: Response.Type,
-                                                        preprocessor: Fetcher<Self, Response>.Preprocessor? = nil) -> Fetcher<Self, Response>.Disposable {
-        return prepare(preprocessor: preprocessor,
-                       processor: { $0.flatMap { data in Result { try JSONDecoder().decode(Response.self, from: data) }}})
+                                                        preprocessor: Fetcher<Self, Response>.Preprocessor? = nil)
+        -> Fetcher<Self, Response>.Disposable {
+            return prepare(preprocessor: preprocessor,
+                           processor: { $0.flatMap { data in Result { try JSONDecoder().decode(Response.self, from: data) }}})
     }
 
-    
     /// Returns a `Fetcher.Disposable`, returning a valid JSON.
     /// - parameter preprocessor: An optional `Preprocessor`.
     /// - returns: A `Fetcher.Disposable` wrapping `self`.
