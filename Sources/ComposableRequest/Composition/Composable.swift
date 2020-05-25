@@ -12,3 +12,6 @@ public typealias RequestComposable = BodyComposable & HeaderComposable & MethodC
 
 /// A `typealias` encompassing all composition types.
 public typealias Composable = PathComposable & RequestComposable
+
+/// A `typealias` encompassing all parasable types.
+public typealias Parsable = BodyParsable & HeaderParsable & QueryParsable

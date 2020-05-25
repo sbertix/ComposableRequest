@@ -41,7 +41,7 @@ final class ComposableTests: XCTestCase {
     
     /// Test `HeaderComposable`.
     func testHeaderComposable() {
-        let request = Request("https://google.com").replacing(header: ["name": "value"]) as HeaderComposable
+        let request = Request("https://google.com").replacing(header: ["name": "value"]) as HeaderComposable & HeaderParsable
         XCTAssert(
             (request.appending(header: ["name2": "value2", "name": "updated"]) as? Request)?
                 .header == ["name": "updated", "name2": "value2"]
@@ -68,7 +68,7 @@ final class ComposableTests: XCTestCase {
     
     /// Test `QueryComposable`.
     func testQueryComposable() {
-        let request = Request("https://google.com").replacing(query: ["name": "value"]) as QueryComposable
+        let request = Request("https://google.com").replacing(query: ["name": "value"]) as QueryComposable & QueryParsable
         XCTAssert(
             (request.appending(query: ["name2": "value2", "name": "updated"]) as? Request)?
                 .query == ["name": "updated", "name2": "value2"]

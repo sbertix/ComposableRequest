@@ -131,7 +131,7 @@ final class RequestsTests: XCTestCase {
         request
             .instagram
             .appending(query: "", with: nil)
-            .appending(query: [URLQueryItem(name: "", value: nil)])
+            .appending(query: ["": nil])
             .appending(header: "", with: nil)
             .replacing(body: [], serializationOptions: [])
             .replacing(body: nil)
@@ -161,7 +161,7 @@ final class RequestsTests: XCTestCase {
         request
             .instagram
             .appending(query: "", with: nil)
-            .appending(query: [URLQueryItem(name: "", value: nil)])
+            .appending(query: ["": nil])
             .replacing(header: "", with: nil)
             .replacing(body: [:])
             .replacing(method: .get)

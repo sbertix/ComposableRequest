@@ -27,7 +27,7 @@ public extension Preprocessable where Self: Fetchable {
     }
 }
 
-public extension Preprocessable where Self: Fetchable, Preprocessed: HeaderComposable {
+public extension Preprocessable where Self: Fetchable, Preprocessed: HeaderComposable & HeaderParsable {
     /// Return a `Locker` using the `header` as `Unlocker`.
     /// - parameter secret: A `Key` metatype.
     /// - returns: A `Locker` unwrapping `self`.

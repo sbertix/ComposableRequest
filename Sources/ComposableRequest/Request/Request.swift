@@ -58,7 +58,7 @@ public struct Request: Hashable {
 
 // MARK: Composable
 /// `Composable` conformacies.
-extension Request: Composable {
+extension Request: Composable, Parsable {
     public func replacing(method: Method) -> Request {
         return copy(self) { $0.method = method }
     }
@@ -67,24 +67,16 @@ extension Request: Composable {
         return copy(self) { $0.body = data }
     }
 
-    public func appending(header parameters: [String: String?]) -> Request {
-        return copy(self) { this in parameters.forEach { this.header[$0.key] = $0.value }}
-    }
-
     public func replacing(header parameters: [String: String?]) -> Request {
         return copy(self) { $0.header = parameters.compactMapValues { $0 }}
     }
 
+    public func replacing(query parameters: [String: String?]) -> Request {
+        return copy(self) { $0.query = parameters.compactMapValues { $0 }}
+    }
+
     public func appending(path pathComponent: String) -> Request {
         return copy(self) { $0.url.appendPathComponent(pathComponent) }
-    }
-
-    public func appending<C>(query items: C) -> Request where C: Collection, C.Element == URLQueryItem {
-        return copy(self) { this in items.forEach { this.query[$0.name] = $0.value }}
-    }
-
-    public func replacing<C>(query items: C) -> Request where C: Collection, C.Element == URLQueryItem {
-        return copy(self) { this in this.query = [:]; items.forEach { this.query[$0.name] = $0.value }}
     }
 }
 
