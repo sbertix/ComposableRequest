@@ -13,8 +13,6 @@ public struct Logger {
     public struct Level: OptionSet {
         /// A valid `Int` raw value.
         public let rawValue: Int
-        /// Requested at date.
-        public var requestedAt: Date?
 
         /// HTTP request URL. Dispatched at request time.
         public static let url = Level(rawValue: 1 << 0)
@@ -33,17 +31,15 @@ public struct Logger {
         public static let responseError = Level(rawValue: 1 << 12)
         /// HTTP response header. Dispatched at response time.
         public static let responseHeader = Level(rawValue: 1 << 13)
-        /// Time to complete. Dispatched at response time.
-        public static let time = Level(rawValue: 1 << 14)
 
         /// None.
         public static var none: Level { return [] }
         /// Basic.
-        public static let basic: Level = [.url, .method, .time]
+        public static let basic: Level = [.url, .method]
         /// Full requesst.
-        public static let request: Level = [.url, .method, .header, .body, .time]
+        public static let request: Level = [.url, .method, .header, .body]
         /// Full.
-        public static let full: Level = [.url, .method, .header, .body, .time, .responseURL, .responseStatusCode, .responseError, .responseHeader]
+        public static let full: Level = [.url, .method, .header, .body, .responseURL, .responseStatusCode, .responseError, .responseHeader]
 
         /// Init.
         /// - parameter rawValue: A valid `Int`.
@@ -60,8 +56,6 @@ public struct Logger {
                     .flatMap { String(data: $0, encoding: .utf8) }
                     .flatMap { "\tBody: "+$0 }
                 : nil
-            // Request.
-            requestedAt = Date()
             // Compose.
             guard url != nil || method != nil || header != nil || body != nil else { return }
             DispatchQueue.main.async {
@@ -78,13 +72,10 @@ public struct Logger {
             let header = contains(.responseHeader)
                 ? (response?.allHeaderFields as? [String: String]).flatMap { "\tHeader: "+$0.description }
                 : nil
-            let time = contains(.time) ? requestedAt.flatMap { "\tTime: \(-$0.timeIntervalSinceNow)" } : nil
-            // Clear request.
-            requestedAt = nil
             // Compose.
-            guard url != nil || statusCode != nil || header != nil || time != nil else { return }
+            guard url != nil || statusCode != nil || header != nil else { return }
             DispatchQueue.main.async {
-                print((["Response:"]+[url, statusCode, exception, header, time].compactMap { $0 }).joined(separator: "\n"))
+                print((["Response:"]+[url, statusCode, exception, header].compactMap { $0 }).joined(separator: "\n"))
             }
         }
     }

@@ -58,19 +58,25 @@ public extension Requester {
         internal var sessionTask: URLSessionDataTask?
         /// A block to fetch the next request and whether it should be resumed or not.
         internal let paginator: (Requestable?, Response<Data>) -> (Requestable?, shouldResume: Bool)
+        
+        /// The logger level. Defaults to `Logger.level`.
+        public var loggerLevel: Logger.Level = Logger.level
 
         // MARK: Lifecycle
         /// Init.
         /// - parameters:
         ///     - request: A concrete instance conforming to `Requestable`.
         ///     - requester: A valid, strongly referenced, `Requester`. Defaults to `.default`.
+        ///     - loggerLevel: A valid `Logger.Level`. Defaults to `Logger.level`.
         ///     - paginator: A block turning a `Response` into an optional `Composable` and `Requestable`.
         internal init(request: Requestable,
                       requester: Requester = .default,
+                      loggerLevel: Logger.Level = Logger.level,
                       paginator: @escaping (Requestable?, Response<Data>) -> (Requestable?, shouldResume: Bool)) {
             self.next = request
             self.requester = requester
             self.paginator = paginator
+            self.loggerLevel = loggerLevel
             self.state = .initiated
         }
 
@@ -141,14 +147,13 @@ public extension Requester {
                 return
             }
             // Log current request.
-            Logger.level.log(request: request)
+            loggerLevel.log(request: request)
             // Set `task`.
             configuration.dispatcher.request.handle(waiting: configuration.waiting) {
                 self.sessionTask = session.dataTask(with: request) { [weak self] data, response, error in
-                    // Log current response.
-                    Logger.level.log(response: response as? HTTPURLResponse, error: error)
                     // Process.
                     guard let self = self else { return }
+                    self.loggerLevel.log(response: response as? HTTPURLResponse, error: error)
                     configuration.dispatcher.process.handle {
                         // Prepare next.
                         var next: Requestable?
