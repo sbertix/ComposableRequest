@@ -58,7 +58,7 @@ public extension Requester {
         internal var sessionTask: URLSessionDataTask?
         /// A block to fetch the next request and whether it should be resumed or not.
         internal let paginator: (Requestable?, Response<Data>) -> (Requestable?, shouldResume: Bool)
-        
+
         /// The logger level. Defaults to `Logger.level`.
         public var loggerLevel: Logger.Level = Logger.level
 
