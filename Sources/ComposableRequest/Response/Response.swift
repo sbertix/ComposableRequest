@@ -9,31 +9,139 @@ import Foundation
 
 /// A `struct` holding reference to a type-erased `Codable`.
 @dynamicMemberLookup
-public struct Response: DynamicResponse {
+public class Response:
+    Codable,
+    ExpressibleByBooleanLiteral,
+    ExpressibleByIntegerLiteral,
+    ExpressibleByFloatLiteral,
+    ExpressibleByStringLiteral,
+    ExpressibleByArrayLiteral,
+    ExpressibleByDictionaryLiteral
+{
     /// The wrapped value.
     public let value: Any
 
+    // MARK: Lifecycle
     /// Init.
     /// - parameter value: The underlying `Value`.
     public init<Value>(_ value: Value) {
         guard let value = value as Any? else { self.value = NSNull(); return }
         if let response = value as? Response { self.value = response.value } else { self.value = value }
     }
+    
+    /// Init.
+    /// - parameter value: A `Bool`.
+    public required convenience init(booleanLiteral value: Bool) {
+        self.init(value)
+    }
+    
+    /// Init.
+    /// - parameter value: An `Int`.
+    public required convenience init(integerLiteral value: Int) {
+        self.init(value)
+    }
+    
+    /// Init.
+    /// - parameter value: A `Double`.
+    public required convenience init(floatLiteral value: Double) {
+        self.init(value)
+    }
+    
+    /// Init.
+    /// - parameter value: A `String`.
+    public required convenience init(extendedGraphemeClusterLiteral value: String) {
+        self.init(value)
+    }
 
+    /// Init.
+    /// - parameter value: A `String`.
+    public required convenience init(stringLiteral value: String) {
+        self.init(value)
+    }
+    
+    /// Init.
+    /// - parameter value: An `Array` of `Any`s.
+    public required convenience init(arrayLiteral elements: Any...) {
+        self.init(elements.map(Response.init))
+    }
+    
+    /// Init.
+    /// - parameter value: A `Dictionary` of `Any`s.
+    public required convenience init(dictionaryLiteral elements: (String, Any)...) {
+        self.init(Dictionary(uniqueKeysWithValues: elements).mapValues(Response.init))
+    }
+    
     /// An empty response.
     /// - returns: A `Response` wrapping `NSNull`.
     public static var empty: Response { return .init(NSNull()) }
+    
+    // MARK: Codable
+    /// Init.
+    /// - parameter decoder: A valid `Decoder`.
+    public required convenience init(from decoder: Decoder) throws {
+        do {
+            let container = try decoder.singleValueContainer()
+            // Switch types.
+            if container.decodeNil() {
+                self.init(NSNull())
+            } else if let value = try? container.decode(Array<Response>.self) {
+                self.init(value)
+            } else if let value = try? container.decode(Dictionary<String, Response>.self) {
+                self.init(Dictionary(uniqueKeysWithValues: value.map { ($0.camelCased, $1) }))
+            } else if let value = try? container.decode(Bool.self) {
+                self.init(value)
+            } else if let value = try? container.decode(Int.self) {
+                self.init(value)
+            } else if let value = try? container.decode(Double.self) {
+                self.init(value)
+            } else if let value = try? container.decode(String.self) {
+                self.init(value)
+            } else {
+                throw DecodingError.dataCorruptedError(in: container, debugDescription: "Invalid type for `Response`.")
+            }
+        }
+    }
+    
+    /// Encode `value`.
+    /// - parameter encoder: A valid `Encoder`.
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.singleValueContainer()
+        // Switch types.
+        switch value {
+        case is NSNull:
+            try container.encodeNil()
+        case let value as [Any?]:
+            try container.encode(value.map(Response.init))
+        case let value as [String: Any?]:
+            try container.encode(value.mapValues(Response.init))
+        case let value as Bool:
+            try container.encode(value)
+        case let value as Int:
+            try container.encode(value)
+        case let value as Double:
+            try container.encode(value)
+        case let value as String:
+            try container.encode(value)
+        default:
+            let context = EncodingError.Context(codingPath: container.codingPath, debugDescription: "Invalid type for `Response`.")
+            throw EncodingError.invalidValue(value, context)
+        }
+    }
+    
+    /// Encode `value` in `data`.
+    /// - throws: An `EncodingError.invalidData`.
+    /// - returns: Some valid `Data`.
+    public func encode() throws -> Data { return try JSONEncoder().encode(self) }
 
-    /// Stringify a valid `JSON` object.
-    /// - parameter value: The underlying `Value`.
-    /// - throws: An `EncodingError.invalidValue`.
-    /// - returns: An optional `String` representation of `value`.
-    public static func description(for value: Value) throws -> String? {
-        return try String(data: JSONEncoder().encode(Response(value)), encoding: .utf8)
+    /// Decode `data` to `Response`.
+    /// - parameter data: Some valid `Data`.
+    /// - throws: A `DecodingError.invalidData`.
+    /// - returns: A `Response`.
+    public static func decode(_ data: Data) throws -> Response {
+        return try JSONDecoder().decode(Response.self, from: data)
     }
 }
 
-// MARK: Accessories
 public extension Response {
     /// An optional `Array` of `Response`s.
     func array() -> [Response]? {
@@ -102,119 +210,6 @@ public extension Response {
     subscript(index: Int) -> Response {
         guard let array = array(), index >= 0, index < array.count else { return .empty }
         return array[index]
-    }
-}
-
-// MARK: Codable
-extension Response: Codable {
-    /// Init.
-    /// - parameter decoder: A valid `Decoder`.
-    public init(from decoder: Decoder) throws {
-        let container = try decoder.singleValueContainer()
-        // Switch types.
-        if container.decodeNil() {
-            self.init(NSNull())
-        } else if let value = try? container.decode(Array<Response>.self) {
-            self.init(value)
-        } else if let value = try? container.decode(Dictionary<String, Response>.self) {
-            self.init(Dictionary(uniqueKeysWithValues: value.map { ($0.camelCased, $1) }))
-        } else if let value = try? container.decode(Bool.self) {
-            self.init(value)
-        } else if let value = try? container.decode(Int.self) {
-            self.init(value)
-        } else if let value = try? container.decode(Double.self) {
-            self.init(value)
-        } else if let value = try? container.decode(String.self) {
-            self.init(value)
-        } else {
-            throw DecodingError.dataCorruptedError(in: container, debugDescription: "Invalid type for `Response`.")
-        }
-    }
-
-    /// Encode `value`.
-    /// - parameter encoder: A valid `Encoder`.
-    public func encode(to encoder: Encoder) throws {
-        var container = encoder.singleValueContainer()
-        // Switch types.
-        switch value {
-        case is NSNull:
-            try container.encodeNil()
-        case let value as [Any?]:
-            try container.encode(value.map(Response.init))
-        case let value as [String: Any?]:
-            try container.encode(value.mapValues(Response.init))
-        case let value as Bool:
-            try container.encode(value)
-        case let value as Int:
-            try container.encode(value)
-        case let value as Double:
-            try container.encode(value)
-        case let value as String:
-            try container.encode(value)
-        default:
-            let context = EncodingError.Context(codingPath: container.codingPath, debugDescription: "Invalid type for `Response`.")
-            throw EncodingError.invalidValue(value, context)
-        }
-    }
-
-    // MARK: Accessories
-    /// Encode `value` in `data`.
-    /// - throws: An `EncodingError.invalidData`.
-    /// - returns: Some valid `Data`.
-    public func encode() throws -> Data { return try JSONEncoder().encode(self) }
-
-    /// Decode `data` to `Response`.
-    /// - parameter data: Some valid `Data`.
-    /// - throws: A `DecodingError.invalidData`.
-    /// - returns: A `Response`.
-    public static func decode(_ data: Data) throws -> Response { return try JSONDecoder().decode(Response.self, from: data) }
-}
-extension Response: ExpressibleByBooleanLiteral {
-    /// Init.
-    /// - parameter value: A `Bool`.
-    public init(booleanLiteral value: Bool) {
-        self.init(value)
-    }
-}
-extension Response: ExpressibleByIntegerLiteral {
-    /// Init.
-    /// - parameter value: An `Int`.
-    public init(integerLiteral value: Int) {
-        self.init(value)
-    }
-}
-extension Response: ExpressibleByFloatLiteral {
-    /// Init.
-    /// - parameter value: A `Double`.
-    public init(floatLiteral value: Double) {
-        self.init(value)
-    }
-}
-extension Response: ExpressibleByStringLiteral {
-    /// Init.
-    /// - parameter value: A `String`.
-    public init(extendedGraphemeClusterLiteral value: String) {
-        self.init(value)
-    }
-
-    /// Init.
-    /// - parameter value: A `String`.
-    public init(stringLiteral value: String) {
-        self.init(value)
-    }
-}
-extension Response: ExpressibleByArrayLiteral {
-    /// Init.
-    /// - parameter value: An `Array` of `Any`s.
-    public init(arrayLiteral elements: Any...) {
-        self.init(elements.map(Response.init))
-    }
-}
-extension Response: ExpressibleByDictionaryLiteral {
-    /// Init.
-    /// - parameter value: A `Dictionary` of `Any`s.
-    public init(dictionaryLiteral elements: (String, Any)...) {
-        self.init(Dictionary(uniqueKeysWithValues: elements).mapValues(Response.init))
     }
 }
 
