@@ -33,16 +33,23 @@ public extension BodyComposable {
     /// - parameters
     ///     - value: `Any` value.
     ///     - serializationOptions: A set of `JSONSerialization.WritingOptions`.
+    /// - returns: An updated `self`.
     func replacing(body value: Any, serializationOptions: JSONSerialization.WritingOptions) -> Self {
         return replacing(body: try? JSONSerialization.data(withJSONObject: value,
                                                            options: serializationOptions))
     }
 
     /// Replace the current `httpBody` with body-encoded `parameters`.
-    /// - parameter parameters: A `Dictionary` of optional `String`s.
-    func replacing(body parameters: [String: String?]) -> Self {
+    /// - parameters:
+    ///     - parameters: A `Dictionary` of optional `String`s.
+    ///     - characterSet: An optional `CarachterSet` used for escaping values. Defaults to `.urlQueryAllowed`.
+    /// - returns: An updated `self`.
+    func replacing(body parameters: [String: String?], escaping characterSet: CharacterSet? = .urlQueryAllowed) -> Self {
         return replacing(body: parameters
-            .compactMap { key, value in value.flatMap { "\(key)=\($0)" }}
+            .compactMap { key, value in
+                value.flatMap { value in characterSet.flatMap { value.addingPercentEncoding(withAllowedCharacters: $0) } ?? value }
+                    .flatMap { "\(key)=\($0)" }
+            }
             .joined(separator: "&")
             .data(using: .utf8)
         )
@@ -51,10 +58,12 @@ public extension BodyComposable {
 
 public extension BodyComposable where Self: BodyParsable {
     /// Update the current `httpBody` if set through `parameters`.
-    /// - parameter parameters: A `Dictionary`of optional `String`s.
-    /// - throws: An `AuthenticationError.invalidResponse`, when `body` cannot be parsed as URL query parameters.
+    /// - parameters:
+    ///     - parameters: A `Dictionary` of optional `String`s.
+    ///     - characterSet: An optional `CarachterSet` used for escaping values. Defaults to `.urlQueryAllowed`.
+    /// - throws: A `BodyError`, when `body` cannot be parsed as URL query parameters.
     /// - returns: An updated `self`.
-    func appending(body parameters: [String: String?]) throws -> Self {
+    func appending(body parameters: [String: String?], escaping characterSet: CharacterSet? = .urlQueryAllowed) throws -> Self {
         switch body {
         case .none: return replacing(body: parameters)
         case let body?:
@@ -66,7 +75,7 @@ public extension BodyComposable where Self: BodyParsable {
                 .map { $0.components(separatedBy: "=") }
                 .compactMap { $0.count == 2 ? ($0[0], $0[1]) : nil })
             // Update parameters.
-            return replacing(body: parameters.merging(components) { lhs, _ in lhs })
+            return replacing(body: parameters.merging(components) { lhs, _ in lhs }, escaping: characterSet)
         }
     }
 
@@ -74,9 +83,10 @@ public extension BodyComposable where Self: BodyParsable {
     /// - parameters:
     ///     - key: A `String`.
     ///     - value: An optional `String`.
-    /// - throws: An `AuthenticationError.invalidResponse`, when `body` cannot be parsed as URL query parameters.
+    ///     - characterSet: An optional `CarachterSet` used for escaping values. Defaults to `.urlQueryAllowed`.
+    /// - throws: A `BodyError`, when `body` cannot be parsed as URL query parameters.
     /// - returns: An updated `self`.
-    func appending(body key: String, value: String?) throws -> Self {
-        return try appending(body: [key: value])
+    func appending(body key: String, value: String?, escaping characterSet: CharacterSet? = .urlQueryAllowed) throws -> Self {
+        return try appending(body: [key: value], escaping: characterSet)
     }
 }
