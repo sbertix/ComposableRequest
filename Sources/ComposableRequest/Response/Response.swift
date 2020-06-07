@@ -23,6 +23,14 @@ public struct Response: DynamicResponse {
     /// An empty response.
     /// - returns: A `Response` wrapping `NSNull`.
     public static var empty: Response { return .init(NSNull()) }
+    
+    /// Stringify a valid `JSON` object.
+    /// - parameter value: The underlying `Value`.
+    /// - throws: An `EncodingError.invalidValue`.
+    /// - returns: An optional `String` representation of `value`.
+    public static func description(for value: Value) throws -> String? {
+        return try String(data: JSONEncoder().encode(Response(value)), encoding: .utf8)
+    }
 }
 
 // MARK: Accessories
