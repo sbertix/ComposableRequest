@@ -9,15 +9,13 @@ import Foundation
 
 /// A `struct` holding reference to a type-erased `Codable`.
 @dynamicMemberLookup
-public class Response:
-    Codable,
+public class Response: Codable,
     ExpressibleByBooleanLiteral,
     ExpressibleByIntegerLiteral,
     ExpressibleByFloatLiteral,
     ExpressibleByStringLiteral,
     ExpressibleByArrayLiteral,
-    ExpressibleByDictionaryLiteral
-{
+    ExpressibleByDictionaryLiteral {
     /// The wrapped value.
     public let value: Any
 
@@ -28,25 +26,25 @@ public class Response:
         guard let value = value as Any? else { self.value = NSNull(); return }
         if let response = value as? Response { self.value = response.value } else { self.value = value }
     }
-    
+
     /// Init.
     /// - parameter value: A `Bool`.
     public required convenience init(booleanLiteral value: Bool) {
         self.init(value)
     }
-    
+
     /// Init.
     /// - parameter value: An `Int`.
     public required convenience init(integerLiteral value: Int) {
         self.init(value)
     }
-    
+
     /// Init.
     /// - parameter value: A `Double`.
     public required convenience init(floatLiteral value: Double) {
         self.init(value)
     }
-    
+
     /// Init.
     /// - parameter value: A `String`.
     public required convenience init(extendedGraphemeClusterLiteral value: String) {
@@ -58,23 +56,23 @@ public class Response:
     public required convenience init(stringLiteral value: String) {
         self.init(value)
     }
-    
+
     /// Init.
     /// - parameter value: An `Array` of `Any`s.
     public required convenience init(arrayLiteral elements: Any...) {
         self.init(elements.map(Response.init))
     }
-    
+
     /// Init.
     /// - parameter value: A `Dictionary` of `Any`s.
     public required convenience init(dictionaryLiteral elements: (String, Any)...) {
         self.init(Dictionary(uniqueKeysWithValues: elements).mapValues(Response.init))
     }
-    
+
     /// An empty response.
     /// - returns: A `Response` wrapping `NSNull`.
     public static var empty: Response { return .init(NSNull()) }
-    
+
     // MARK: Codable
     /// Init.
     /// - parameter decoder: A valid `Decoder`.
@@ -101,7 +99,7 @@ public class Response:
             }
         }
     }
-    
+
     /// Encode `value`.
     /// - parameter encoder: A valid `Encoder`.
     public func encode(to encoder: Encoder) throws {
@@ -127,7 +125,7 @@ public class Response:
             throw EncodingError.invalidValue(value, context)
         }
     }
-    
+
     /// Encode `value` in `data`.
     /// - throws: An `EncodingError.invalidData`.
     /// - returns: Some valid `Data`.
@@ -138,7 +136,18 @@ public class Response:
     /// - throws: A `DecodingError.invalidData`.
     /// - returns: A `Response`.
     public static func decode(_ data: Data) throws -> Response {
-        return try JSONDecoder().decode(Response.self, from: data)
+        do {
+            return try JSONDecoder().decode(Response.self, from: data)
+        } catch {
+            // Fallback to use `JSONSerialization` for non-parsable objects.
+            guard case DecodingError.dataCorrupted = error else { throw error }
+            do { return try Response(JSONSerialization.jsonObject(with: data, options: .allowFragments)) }
+            catch {
+                // Fallbabck to use a `String` representation.
+                guard let description = String(data: data, encoding: .utf8) else { throw error }
+                return Response(description)
+            }
+        }
     }
 }
 
@@ -228,6 +237,14 @@ extension Response: CustomDebugStringConvertible, CustomStringConvertible {
         default:
             return "Response("+description+")"
         }
+    }
+
+    /// Stringify a valid `JSON` object.
+    /// - parameter value: The underlying `Value`.
+    /// - throws: An `EncodingError.invalidValue`.
+    /// - returns: An optional `String` representation of `value`.
+    public static func description(for value: Value) throws -> String? {
+        return try String(data: JSONEncoder().encode(Response(value)), encoding: .utf8)
     }
 }
 
