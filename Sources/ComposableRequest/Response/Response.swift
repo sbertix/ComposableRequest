@@ -23,7 +23,7 @@ public struct Response: DynamicResponse {
     /// An empty response.
     /// - returns: A `Response` wrapping `NSNull`.
     public static var empty: Response { return .init(NSNull()) }
-    
+
     /// Stringify a valid `JSON` object.
     /// - parameter value: The underlying `Value`.
     /// - throws: An `EncodingError.invalidValue`.
@@ -156,6 +156,18 @@ extension Response: Codable {
             throw EncodingError.invalidValue(value, context)
         }
     }
+
+    // MARK: Accessories
+    /// Encode `value` in `data`.
+    /// - throws: An `EncodingError.invalidData`.
+    /// - returns: Some valid `Data`.
+    public func encode() throws -> Data { return try JSONEncoder().encode(self) }
+
+    /// Decode `data` to `Response`.
+    /// - parameter data: Some valid `Data`.
+    /// - throws: A `DecodingError.invalidData`.
+    /// - returns: A `Response`.
+    public static func decode(_ data: Data) throws -> Response { return try JSONDecoder().decode(Response.self, from: data) }
 }
 extension Response: ExpressibleByBooleanLiteral {
     /// Init.
