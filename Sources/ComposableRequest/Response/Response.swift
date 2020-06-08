@@ -141,8 +141,7 @@ public class Response: Codable,
         } catch {
             // Fallback to use `JSONSerialization` for non-parsable objects.
             guard case DecodingError.dataCorrupted = error else { throw error }
-            do { return try Response(JSONSerialization.jsonObject(with: data, options: .allowFragments)) }
-            catch {
+            do { return try Response(JSONSerialization.jsonObject(with: data, options: .allowFragments)) } catch {
                 // Fallbabck to use a `String` representation.
                 guard let description = String(data: data, encoding: .utf8) else { throw error }
                 return Response(description)
@@ -254,8 +253,9 @@ extension Response: CustomDebugStringConvertible, CustomStringConvertible {
                 options.insert(.sortedKeys)
             }
             // Try to return a pretty printed description,  otherwise fallback to the default one.
-            do { return try String(data: JSONSerialization.data(withJSONObject: value, options: options), encoding: .utf8) }
-            catch { return try description(for: value) }
+            do {
+                return try String(data: JSONSerialization.data(withJSONObject: value, options: options), encoding: .utf8)
+            } catch { return try description(for: value) }
         default:
             return try String(data: Response(value).encode(), encoding: .utf8)
         }
