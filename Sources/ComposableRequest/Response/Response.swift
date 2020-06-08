@@ -240,11 +240,25 @@ extension Response: CustomDebugStringConvertible, CustomStringConvertible {
     }
 
     /// Stringify a valid `JSON` object.
-    /// - parameter value: The underlying `Value`.
+    /// - parameters
+    ///     - value: The underlying `Value`.
+    ///     - beautified: A `Bool` representing whether the description should be beautified or not. Defaults to `false`.
     /// - throws: An `EncodingError.invalidValue`.
     /// - returns: An optional `String` representation of `value`.
-    public static func description(for value: Value) throws -> String? {
-        return try String(data: JSONEncoder().encode(Response(value)), encoding: .utf8)
+    public static func description(for value: Value, beautified: Bool = false) throws -> String? {
+        switch beautified {
+        case true:
+            // Set options.
+            var options: JSONSerialization.WritingOptions = [.fragmentsAllowed, .prettyPrinted]
+            if #available(iOS 11.0, OSX 10.13, tvOS 11.0, watchOS 4.0, *) {
+                options.insert(.sortedKeys)
+            }
+            // Try to return a pretty printed description,  otherwise fallback to the default one.
+            do { return try String(data: JSONSerialization.data(withJSONObject: value, options: options), encoding: .utf8) }
+            catch { return try description(for: value) }
+        default:
+            return try String(data: Response(value).encode(), encoding: .utf8)
+        }
     }
 }
 
