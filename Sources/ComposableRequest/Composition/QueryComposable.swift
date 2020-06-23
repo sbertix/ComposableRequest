@@ -9,24 +9,29 @@ import Foundation
 
 /// A `protocol` representing a composable `URLRequest` query.
 public protocol QueryComposable {
-    /// Append to `queryItems`. Empty `queryItems` if `nil`.
-    /// - parameter method: A `Request.Method` value.
-    func query(_ items: [String: String?]?) -> Self
+    /// Replace the current `queryItems` with `parameters`.
+    /// - parameter parameters: A `Dictionary` of optional `String`s.
+    func replacing(query parameters: [String: String?]) -> Self
 }
 
-public extension QueryComposable {
-    /// Set `queryItems`.
-    /// - parameter items: An `Array` of `URLQueryItem`s.
-    func query(_ items: [URLQueryItem]) -> Self {
-        return query(nil)
-            .query(Dictionary(uniqueKeysWithValues: items.map { ($0.name, $0.value) }))
+/// A `protocol` representing a `URLRequest` gettable query items.
+public protocol QueryParsable {
+    /// All `queryItems`.
+    var query: [String: String] { get }
+}
+
+public extension QueryComposable where Self: QueryParsable {
+    /// Append `parameters` to the current `queryItems`.
+    /// - parameter parameters: A `Dictionary` of optional `String`s.
+    func appending(query parameters: [String: String?]) -> Self {
+        return replacing(query: parameters.merging(query) { lhs, _ in lhs })
     }
 
-    /// Append to `queryItems`.
+    /// Append matching `key` with `value` in the current `queryItems`.
     /// - parameters:
-    ///     - key: A `String` representing a `URLQueryItem.name`.
-    ///     - value: An optional `String` representing a `URLQueryItem.value`.
-    func query(_ key: String, value: String?) -> Self {
-        return query([key: value])
+    ///     - key: A `String`.
+    ///     - value: An optional `String`.
+    func appending(query key: String, with value: String?) -> Self {
+        return appending(query: [key: value])
     }
 }

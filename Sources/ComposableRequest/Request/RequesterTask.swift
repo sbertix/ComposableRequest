@@ -22,6 +22,12 @@ public extension Requester {
                 self.value = value
                 self.response = response
             }
+
+            /// Map `value` to a new one.
+            public func map<NewValue>(_ handler: (Value) throws -> NewValue) -> Response<NewValue> {
+                return .init(value: value.flatMap { value in Result { try handler(value) }},
+                             response: response)
+            }
         }
 
         /// An `enum` holding reference to the current `Task` state.
@@ -51,20 +57,26 @@ public extension Requester {
         /// A valid `URLSessionDataTask` for the current request.
         internal var sessionTask: URLSessionDataTask?
         /// A block to fetch the next request and whether it should be resumed or not.
-        internal let paginator: (Response<Data>) -> (Requestable?, shouldResume: Bool)
+        internal let paginator: (Requestable?, Response<Data>) -> (Requestable?, shouldResume: Bool)
+
+        /// The logger level. Defaults to `Logger.level`.
+        public var loggerLevel: Logger.Level = Logger.level
 
         // MARK: Lifecycle
         /// Init.
         /// - parameters:
         ///     - request: A concrete instance conforming to `Requestable`.
         ///     - requester: A valid, strongly referenced, `Requester`. Defaults to `.default`.
+        ///     - loggerLevel: A valid `Logger.Level`. Defaults to `Logger.level`.
         ///     - paginator: A block turning a `Response` into an optional `Composable` and `Requestable`.
         internal init(request: Requestable,
                       requester: Requester = .default,
-                      paginator: @escaping (Response<Data>) -> (Requestable?, shouldResume: Bool)) {
+                      loggerLevel: Logger.Level = Logger.level,
+                      paginator: @escaping (Requestable?, Response<Data>) -> (Requestable?, shouldResume: Bool)) {
             self.next = request
             self.requester = requester
             self.paginator = paginator
+            self.loggerLevel = loggerLevel
             self.state = .initiated
         }
 
@@ -128,27 +140,32 @@ public extension Requester {
                 configuration.dispatcher.process.handle { [weak self] in
                     guard let self = self else { return }
                     // Complete and load next.
-                    let (next, shouldResume) = self.paginator(.init(value: .failure(Error.invalidEndpoint)))
+                    let (next, shouldResume) = self.paginator(self.current, .init(value: .failure(Error.invalidEndpoint)))
                     self.complete(with: next)
                     if shouldResume { configuration.dispatcher.request.handle { self.resume() }}
                 }
                 return
             }
+            // Log current request.
+            loggerLevel.log(request: request)
             // Set `task`.
             configuration.dispatcher.request.handle(waiting: configuration.waiting) {
                 self.sessionTask = session.dataTask(with: request) { [weak self] data, response, error in
+                    // Process.
                     guard let self = self else { return }
+                    self.loggerLevel.log(response: response as? HTTPURLResponse, error: error)
                     configuration.dispatcher.process.handle {
                         // Prepare next.
                         var next: Requestable?
                         var shouldResume = false
                         // Switch response.
                         if let error = error {
-                            (next, shouldResume) = self.paginator(.init(value: .failure(error)))
+                            (next, shouldResume) = self.paginator(self.current, .init(value: .failure(error)))
                         } else if let data = data {
-                            (next, shouldResume) = self.paginator(.init(value: .success(data), response: response as? HTTPURLResponse))
+                            (next, shouldResume) = self.paginator(self.current, .init(value: .success(data),
+                                                                                 response: response as? HTTPURLResponse))
                         } else {
-                            (next, shouldResume) = self.paginator(.init(value: .failure(Error.invalidData)))
+                            (next, shouldResume) = self.paginator(self.current, .init(value: .failure(Error.invalidData)))
                         }
                         self.complete(with: next)
                         if shouldResume { configuration.dispatcher.request.handle { self.resume() }}

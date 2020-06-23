@@ -1,5 +1,5 @@
 //
-//  PaginatableSubscription.swift
+//  FetcherSubscription.swift
 //  ComposableRequest
 //
 //  Created by Stefano Bertagno on 11/03/2020.
@@ -9,10 +9,10 @@
 import Combine
 import Foundation
 
-/// A `class` defining a new `Subscription` specific for `Response`s coming from `Endpoint` requests.
+/// A `class` defining a new `Subscription` specific for `Response`s coming from `PaginatableRequestable` requests.
 @available(OSX 10.15, iOS 13.0, tvOS 13.0, watchOS 6.0, *)
-public final class PaginatableSubscription<Subscriber: Combine.Subscriber>: Subscription
-where Subscriber.Input: DataMappable, Subscriber.Failure == Error {
+public final class FetcherSubscription<Fetcher: PaginatedFetchable, Subscriber: Combine.Subscriber>: Subscription
+where Subscriber.Input == Fetcher.Response, Subscriber.Failure == Error {
     /// A `Subscriber`.
     private var subscriber: Subscriber?
     /// A `Requester.Task`.
@@ -36,14 +36,15 @@ where Subscriber.Input: DataMappable, Subscriber.Failure == Error {
 
     /// Init.
     /// - parameters:
-    ///     - request: A valid `Endpoint`.
+    ///     - fetcher: A valid `Fetcher`.
+    ///     - requester: A valid `Requester`. Defaults to `.default`.
     ///     - subscriber: The `Subscriber`.
-    public init<Locked: Composable & Paginatable & Requestable>(request: Locked,
-                                                                requester: Requester?,
-                                                                subscriber: Subscriber) where Subscriber.Input == Locked.Response {
+    internal init(fetcher: Fetcher,
+                  requester: Requester = .default,
+                  subscriber: Subscriber) {
         self.subscriber = subscriber
-        self.task = request.task(maxLength: .max,
-                                 by: requester ?? .default,
+        self.task = fetcher.task(maxLength: .max,
+                                 by: requester,
                                  onComplete: { [weak self] in
                                     guard let self = self, $0 < self.max else { return }
                                     subscriber.receive(completion: .finished)
@@ -51,8 +52,8 @@ where Subscriber.Input: DataMappable, Subscriber.Failure == Error {
             guard let self = self else { return subscriber.receive(completion: .finished) }
             switch $0 {
             case .failure(let error): subscriber.receive(completion: .failure(error))
-            case .success(let success):
-                _ = subscriber.receive(success)
+            case .success(let value):
+                _ = subscriber.receive(value)
                 // Check for `count` before completing.
                 self.count += 1
                 guard self.count < self.max else {

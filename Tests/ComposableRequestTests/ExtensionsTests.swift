@@ -1,7 +1,14 @@
+//
+//  ComposableTests.swift
+//  ComposableRequestTests
+//
+//  Created by Stefano Bertagno on 06/05/2020.
+//
+
 @testable import ComposableRequest
 import XCTest
 
-final class ComposableRequestExtensionsTests: XCTestCase {
+final class ExtensionsTests: XCTestCase {
     /// Test `String` extensions.
     func testString() {
         XCTAssert("camel_cased".camelCased == "camelCased")
