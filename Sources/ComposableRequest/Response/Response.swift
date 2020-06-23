@@ -9,7 +9,7 @@ import Foundation
 
 /// A `struct` holding reference to a type-erased `Codable`.
 @dynamicMemberLookup
-public class Response: Codable,
+open class Response: Codable,
     ExpressibleByBooleanLiteral,
     ExpressibleByIntegerLiteral,
     ExpressibleByFloatLiteral,
