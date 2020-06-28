@@ -81,6 +81,13 @@ public extension Requester {
         }
 
         // MARK: State
+        /// Update logging level.
+        /// - parameter logginLevel: An optional `Logger.Level`. Defaults to `nil`, i.e. `Logger.level`.
+        public func logging(level: Logger.Level? = nil) -> Requester.Task {
+            self.loggerLevel = level ?? Logger.level
+            return self
+        }
+        
         /// Cancel the ongoing request and all future ones.
         /// Calling `resume` on a cancelled `Task` makes it start agaain.
         public func cancel() {
