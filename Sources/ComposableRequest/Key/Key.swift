@@ -10,8 +10,14 @@ import Foundation
 /// A `protocol` holding reference to authentication.
 public protocol Key: Codable { }
 
+/// A `protocol` holding reference to authentication headers.
+public protocol HeaderKey: Key {
+    /// A dictionary of headers.
+    var header: [String: String] { get }
+}
+
 /// A `protocol` holding reference to authentication `HTTPCookie`s.
-public protocol CookieKey: Key {
+public protocol CookieKey: HeaderKey {
     /// A list of `CodableHTTPCookie`s.
     var cookies: [CodableHTTPCookie] { get }
 }

@@ -10,8 +10,9 @@ import Foundation
 /// A `struct` holding reference to authentication `HTTPCookie`s.
 public struct AnyCookieKey: CookieKey {
     /// A list of `CodableHTTPCookie`s.
-    /// - note: `cookies` is marked as `internal` in order to limit its abuse.
     public let cookies: [CodableHTTPCookie]
+    /// A dictionary of headers.
+    public var header: [String: String] { return HTTPCookie.requestHeaderFields(with: cookies) }
 
     /// Init.
     /// - parameters:
