@@ -87,7 +87,7 @@ public extension Requester {
             self.loggerLevel = level ?? Logger.level
             return self
         }
-        
+
         /// Cancel the ongoing request and all future ones.
         /// Calling `resume` on a cancelled `Task` makes it start agaain.
         public func cancel() {
