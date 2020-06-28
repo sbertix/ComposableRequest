@@ -142,7 +142,7 @@ public extension Requester {
                     // Complete and load next.
                     let (next, shouldResume) = self.paginator(self.current, .init(value: .failure(Error.invalidEndpoint)))
                     self.complete(with: next)
-                    if shouldResume { configuration.dispatcher.request.handle { self.resume() }}
+                    if shouldResume && self.state != .canceling { configuration.dispatcher.request.handle { self.resume() }}
                 }
                 return
             }
@@ -168,7 +168,7 @@ public extension Requester {
                             (next, shouldResume) = self.paginator(self.current, .init(value: .failure(Error.invalidData)))
                         }
                         self.complete(with: next)
-                        if shouldResume { configuration.dispatcher.request.handle { self.resume() }}
+                        if shouldResume && self.state != .canceling { configuration.dispatcher.request.handle { self.resume() }}
                     }
                 }
                 self.sessionTask?.resume()
