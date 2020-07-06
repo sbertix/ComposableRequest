@@ -148,16 +148,34 @@ open class Response: Codable,
             }
         }
     }
-}
 
-public extension Response {
+    // MARK: Subscripts
+    /// Interrogate `.dictionary`.
+    /// - parameter member: A valid `Dictionary` key.
+    public subscript(dynamicMember member: String) -> Response {
+        return dictionary()?[member] ?? .empty
+    }
+
+    /// Interrogate `.dictionary`.
+    /// - parameter key: A valid `Dictionary` key.
+    public subscript(key: String) -> Response {
+        return dictionary()?[key] ?? .empty
+    }
+
+    /// Access the `index`-th item in `.array`.
+    /// - parameter index: A valid `Int`.
+    public subscript(index: Int) -> Response {
+        guard let array = array(), index >= 0, index < array.count else { return .empty }
+        return array[index]
+    }
+
     /// An optional `Array` of `Response`s.
-    func array() -> [Response]? {
+    public func array() -> [Response]? {
         return value as? [Response]
     }
 
     /// An optional `Bool`.
-    func bool() -> Bool? {
+    public func bool() -> Bool? {
         return (value as? NSNumber)?.boolValue
             ?? string().flatMap {
                 if ["yes", "y", "true", "t", "1"].contains($0) { return true }
@@ -167,57 +185,37 @@ public extension Response {
     }
 
     /// An optional `Date`.
-    func date() -> Date? {
+    public func date() -> Date? {
         return (value as? NSNumber).flatMap {
             Date(timeIntervalSince1970: $0.doubleValue/pow(10.0, max(floor(log10($0.doubleValue))-9, 0)))
         }
     }
 
     /// An optional `Dictionary` of `Response`s.
-    func dictionary() -> [String: Response]? {
+    public func dictionary() -> [String: Response]? {
         return value as? [String: Response]
     }
 
     /// An optional `Double`.
-    func double() -> Double? {
+    public func double() -> Double? {
         return (value as? NSNumber)?.doubleValue
             ?? string().flatMap(Double.init)
     }
 
     /// An optional `Int`.
-    func int() -> Int? {
+    public func int() -> Int? {
         return (value as? NSNumber)?.intValue
             ?? string().flatMap(Int.init)
     }
 
     /// An optional `String`.
-    func string() -> String? {
+    public func string() -> String? {
         return value as? String
     }
 
     /// An optional `URL`.
-    func url() -> URL? {
+    public func url() -> URL? {
         return string().flatMap { URL(string: $0) }
-    }
-
-    // MARK: Subscripts
-    /// Interrogate `.dictionary`.
-    /// - parameter member: A valid `Dictionary` key.
-    subscript(dynamicMember member: String) -> Response {
-        return dictionary()?[member] ?? .empty
-    }
-
-    /// Interrogate `.dictionary`.
-    /// - parameter key: A valid `Dictionary` key.
-    subscript(key: String) -> Response {
-        return dictionary()?[key] ?? .empty
-    }
-
-    /// Access the `index`-th item in `.array`.
-    /// - parameter index: A valid `Int`.
-    subscript(index: Int) -> Response {
-        guard let array = array(), index >= 0, index < array.count else { return .empty }
-        return array[index]
     }
 }
 
