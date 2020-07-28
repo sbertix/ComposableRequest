@@ -51,8 +51,12 @@ extension Fetcher.Disposable: DisposableFetchable {
             // Get the next `Endpoint`.
             let mapped = self.processor($1.value)
             // Notify completion.
-            requester.configuration.dispatcher.response.handle { onComplete(mapped) }
-            return (nil, shouldResume: false)
+            if let fetchable = try? mapped.get() as? Fetcher.Disposable {
+                return (preprocessor?(fetchable.request) ?? request, shouldResume: true)
+            } else {
+                requester.configuration.dispatcher.response.handle { onComplete(mapped) }
+                return (nil, shouldResume: false)
+            }
         }
     }
 
@@ -63,12 +67,16 @@ extension Fetcher.Disposable: DisposableFetchable {
     /// - returns: A `Requester.Task`. You need to `resume()` it for it to start.
     public func debugTask(by requester: Requester,
                           onComplete: @escaping (Requester.Task.Response<Response>) -> Void) -> Requester.Task {
-        return Requester.Task(request: request, requester: requester) {
+        return Requester.Task(request: preprocessor?(request) ?? request, requester: requester) {
             // Get the next `Endpoint`.
             let mapped = Requester.Task.Response<Response>(value: self.processor($1.value), response: $1.response)
             // Notify completion.
-            requester.configuration.dispatcher.response.handle { onComplete(mapped) }
-            return (nil, shouldResume: false)
+            if let fetchable = try? mapped.value.get() as? Fetcher.Disposable {
+                return (preprocessor?(fetchable.request) ?? request, shouldResume: true)
+            } else {
+                requester.configuration.dispatcher.response.handle { onComplete(mapped) }
+                return (nil, shouldResume: false)
+            }
         }
     }
 }
