@@ -8,7 +8,7 @@
 import Foundation
 
 /// A `struct` defining custom `Preprocessor` for authentication.
-public struct Locker<Request: Fetchable & Preprocessable, Secret: Key> {
+public struct Locker<Request: Lockable, Secret: Key> {
     /// An `enum` holding reference to standard lock types.
     public enum Condition {
         /// Through body.

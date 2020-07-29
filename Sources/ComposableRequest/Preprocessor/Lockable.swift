@@ -7,8 +7,11 @@
 
 import Foundation
 
+/// A `protocol` describing things that can be put into a `Locker`.
+public protocol Lockable: Preprocessable { }
+
 /// An `extension` to allow for requiring authentication.
-public extension Preprocessable where Self: Fetchable {
+public extension Lockable {
     /// Return a `Locker`.
     /// - parameters:
     ///     - secret: A `Key` metatype.
@@ -27,7 +30,7 @@ public extension Preprocessable where Self: Fetchable {
     }
 }
 
-public extension Preprocessable where Self: Fetchable, Preprocessed: HeaderComposable & HeaderParsable {
+public extension Lockable where Preprocessed: HeaderComposable & HeaderParsable {
     /// Return a `Locker` using the `header` as `Unlocker`.
     /// - parameter secret: A `Key` metatype.
     /// - returns: A `Locker` unwrapping `self`.
