@@ -9,7 +9,7 @@ import Foundation
 
 /// A `struct` holding reference to a type-erased `Codable`.
 @dynamicMemberLookup
-open class Response: Codable,
+public struct Response: Codable,
     ExpressibleByBooleanLiteral,
     ExpressibleByIntegerLiteral,
     ExpressibleByFloatLiteral,
@@ -29,43 +29,43 @@ open class Response: Codable,
 
     /// Init.
     /// - parameter value: A `Bool`.
-    public required convenience init(booleanLiteral value: Bool) {
+    public init(booleanLiteral value: Bool) {
         self.init(value)
     }
 
     /// Init.
     /// - parameter value: An `Int`.
-    public required convenience init(integerLiteral value: Int) {
+    public init(integerLiteral value: Int) {
         self.init(value)
     }
 
     /// Init.
     /// - parameter value: A `Double`.
-    public required convenience init(floatLiteral value: Double) {
+    public init(floatLiteral value: Double) {
         self.init(value)
     }
 
     /// Init.
     /// - parameter value: A `String`.
-    public required convenience init(extendedGraphemeClusterLiteral value: String) {
+    public init(extendedGraphemeClusterLiteral value: String) {
         self.init(value)
     }
 
     /// Init.
     /// - parameter value: A `String`.
-    public required convenience init(stringLiteral value: String) {
+    public init(stringLiteral value: String) {
         self.init(value)
     }
 
     /// Init.
     /// - parameter value: An `Array` of `Any`s.
-    public required convenience init(arrayLiteral elements: Any...) {
+    public init(arrayLiteral elements: Any...) {
         self.init(elements.map(Response.init))
     }
 
     /// Init.
     /// - parameter value: A `Dictionary` of `Any`s.
-    public required convenience init(dictionaryLiteral elements: (String, Any)...) {
+    public init(dictionaryLiteral elements: (String, Any)...) {
         self.init(Dictionary(uniqueKeysWithValues: elements).mapValues(Response.init))
     }
 
@@ -76,7 +76,7 @@ open class Response: Codable,
     // MARK: Codable
     /// Init.
     /// - parameter decoder: A valid `Decoder`.
-    public required convenience init(from decoder: Decoder) throws {
+    public init(from decoder: Decoder) throws {
         do {
             let container = try decoder.singleValueContainer()
             // Switch types.
