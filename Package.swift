@@ -7,14 +7,27 @@ let package = Package(
     products: [
         .library(
             name: "ComposableRequest",
-            targets: ["ComposableRequest"])
+            targets: ["ComposableRequest"]),
+        .library(
+            name: "ComposableRequestCrypto",
+            targets: ["ComposableRequestCrypto"]
+        )
+    ],
+    dependencies: [
+        .package(url: "https://github.com/evgenyneu/keychain-swift.git", .upToNextMinor(from: "19.0.0"))
     ],
     targets: [
         .target(
             name: "ComposableRequest",
-            dependencies: []),
+            dependencies: []
+        ),
+        .target(
+            name: "ComposableRequestCrypto",
+            dependencies: ["ComposableRequest", "KeychainSwift"]
+        ),
         .testTarget(
             name: "ComposableRequestTests",
-            dependencies: ["ComposableRequest"])
+            dependencies: ["ComposableRequest", "ComposableRequestCrypto"]
+        )
     ]
 )
