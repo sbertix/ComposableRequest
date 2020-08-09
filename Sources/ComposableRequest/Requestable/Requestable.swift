@@ -36,24 +36,24 @@ public extension Requestable {
     ///     - preprocessor: An optional `Preprocessor`.
     ///     - pager: A valid `Pager`.
     /// - returns: A `Fetcher.Paginated` wrapping `self`.
-    func prepare(preprocessor: Fetcher<Self, Response>.Preprocessor? = nil,
-                 pager: @escaping Fetcher<Self, Response>.Pager) -> Fetcher<Self, Response>.Paginated {
+    func prepare(preprocessor: Fetcher<Self, Wrapper>.Preprocessor? = nil,
+                 pager: @escaping Fetcher<Self, Wrapper>.Pager) -> Fetcher<Self, Wrapper>.Paginated {
         return prepare(preprocessor: preprocessor,
-                       processor: { $0.flatMap { data in Result { try Response.decode(data) }}},
+                       processor: { $0.flatMap { data in Result { try Wrapper.decode(data) }}},
                        pager: pager)
     }
 
     /// Returns a `Fetcher.Paginated`, returning a valid JSON.
     /// - parameters:
     ///     - preprocessor: An optional `Preprocessor`.
-    ///     - process: A concrete type implementing `ResponseMappable`.
+    ///     - process: A concrete type implementing `Wrapped`.
     ///     - pager: A valid `Pager`.
     /// - returns: A `Fetcher.Paginated` wrapping `self`.
-    func prepare<Response: ResponseMappable>(preprocessor: Fetcher<Self, Response>.Preprocessor? = nil,
-                                             process: Response.Type,
-                                             pager: @escaping Fetcher<Self, Response>.Pager) -> Fetcher<Self, Response>.Paginated {
+    func prepare<Response: Wrapped>(preprocessor: Fetcher<Self, Response>.Preprocessor? = nil,
+                                    process: Response.Type,
+                                    pager: @escaping Fetcher<Self, Response>.Pager) -> Fetcher<Self, Response>.Paginated {
         return prepare(preprocessor: preprocessor,
-                       processor: { $0.flatMap { data in Result { try Response(response: .init(ComposableRequest.Response.decode(data))) }}},
+                       processor: { $0.flatMap { data in Result { try Response(wrapper: .decode(data)) }}},
                        pager: pager)
     }
 
@@ -72,19 +72,19 @@ public extension Requestable {
     /// Returns a `Fetcher.Disposable`.
     /// - parameter preprocessor: An optional `Preprocessor`.
     /// - returns: A `Fetcher.Disposable` wrapping `self`.
-    func prepare(preprocessor: Fetcher<Self, Response>.Preprocessor? = nil) -> Fetcher<Self, Response>.Disposable {
-            return prepare(preprocessor: preprocessor,
-                           processor: { $0.flatMap { data in Result { try Response.decode(data) }}})
+    func prepare(preprocessor: Fetcher<Self, Wrapper>.Preprocessor? = nil) -> Fetcher<Self, Wrapper>.Disposable {
+        return prepare(preprocessor: preprocessor,
+                       processor: { $0.flatMap { data in Result { try Wrapper.decode(data) }}})
     }
 
     /// Returns a `Fetcher.Disposable`.
     /// - parameters:
     ///     - preprocessor: An optional `Preprocessor`.
-    ///     - process: A concrete type implementing `ResponseMappable`.
+    ///     - process: A concrete type implementing `Wrapped`.
     /// - returns: A `Fetcher.Disposable` wrapping `self`.
-    func prepare<Response: ResponseMappable>(preprocessor: Fetcher<Self, Response>.Preprocessor? = nil,
-                                             process: Response.Type) -> Fetcher<Self, Response>.Disposable {
+    func prepare<Response: Wrapped>(preprocessor: Fetcher<Self, Response>.Preprocessor? = nil,
+                                    process: Response.Type) -> Fetcher<Self, Response>.Disposable {
         return prepare(preprocessor: preprocessor,
-                       processor: { $0.flatMap { data in Result { try Response(response: .init(ComposableRequest.Response.decode(data))) }}})
+                       processor: { $0.flatMap { data in Result { try Response(wrapper: .decode(data)) }}})
     }
 }
