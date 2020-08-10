@@ -160,7 +160,7 @@ public extension Requester {
                 self.sessionTask = session.dataTask(with: request) { [weak self] data, response, error in
                     // Process.
                     guard let self = self else { return }
-                    self.loggerLevel.log(response: response as? HTTPURLResponse, error: error)
+                    self.loggerLevel.log(response: response as? HTTPURLResponse, data: data, error: error)
                     configuration.dispatcher.process.handle {
                         // Prepare next.
                         var next: Requestable?

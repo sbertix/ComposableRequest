@@ -11,7 +11,7 @@ import Foundation
 @dynamicMemberLookup
 public protocol Wrapped: Codable {
     /// The actual `Wrapper`.
-    var wrapper: () -> Wrapper { get set }
+    var wrapper: () -> Wrapper { get }
 
     /// Init.
     /// - parameter wrapper: A closure returning a `Wrapper`.
