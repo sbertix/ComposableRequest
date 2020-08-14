@@ -8,7 +8,7 @@
 import Foundation
 
 /// A `protocol` holding reference to authentication.
-public protocol Key: Codable { }
+public protocol Key: Identifiable, Codable where ID == String { }
 
 /// A `protocol` holding reference to authentication headers.
 public protocol HeaderKey: Key {
@@ -20,4 +20,24 @@ public protocol HeaderKey: Key {
 public protocol CookieKey: HeaderKey {
     /// A list of `CodableHTTPCookie`s.
     var cookies: [CodableHTTPCookie] { get }
+}
+
+/// An `extension` to simplify `Key` storage.
+public extension Key {
+    /// Init from `Storage`.
+    /// - parameters:
+    ///     - identifier: The `ds_user_id` cookie value.
+    ///     - storage: A concrete-typed value conforming to the `Storage` protocol.
+    static func stored<S: Storage>(with identifier: String, in storage: S) -> Self? where S.Key == Self {
+        return storage.find(matching: identifier)
+    }
+
+    // MARK: Locker
+    /// Store in `storage`.
+    /// - parameter storage: A value conforming to the `Storage` protocol.
+    @discardableResult
+    func store<S: Storage>(in storage: S) -> Self where S.Key == Self {
+        storage.store(self)
+        return self
+    }
 }

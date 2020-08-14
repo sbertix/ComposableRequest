@@ -112,14 +112,14 @@ final class RequestsTests: XCTestCase {
             .task(maxLength: 1, by: requester) { _ in expectations[offset].fulfill(); offset += 1 }
             .resume()
         // wait for it.
-        wait(for: [expectations[0]], timeout: 30)
+        wait(for: [expectations[0]], timeout: 90)
         request?.resume()
-        wait(for: [expectations[1]], timeout: 60)
+        wait(for: [expectations[1]], timeout: 90)
         request?.resume()
         wait(for: [expectations[2]], timeout: 90)
         XCTAssert(request?.next != nil)
         request?.resume()
-        wait(for: [expectations[3]], timeout: 120)
+        wait(for: [expectations[3]], timeout: 90)
     }
     
     /// Test `Paginated` together with `Lock`.

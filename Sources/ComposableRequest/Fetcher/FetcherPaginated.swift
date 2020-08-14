@@ -9,7 +9,7 @@ import Foundation
 
 public extension Fetcher {
     /// A `struct` holding reference to a `PaginatedFetchable`.
-    struct Paginated: Preprocessable {
+    struct Paginated: Lockable {
         /// The request.
         public private(set) var request: Request
         /// The pre-processor.

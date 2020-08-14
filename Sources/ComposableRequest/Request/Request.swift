@@ -11,7 +11,7 @@ import Foundation
 @dynamicMemberLookup
 public struct Request: Hashable {
     /// `ComposableRequest` defaults to `Response`.
-    public typealias Response = ComposableRequest.Response
+    public typealias Response = Wrapper
 
     /// A valid `Method`.
     public var method: Method

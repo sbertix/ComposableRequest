@@ -31,15 +31,19 @@ public struct Logger {
         public static let responseError = Level(rawValue: 1 << 12)
         /// HTTP response header. Dispatched at response time.
         public static let responseHeader = Level(rawValue: 1 << 13)
+        /// HTTP Response data. Dispatched at response time.
+        public static let responseBody = Level(rawValue: 1 << 14)
 
         /// None.
-        public static var none: Level { return [] }
+        public static let none: Level = []
         /// Basic.
         public static let basic: Level = [.url, .method]
         /// Full requesst.
         public static let request: Level = [.url, .method, .header, .body]
+        /// Full response.
+        public static let response: Level = [.responseURL, .responseStatusCode, .responseError, .responseHeader, .responseBody]
         /// Full.
-        public static let full: Level = [.url, .method, .header, .body, .responseURL, .responseStatusCode, .responseError, .responseHeader]
+        public static let full: Level = [.request, .response]
 
         /// Init.
         /// - parameter rawValue: A valid `Int`.
@@ -47,7 +51,7 @@ public struct Logger {
 
         // MARK: Log
         /// Log request.
-        internal mutating func log(request: URLRequest) {
+        internal func log(request: URLRequest) {
             let url = contains(.url) ? request.url.flatMap { "\tURL: "+$0.absoluteString } : nil
             let method = contains(.method) ? request.httpMethod.flatMap { "\tMethod: "+$0 } : nil
             let header = contains(.header) ? request.allHTTPHeaderFields.flatMap { "\tHeader: "+$0.description } : nil
@@ -64,7 +68,7 @@ public struct Logger {
         }
 
         /// Log response.
-        internal mutating func log(response: HTTPURLResponse?, error: Error?) {
+        internal func log(response: HTTPURLResponse?, data: Data?, error: Error?) {
             // Update request.
             let url = contains(.responseURL) ? response?.url.flatMap { "\tURL: "+$0.absoluteString } : nil
             let statusCode = contains(.responseStatusCode) ? response.flatMap { "\tStatus code: \($0.statusCode)" } : nil
@@ -72,10 +76,14 @@ public struct Logger {
             let header = contains(.responseHeader)
                 ? (response?.allHeaderFields as? [String: String]).flatMap { "\tHeader: "+$0.description }
                 : nil
+            let body = contains(.responseBody)
+                ? (data.flatMap { String(data: $0, encoding: .utf8) } ?? "<parser error>")
+                    .flatMap { "\tBody: "+$0 }
+                : nil
             // Compose.
-            guard url != nil || statusCode != nil || header != nil else { return }
+            guard url != nil || statusCode != nil || header != nil || body != nil else { return }
             DispatchQueue.main.async {
-                print((["Response:"]+[url, statusCode, exception, header].compactMap { $0 }).joined(separator: "\n"))
+                print((["Response:"]+[url, statusCode, exception, header, body].compactMap { $0 }).joined(separator: "\n"))
             }
         }
     }
