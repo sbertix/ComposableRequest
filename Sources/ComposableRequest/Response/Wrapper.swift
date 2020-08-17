@@ -31,11 +31,25 @@ public struct Wrapper {
 
     /// Check whether it's empty or not.
     /// - returns: `true` if `value` is an instance of `NSNull`, `false` otherwise.
-    public var isEmpty: Bool { value is NSNull }
+    public var isEmpty: Bool {
+        // Check for `NSNull`.
+        if value is NSNull || description == "<null>" { return true }
+        // Check all accessories for `nil`.
+        return !([array(),
+                  bool(converting: ),
+                  date(converting: false),
+                  dictionary(),
+                  double(converting: false),
+                  int(converting: false),
+                  string(converting: false),
+                  url()] as [Any?])
+            .lazy
+            .contains(where: { $0 != nil })
+    }
 
     /// Flat map to `self`.
     /// - returns: `self` if `isEmpty` is `false`, `nil` otherwise.
-    public func optional() -> Wrapper? { isEmpty ? nil : self }
+    public func optional() -> Wrapper? { isEmpty ? .none : self }
 
     // MARK: Quick coding
     /// Encode `self` into `Data`.
@@ -56,7 +70,7 @@ public struct Wrapper {
     /// - parameter member: A valid `Dictionary` key.
     /// - returns: The `Wrapper` at `member` key, or `.empty` if it does not exist.
     public subscript(dynamicMember member: String) -> Wrapper {
-        get { dictionary()?[member] ?? .empty }
+        get { optional()?.dictionary()?[member] ?? .empty }
         set(newValue) {
             guard var dictionary = dictionary() else { return }
             dictionary[member] = newValue
@@ -68,7 +82,7 @@ public struct Wrapper {
     /// - parameter key: A valid `Dictionary` key.
     /// - returns: The `Wrapper` at `member` key, or `.empty` if it does not exist.
     public subscript(key: String) -> Wrapper {
-        get { dictionary()?[key] ?? .empty }
+        get { optional()?.dictionary()?[key] ?? .empty }
         set(newValue) {
             guard var dictionary = dictionary() else { return }
             dictionary[key] = newValue
@@ -80,7 +94,7 @@ public struct Wrapper {
     /// - parameter index: A valid `Int`.
     /// - returns: The `Wrapper` at `index`, or `.empty` if it does not exist.
     public subscript(index: Int) -> Wrapper {
-        guard let array = array(), index >= 0, index < array.count else { return .empty }
+        guard let array = optional()?.array(), index >= 0, index < array.count else { return .empty }
         return array[index]
     }
 }
@@ -93,13 +107,20 @@ extension Wrapper: CustomStringConvertible {
     /// `self` `JSON` representation.
     /// - throws: An `EncodingError`.
     /// - returns: An optional `String`.
-    public func stringified() throws -> String? { try String(data: encode(), encoding: .utf8) }
+    @available(*, deprecated, renamed: "jsonRepresentation")
+    public func stringified() throws -> String? { try jsonRepresentation() }
+
+    /// `self` `JSON` representation.
+    /// - throws: An `EncodingError`.
+    /// - returns: An optional `String`.
+    public func jsonRepresentation() throws -> String? { try String(data: encode(), encoding: .utf8) }
 
     /// `JSON` representation of `value`.
     /// - parameter value: A `JSONSerialization` compatible value.
     /// - throws: An `EncodingError`.
     /// - returns: An optional `String`.
-    public static func stringify(_ value: Wrappable) throws -> String? { try Wrapper(value: value).stringified() }
+    @available (*, unavailable, message: "use `.wrapped.jsonRepresentation()` instead")
+    public static func stringify(_ value: Wrappable) throws -> String? { fatalError("Removed.") }
 }
 
 // MARK: Codable
