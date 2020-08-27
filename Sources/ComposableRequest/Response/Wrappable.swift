@@ -54,3 +54,11 @@ extension Wrapper: Wrappable {
     /// Return `self`.
     public var wrapped: Wrapper { self }
 }
+
+#if canImport(CoreGraphics)
+import CoreGraphics
+extension CGFloat: Wrappable {
+    /// Wrap `self` into a `Wrapper`.
+    public var wrapped: Wrapper { .init(floatLiteral: Double(self)) }
+}
+#endif
