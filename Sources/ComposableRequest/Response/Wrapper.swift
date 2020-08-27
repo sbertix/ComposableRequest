@@ -51,6 +51,30 @@ public struct Wrapper {
     /// - returns: `self` if `isEmpty` is `false`, `nil` otherwise.
     public func optional() -> Wrapper? { isEmpty ? .none : self }
 
+    /// Turn a custom `Wrapper` keys to _snake_case_.
+    /// - returns: A valid `Wrapper`.
+    public func snakeCased() -> Wrapper {
+        switch value {
+        case let array as [Wrapper]:
+            return array.map { $0.snakeCased() }.wrapped
+        case let dictionary as [String: Wrapper]:
+            return Dictionary(dictionary.map { ($0.snakeCased, $1.snakeCased()) }) { lhs, _ in lhs }.wrapped
+        default: return self
+        }
+    }
+
+    /// Turn a custom `Wrapper` keys to _camelCase_.
+    /// - returns: A valid `Wrapper`.
+    public func camelCased() -> Wrapper {
+        switch value {
+        case let array as [Wrapper]:
+            return array.map { $0.camelCased() }.wrapped
+        case let dictionary as [String: Wrapper]:
+            return Dictionary(dictionary.map { ($0.camelCased, $1.camelCased()) }) { lhs, _ in lhs }.wrapped
+        default: return self
+        }
+    }
+
     // MARK: Quick coding
     /// Encode `self` into `Data`.
     /// - note: Prefer this, to using a custom `JSONEncoder`.
@@ -307,10 +331,6 @@ extension Wrapper: ExpressibleByFloatLiteral {
 extension Wrapper: ExpressibleByIntegerLiteral {
     /// Init with an integer representation.
     public init(integerLiteral value: IntegerLiteralType) { self.init(value: value) }
-}
-extension Wrapper: ExpressibleByNilLiteral {
-    /// Init with a nil representation.
-    public init(nilLiteral: ()) { self.init(value: NSNull()) }
 }
 extension Wrapper: ExpressibleByStringLiteral {
     /// Init with a string representation.
