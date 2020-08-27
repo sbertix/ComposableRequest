@@ -12,7 +12,7 @@ final class ResponseTests: XCTestCase {
     /// Test responses.
     func testResponse() {
         let value: Wrapper = [["integer": 1,
-                               "null": nil,
+                               "null": NSNull().wrapped,
                                "camel_case_string": "",
                                "bool": true,
                                "double": 2.3,

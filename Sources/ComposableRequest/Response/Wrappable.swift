@@ -36,11 +36,11 @@ extension String: Wrappable {
 }
 extension NSNull: Wrappable {
     /// Wrap `self` into a `Wrapper`.
-    public var wrapped: Wrapper { .init(nilLiteral: ()) }
+    public var wrapped: Wrapper { .empty }
 }
 extension Optional: Wrappable where Wrapped: Wrappable {
     /// Wrap `self` into a `Wrapper`.
-    public var wrapped: Wrapper { flatMap { $0.wrapped } ?? .init(nilLiteral: ()) }
+    public var wrapped: Wrapper { flatMap { $0.wrapped } ?? .empty }
 }
 extension Array: Wrappable where Element: Wrappable {
     /// Wrap `self` into a `Wrapper`.
