@@ -18,8 +18,13 @@ public struct KeychainStorage<Secret: Key>: Storage {
     public let prefix: String
     /// A `Bool` identifying whether the `Secret`s should be synchronized through iCloud. Defaults to `false`.
     public let synchronizable: Bool
-    /// A `KeychainSwift` used as storage. Defaults to `.init(keyPrefix: prefix)`.
-    private let keychain: KeychainSwift
+    /// The underlying keychain.
+    /// - warning: This is computed everytime as it is not thread safe.
+    private var keychain: KeychainSwift {
+        let keychain = KeychainSwift(keyPrefix: prefix)
+        keychain.synchronizable = synchronizable
+        return keychain
+    }
     /// A `KeychainSwiftAccessOptions` value. Defaults to `.accessibleWhenUnlocked`.
     /// - note: If you need to support different access options for different `Secret`s, simply instantiate different `KeychainStorage`s.
     private let access: KeychainSwiftAccessOptions
@@ -36,8 +41,6 @@ public struct KeychainStorage<Secret: Key>: Storage {
         self.prefix = prefix
         self.access = access
         self.synchronizable = synchronizable
-        self.keychain = .init(keyPrefix: prefix)
-        self.keychain.synchronizable = synchronizable
     }
 
     // MARK: Lookup
