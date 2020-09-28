@@ -30,6 +30,9 @@ public protocol Storage {
     /// - returns: The removed `Secret` or `nil` if none was found.
     @discardableResult
     func remove(matching identifier: String) -> Key?
+
+    /// Delete all cached `Secret`s.
+    func removeAll()
 }
 public extension Storage {
     /// Delete all cached `Secret`s.

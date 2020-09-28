@@ -8,39 +8,39 @@
 import Foundation
 
 import ComposableRequest
-import KeychainSwift
+import Swiftchain
 
 /// A `struct` holding reference to all `Secret`s stored in the keychain.
 /// - note: `
 ///     KeychainStorage` is the encoded and ready-to-use alternative to `UserDefaultsStorage`.
 public struct KeychainStorage<Secret: Key>: Storage {
-    /// A `String` identifying the `KeychainSwift` prefix. Defaults to `swiftagram`. Defaults to `swiftagram`.
-    public let prefix: String
-    /// A `Bool` identifying whether the `Secret`s should be synchronized through iCloud. Defaults to `false`.
-    public let synchronizable: Bool
     /// The underlying keychain.
-    /// - warning: This is computed everytime as it is not thread safe.
-    private var keychain: KeychainSwift {
-        let keychain = KeychainSwift(keyPrefix: prefix)
-        keychain.synchronizable = synchronizable
-        return keychain
-    }
-    /// A `KeychainSwiftAccessOptions` value. Defaults to `.accessibleWhenUnlocked`.
-    /// - note: If you need to support different access options for different `Secret`s, simply instantiate different `KeychainStorage`s.
-    private let access: KeychainSwiftAccessOptions
+    private let keychain: Keychain
 
     // MARK: Lifecycle
     /// Init.
     /// - parameters:
-    ///     - prefix: A `KeychainSwift` prefix.
-    ///     - access: A valid `KeychainSwiftAccessOptions` value. Defaults to `.accessibleWhenUnlocked`.
-    ///     - synchronizable: A `Bool` representing whether the `Secret` should be shared through iCloud Keychain or not.
-    public init(prefix: String = "swiftagram",
-                access: KeychainSwiftAccessOptions = .accessibleWhenUnlocked,
-                synchronizable: Bool = false) {
-        self.prefix = prefix
-        self.access = access
-        self.synchronizable = synchronizable
+    ///     - accessibility: A valid `Keychain.Accessibility` value. Defaults to `.whenUnlocked`.
+    ///     - isSynchronizable: A `Bool` representing whether the `Secret` should be shared through iCloud Keychain or not. Defaults to `false`.
+    public init(accessibility: Keychain.Accessibility = .whenUnlocked,
+                isSynchronizable: Bool = false) {
+        self.keychain = .init(accessibility: accessibility, isSynchronizable: isSynchronizable)
+    }
+
+    /// Init.
+    /// - parameters:
+    ///     - service: A `String` identifying the service name for the keychain instance.
+    ///     - group: An optional `String` identifying the service name for the keychain instance. Defaults to `nil`.
+    ///     - accessibility: A valid `Keychain.Accessibility` value. Defaults to `.whenUnlocked`.
+    ///     - isSynchronizable: A `Bool` representing whether the `Secret` should be shared through iCloud Keychain or not. Defaults to `false`.
+    public init(service: String,
+                group: String? = nil,
+                accessibility: Keychain.Accessibility = .whenUnlocked,
+                isSynchronizable: Bool = false) {
+        self.keychain = .init(service: service,
+                              group: group,
+                              accessibility: accessibility,
+                              isSynchronizable: isSynchronizable)
     }
 
     // MARK: Lookup
@@ -48,17 +48,15 @@ public struct KeychainStorage<Secret: Key>: Storage {
     /// - returns: A `Secret` or `nil` if no response could be found.
     /// - note: Use `Secret.stored` to access it.
     public func find(matching identifier: String) -> Secret? {
-        return keychain
-            .getData(identifier)
+        return try? keychain
+            .get(forKey: identifier)
             .flatMap { try? JSONDecoder().decode(Secret.self, from: $0) }
     }
 
     /// Return all `Secret`s stored in the `keychain`.
     /// - returns: An `Array` of `Secret`s stored in the `keychain`.
     public func all() -> [Secret] {
-        return keychain.allKeys
-            .compactMap { $0.starts(with: prefix) ? String($0[prefix.endIndex...]) : nil }
-            .compactMap(find)
+        return (try? keychain.allKeys())?.compactMap(find) ?? []
     }
 
     // MARK: Locker
@@ -67,7 +65,7 @@ public struct KeychainStorage<Secret: Key>: Storage {
     public func store(_ response: Secret) {
         // Store.
         guard let data = try? JSONEncoder().encode(response) else { return }
-        keychain.set(data, forKey: response.id, withAccess: access)
+        try? keychain.set(data, forKey: response.id)
     }
 
     /// Delete a `Secret` in the keychain.
@@ -75,7 +73,12 @@ public struct KeychainStorage<Secret: Key>: Storage {
     @discardableResult
     public func remove(matching identifier: String) -> Secret? {
         guard let response = find(matching: identifier) else { return nil }
-        keychain.delete(identifier)
+        try? keychain.remove(matchingKey: identifier)
         return response
+    }
+
+    /// Delete all cached `Secret`s.
+    public func removeAll() {
+        try? keychain.removeAll()
     }
 }

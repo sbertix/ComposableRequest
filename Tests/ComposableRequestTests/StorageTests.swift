@@ -53,8 +53,6 @@ final class StorageTests: XCTestCase {
     }
     /// Test `KeychainStorage` flow.
     func testKeychainStorage() {
-        // Keychain is not available during test.
-        // So this should all return empty.
         let storage = KeychainStorage<AnyCookieKey>()
         storage.removeAll()
         XCTAssert(storage.all().isEmpty, "Storage did not empty.")

@@ -14,7 +14,7 @@ let package = Package(
         )
     ],
     dependencies: [
-        .package(url: "https://github.com/evgenyneu/keychain-swift.git", .upToNextMinor(from: "19.0.0"))
+        .package(url: "https://github.com/sbertix/Swiftchain.git", .upToNextMinor(from: "0.0.1"))
     ],
     targets: [
         .target(
@@ -23,7 +23,7 @@ let package = Package(
         ),
         .target(
             name: "ComposableRequestCrypto",
-            dependencies: ["ComposableRequest", "KeychainSwift"]
+            dependencies: ["ComposableRequest", "Swiftchain"]
         ),
         .testTarget(
             name: "ComposableRequestTests",
