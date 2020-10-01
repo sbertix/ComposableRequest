@@ -57,7 +57,7 @@ final class StorageTests: XCTestCase {
         storage.removeAll()
         XCTAssert(storage.all().isEmpty, "Storage did not empty.")
         storage.store(response)
-        #if canImport(UIKit)
+        #if !os(macOS)
         XCTAssert(storage.find(matching: response.id) == nil, "Storage did not retrieve cached response.")
         XCTAssert(storage.remove(matching: response.id) == nil, "Transient storage was actually not empty.")
         #else
@@ -91,12 +91,4 @@ final class StorageTests: XCTestCase {
             XCTFail(error.localizedDescription)
         }
     }
-
-    static var allTests = [
-        ("TransientStorage", testTransientStorage),
-        ("UserDefaultsStorage", testUserDefaultsStorage),
-        ("Storage", testStorage),
-        ("KeychainStorage", testKeychainStorage),
-        ("Secret", testSecretStoring)
-    ]
 }

@@ -32,14 +32,17 @@ public struct KeychainStorage<Secret: Key>: Storage {
     ///     - service: A `String` identifying the service name for the keychain instance.
     ///     - group: An optional `String` identifying the service name for the keychain instance. Defaults to `nil`.
     ///     - accessibility: A valid `Keychain.Accessibility` value. Defaults to `.whenUnlocked`.
+    ///     - authentication: A valid `Keychain.Authentication` value. Defaults to empty.
     ///     - isSynchronizable: A `Bool` representing whether the `Secret` should be shared through iCloud Keychain or not. Defaults to `false`.
     public init(service: String,
                 group: String? = nil,
                 accessibility: Keychain.Accessibility = .whenUnlocked,
+                authentication: Keychain.Authentication = [],
                 isSynchronizable: Bool = false) {
         self.keychain = .init(service: service,
                               group: group,
                               accessibility: accessibility,
+                              authentication: authentication,
                               isSynchronizable: isSynchronizable)
     }
 
@@ -49,14 +52,15 @@ public struct KeychainStorage<Secret: Key>: Storage {
     /// - note: Use `Secret.stored` to access it.
     public func find(matching identifier: String) -> Secret? {
         return try? keychain
-            .get(forKey: identifier)
+            .container(for: identifier)
+            .fetch()
             .flatMap { try? JSONDecoder().decode(Secret.self, from: $0) }
     }
 
     /// Return all `Secret`s stored in the `keychain`.
     /// - returns: An `Array` of `Secret`s stored in the `keychain`.
     public func all() -> [Secret] {
-        return (try? keychain.allKeys())?.compactMap(find) ?? []
+        return (try? keychain.keys())?.compactMap(find) ?? []
     }
 
     // MARK: Locker
@@ -65,20 +69,21 @@ public struct KeychainStorage<Secret: Key>: Storage {
     public func store(_ response: Secret) {
         // Store.
         guard let data = try? JSONEncoder().encode(response) else { return }
-        try? keychain.set(data, forKey: response.id)
+        try? keychain.container(for: response.id).store(data)
     }
 
     /// Delete a `Secret` in the keychain.
     /// - returns: The removed `Secret` or `nil` if none was found.
     @discardableResult
     public func remove(matching identifier: String) -> Secret? {
-        guard let response = find(matching: identifier) else { return nil }
-        try? keychain.remove(matchingKey: identifier)
-        return response
+        return try? keychain
+            .container(for: identifier)
+            .drop()
+            .flatMap { try? JSONDecoder().decode(Secret.self, from: $0) }
     }
 
     /// Delete all cached `Secret`s.
     public func removeAll() {
-        try? keychain.removeAll()
+        try? keychain.empty()
     }
 }

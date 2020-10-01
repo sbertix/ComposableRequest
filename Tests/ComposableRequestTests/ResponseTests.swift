@@ -45,8 +45,4 @@ final class ResponseTests: XCTestCase {
         XCTAssert(response.date()?.timeIntervalSince1970 == 1000)
         response = .empty
     }
-
-    static var allTests = [
-        ("Response", testResponse)
-    ]
 }

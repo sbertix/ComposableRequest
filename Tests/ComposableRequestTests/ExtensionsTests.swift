@@ -27,9 +27,4 @@ final class ExtensionsTests: XCTestCase {
                                                 from: JSONEncoder().encode(cookie))
         XCTAssert(decoded == cookie)
     }
-
-    static var allTests = [
-        ("Extensions.String", testString),
-        ("Extensions.Cookie", testCookie)
-    ]
 }
