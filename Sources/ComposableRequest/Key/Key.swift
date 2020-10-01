@@ -8,7 +8,10 @@
 import Foundation
 
 /// A `protocol` holding reference to authentication.
-public protocol Key: Identifiable, Codable where ID == String { }
+public protocol Key: Codable {
+    /// The underlying identifier.
+    var id: String { get }
+}
 
 /// A `protocol` holding reference to authentication headers.
 public protocol HeaderKey: Key {
