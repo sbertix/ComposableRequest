@@ -217,16 +217,4 @@ final class RequestsTests: XCTestCase {
         wait(for: [expectation], timeout: 3)
         XCTAssert(requester == nil)
     }
-    
-    static var allTests = [
-        ("Expenting.Expected", testExpected),
-        ("Expecting.Expected.Lock", testExpectedLock),
-        ("Expecting.Paginated", testPaginated),
-        ("Expecting.StepwisePaginated", testStepwisePaginated),
-        ("Expecting.Paginated.Lock", testPaginatedLock),
-        ("Expecting.Paginated.CustomLock", testPaginatedCustomLock),
-        ("Request.Deinit", testDeinit),
-        ("Request.Cancel", testCancel),
-        ("Request.Method", testMethod)
-    ]
 }
