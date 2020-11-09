@@ -1,94 +1,138 @@
-@testable import ComposableRequest
-@testable import ComposableRequestCrypto
+//
+//  StorageTests.swift
+//  ComposableRequestTests
+//
+//  Created by Stefano Bertagno on 04/11/20.
+//
+
 import XCTest
 
-final class StorageTests: XCTestCase {
-    /// Compute the `Secret`.
-    let response = AnyCookieKey(cookies: [HTTPCookie(properties: [.name: "ds_user_id",
-                                                                  .path: "test",
-                                                                  .value: "test",
-                                                                  .domain: "test"])!,
-                                          HTTPCookie(properties: [.name: "csrftoken",
-                                                                  .path: "test",
-                                                                  .value: "test",
-                                                                  .domain: "test"])!,
-                                          HTTPCookie(properties: [.name: "sessionid",
-                                                                  .path: "test",
-                                                                  .value: "test",
-                                                                  .domain: "test"])!])
+@testable import ComposableStorage
+@testable import ComposableStorageCrypto
 
-    /// Test `TransientStorage` flow.
+import ComposableRequest
+import Swiftchain
+
+/// A static item.
+fileprivate let item = Item.default
+
+/// A `class` defining all `Storage` test cases.
+final class StorageTests: XCTestCase {
+    // MARK: Processors
+    
+    /// Process a `NonThrowingStorage`.
+    ///
+    /// - parameters:
+    ///     - storage: A valid `NonThrowingStorage`.
+    ///     - function: The function from where it was called.
+    private func process<S: NonThrowingStorage>(_ storage: S, function: String = #function) where S.Item == Item {
+        // Empty.
+        storage.empty()
+        XCTAssert(storage.items().isEmpty, "\(storage) did not empty (\(function), #\(#line))")
+        // Store `item`.
+        XCTAssert(storage.store(item) == item, "Stored \(item) did not match (\(function), #\(#line))")
+        XCTAssert(storage.item(matching: item.label) == item, "\(storage) did not cache item (\(function), #\(#line))")
+        XCTAssert(!storage.items().isEmpty, "\(storage) should not be empty (\(function), #\(#line))")
+        // Delete `item`.
+        XCTAssert(storage.discard(item.label) == item, "\(storage) did not discard item (\(function), #\(#line))")
+        XCTAssert(storage.item(matching: item.label) == nil, "\(storage) did not discard item (\(function), #\(#line))")
+        XCTAssert(storage.items().isEmpty, "\(storage) did not discard item (\(function), #\(#line))")
+        // Empty.
+        XCTAssert(storage.store(item) == item, "Stored \(item) did not match (\(function), #\(#line))")
+        XCTAssert(storage.item(matching: item.label) == item, "\(storage) did not cache item (\(function), #\(#line))")
+        XCTAssert(!storage.items().isEmpty, "\(storage) should not be empty (\(function), #\(#line))")
+        storage.empty()
+        XCTAssert(storage.item(matching: item.label) == nil, "\(storage) did not empty item (\(function), #\(#line))")
+        XCTAssert(storage.items().isEmpty, "\(storage) did not empty (\(function), #\(#line))")
+        // `Storable` accessories.
+        XCTAssert(item.store(in: storage) == item, "Stored \(item) did not match (\(function), #\(#line))")
+        XCTAssert(Item.matching(item.label, in: storage) == item, "Stored \(item) did not match (\(function), #\(#line))")
+    }
+    
+    /// Process a `ThrowingStorage`.
+    ///
+    /// - parameters:
+    ///     - storage: A valid `NonThrowingStorage`.
+    ///     - function: The function from where it was called.
+    private func process<S: ThrowingStorage>(_ storage: S, function: String = #function) throws where S.Item == Item {
+        // Empty.
+        try storage.empty()
+        try XCTAssert(storage.items().isEmpty, "\(storage) did not empty (\(function), #\(#line))")
+        // Store `item`.
+        try XCTAssert(storage.store(item) == item, "Stored \(item) did not match (\(function), #\(#line))")
+        try XCTAssert(storage.item(matching: item.label) == item, "\(storage) did not cache item (\(function), #\(#line))")
+        try XCTAssert(!storage.items().isEmpty, "\(storage) should not be empty (\(function), #\(#line))")
+        // Delete `item`.
+        try XCTAssert(storage.discard(item.label) == item, "\(storage) did not discard item (\(function), #\(#line))")
+        try XCTAssert(storage.item(matching: item.label) == nil, "\(storage) did not discard item (\(function), #\(#line))")
+        try XCTAssert(storage.items().isEmpty, "\(storage) did not discard item (\(function), #\(#line))")
+        // Empty.
+        try XCTAssert(storage.store(item) == item, "Stored \(item) did not match (\(function), #\(#line))")
+        try XCTAssert(storage.item(matching: item.label) == item, "\(storage) did not cache item (\(function), #\(#line))")
+        try XCTAssert(!storage.items().isEmpty, "\(storage) should not be empty (\(function), #\(#line))")
+        try storage.empty()
+        try XCTAssert(storage.item(matching: item.label) == nil, "\(storage) did not empty item (\(function), #\(#line))")
+        try XCTAssert(storage.items().isEmpty, "\(storage) did not empty (\(function), #\(#line))")
+        // `Storable` accessories.
+        XCTAssert(try item.store(in: storage) == item, "Stored \(item) did not match (\(function), #\(#line))")
+        XCTAssert(try Item.matching(item.label, in: storage) == item, "Stored \(item) did not match (\(function), #\(#line))")
+    }
+    
+    /// Process some `Storage`.
+    ///
+    /// - parameters:
+    ///     - storage: A valid `Storage`.
+    ///     - function: The function from where it was called.
+    private func process<S: Storage>(storage: S, function: String = #function, line: Int = #line) throws where S.Item == Item {
+        // Empty.
+        try S.empty(storage)
+        try XCTAssert(S.items(in: storage).isEmpty, "\(storage) did not empty (\(function), #\(#line))")
+        // Store `item`.
+        try XCTAssert(S.store(item, in: storage) == item, "Stored \(item) did not match (\(function), #\(#line))")
+        try XCTAssert(S.item(matching: item.label, in: storage) == item, "\(storage) did not cache item (\(function), #\(#line))")
+        try XCTAssert(!S.items(in: storage).isEmpty, "\(storage) should not be empty (\(function), #\(#line)")
+        // Delete `item`.
+        try XCTAssert(S.discard(item.label, in: storage) == item, "\(storage) did not discard item (\(function), #\(#line))")
+        try XCTAssert(S.item(matching: item.label, in: storage) == nil, "\(storage) did not discard item (\(function), #\(#line))")
+        try XCTAssert(S.items(in: storage).isEmpty, "\(storage) did not discard item (\(function), #\(#line))")
+        // Empty.
+        try XCTAssert(S.store(item, in: storage) == item, "Stored \(item) did not match (\(function), #\(#line)")
+        try XCTAssert(S.item(matching: item.label, in: storage) == item, "\(storage) did not cache item (\(function), #\(#line))")
+        try XCTAssert(!S.items(in: storage).isEmpty, "\(storage) should not be empty (\(function), #\(#line))")
+        try S.empty(storage)
+        try XCTAssert(S.item(matching: item.label, in: storage) == nil, "\(storage) did not empty item (\(function), #\(#line))")
+        try XCTAssert(S.items(in: storage).isEmpty, "\(storage) did not empty (\(function), #\(#line))")
+    }
+    
+    // MARK: Cases
+    
+    /// Test `KeychainStorage`.
+    func testKeychainStorage() throws {
+        let storage = KeychainStorage<Item>()
+        try process(storage)
+        try process(storage: storage)
+    }
+    
+    /// Test `TransientStorage`.
     func testTransientStorage() {
-        let storage = TransientStorage<AnyCookieKey>()
-        storage.removeAll()
-        XCTAssert(storage.all().isEmpty, "Storage did not empty.")
-        storage.store(response)
-        XCTAssert(storage.find(matching: response.id) == nil, "Transient response was actually saved.")
-        XCTAssert(storage.all().isEmpty, "Transient storage was actually not empty.")
-        XCTAssert(storage.remove(matching: response.id) == nil, "Transient storage was actually not empty.")
+        let storage = TransientStorage<Item>()
+        // Empty.
+        storage.empty()
+        XCTAssert(storage.items().isEmpty, "\(storage) did not empty (\(#function), #\(#line))")
+        // Store `item`.
+        XCTAssert(storage.store(item) == item, "Stored \(item) did not match (\(#function), #\(#line))")
+        XCTAssert(storage.item(matching: item.label) == nil, "\(storage) did not empty (\(#function), #\(#line))")
+        XCTAssert(storage.items().isEmpty, "\(storage) did not empty (\(#function), #\(#line))")
+        // Delete `item`.
+        XCTAssert(storage.discard(item.label) == nil, "\(storage) did not empty (\(#function), #\(#line))")
+        XCTAssert(storage.item(matching: item.label) == nil, "\(storage) did not empty (\(#function), #\(#line))")
+        XCTAssert(storage.items().isEmpty, "\(storage) did not empty (\(#function), #\(#line))")
     }
-    /// Test `UserDefaultsStorage` flow.
-    func testUserDefaultsStorage() {
-        let storage = UserDefaultsStorage<AnyCookieKey>()
-        storage.removeAll()
-        XCTAssert(storage.all().isEmpty, "Storage did not empty")
-        storage.store(response)
-        XCTAssert(storage.find(matching: response.id) != nil, "Storage did not retrieve cached response.")
-        let count = storage.all().count
-        XCTAssert(count == 1, "Storage should contain one response, but it contains \(count).")
-        storage.removeAll()
-        XCTAssert(storage.all().isEmpty, "Transient storage was actually not empty.")
-    }
-    /// Test `UserDefaultsStorage` flow as `[Storage]`.
-    func testStorage() {
-        let storage = [UserDefaultsStorage<AnyCookieKey>()]
-        storage.removeAll()
-        XCTAssert(storage.all().isEmpty, "Storage did not empty")
-        storage.store(response)
-        XCTAssert(storage.find(matching: response.id) != nil, "Storage did not retrieve cached response.")
-        let count = storage.all().count
-        XCTAssert(count == 1, "Storage should contain one response, but it contains \(count).")
-        storage.removeAll()
-        XCTAssert(storage.all().isEmpty, "Transient storage was actually not empty.")
-    }
-    /// Test `KeychainStorage` flow.
-    func testKeychainStorage() {
-        let storage = KeychainStorage<AnyCookieKey>()
-        storage.removeAll()
-        XCTAssert(storage.all().isEmpty, "Storage did not empty.")
-        storage.store(response)
-        #if !os(macOS)
-        XCTAssert(storage.find(matching: response.id) == nil, "Storage did not retrieve cached response.")
-        XCTAssert(storage.remove(matching: response.id) == nil, "Transient storage was actually not empty.")
-        #else
-        XCTAssert(storage.find(matching: response.id) != nil, "Storage did not retrieve cached response.")
-        XCTAssert(storage.remove(matching: response.id) != nil, "Transient storage was actually not empty.")
-        #endif
-        XCTAssert(storage.all().isEmpty, "Transient storage was actually not empty.")   // Always `nil` during test.
-        storage.removeAll()
-        XCTAssert(storage.all().isEmpty, "Transient storage was actually not empty.")
-    }
-    /// Test `Secret` storing.
-    func testSecretStoring() {
-        let secret = AnyCookieKey(cookies: [HTTPCookie(properties: [.name: "ds_user_id", .value: "A", .path: "A", .domain: "A"])!,
-                                      HTTPCookie(properties: [.name: "csrftoken", .value: "B", .path: "B", .domain: "B"])!,
-                                      HTTPCookie(properties: [.name: "sessionid", .value: "C", .path: "C", .domain: "C"])!])
-        XCTAssert(
-            secret.header
-                .sorted(by: { $0.key < $1.key })
-                .map { $0.key+$0.value }
-                .joined()
-                .contains("Cookieds_user_id=A; csrftoken=B; sessionid=C")
-        )
-        secret.store(in: TransientStorage())
-        XCTAssert(AnyCookieKey.stored(with: "A", in: TransientStorage()) == nil)
-        // Encode and decode.
-        do {
-            let encoded = try JSONEncoder().encode(secret)
-            let decoded = try JSONDecoder().decode(AnyCookieKey.self, from: encoded)
-            XCTAssert(decoded.cookies == secret.cookies)
-        } catch {
-            XCTFail(error.localizedDescription)
-        }
+    
+    /// Test `UserDefaultsStorage`.
+    func testUserDefaultsStorage() throws {
+        let storage = UserDefaultsStorage<Item>()
+        process(storage)
+        try process(storage: storage)
     }
 }

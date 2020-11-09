@@ -46,11 +46,15 @@ public struct Logger {
         public static let full: Level = [.request, .response]
 
         /// Init.
+        ///
         /// - parameter rawValue: A valid `Int`.
         public init(rawValue: Int) { self.rawValue = rawValue }
 
         // MARK: Log
+
         /// Log request.
+        ///
+        /// - parameter request: A valid `URLRequest`.
         internal func log(request: URLRequest) {
             let url = contains(.url) ? request.url.flatMap { "\tURL: "+$0.absoluteString } : nil
             let method = contains(.method) ? request.httpMethod.flatMap { "\tMethod: "+$0 } : nil
@@ -68,26 +72,35 @@ public struct Logger {
         }
 
         /// Log response.
-        internal func log(response: HTTPURLResponse?, data: Data?, error: Error?) {
-            // Update request.
-            let url = contains(.responseURL) ? response?.url.flatMap { "\tURL: "+$0.absoluteString } : nil
-            let statusCode = contains(.responseStatusCode) ? response.flatMap { "\tStatus code: \($0.statusCode)" } : nil
-            let exception = contains(.responseError) ? error?.localizedDescription : nil
-            let header = contains(.responseHeader)
-                ? (response?.allHeaderFields as? [String: String]).flatMap { "\tHeader: "+$0.description }
-                : nil
-            let body = contains(.responseBody)
-                ? (data.flatMap { String(data: $0, encoding: .utf8) } ?? "<parser error>")
-                    .flatMap { "\tBody: "+$0 }
-                : nil
-            // Compose.
-            guard url != nil || statusCode != nil || header != nil || body != nil else { return }
-            DispatchQueue.main.async {
-                print((["Response:"]+[url, statusCode, exception, header, body].compactMap { $0 }).joined(separator: "\n"))
+        ///
+        /// - parameter result: A valid `Result`.
+        internal func log(_ result: Result<Request.Response, Error>) {
+            do {
+                let item = try result.get()
+                let url = contains(.responseURL) ? item.response.url.flatMap { "\tURL: "+$0.absoluteString } : nil
+                let statusCode = contains(.responseStatusCode) ? (item.response as? HTTPURLResponse).flatMap { "\tURL: \($0.statusCode)" } : nil
+                let header = contains(.responseHeader)
+                    ? ((item.response as? HTTPURLResponse)?.allHeaderFields as? [String: String]).flatMap { "\tHeader: "+$0.debugDescription }
+                    : nil
+                let body = contains(.responseBody)
+                    ? "\tBody: "+(String(data: item.data, encoding: .utf8) ?? "<parser error>")
+                    : nil
+                // Compose.
+                guard url != nil || statusCode != nil || header != nil || body != nil else { return }
+                DispatchQueue.main.async {
+                    print((["Response:", url, statusCode, header, body].compactMap { $0 }.joined(separator: "\n")))
+                }
+            } catch {
+                let exception = contains(.responseError) ? error.localizedDescription : nil
+                // Compose.
+                guard exception != nil else { return }
+                DispatchQueue.main.async {
+                    print([["Response", exception].compactMap { $0 }.joined(separator: "\n")])
+                }
             }
         }
     }
 
     /// The current level. Defaults to `.none`.
-    public static var level: Level = .none
+    public static var `default`: Level = .none
 }
