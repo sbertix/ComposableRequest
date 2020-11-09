@@ -7,92 +7,119 @@
 
 import Foundation
 
-/// A `struct` representing a composable `URLRequest`.
+/// A `struct` defining a composable `URLRequest`.
 @dynamicMemberLookup
 public struct Request: Hashable {
-    /// `ComposableRequest` defaults to `Response`.
-    public typealias Response = Wrapper
-
-    /// A valid `Method`.
-    public var method: Method
-    /// A valid `URL`.
-    public var url: URL
-    /// A valid `Dictionary` of `String`s.
-    public var query: [String: String]
-    /// A valid `Dictionary` of `String`s referencing the request header fields.
+    /// Some valid `URLComponents`.
+    public var components: URLComponents?
+    /// A valid `HTTPMethod`.
+    public var method: HTTPMethod
+    /// Some valid header fields.
     public var header: [String: String]
-    /// A valid `Body`.
+    /// An optional body.
     public var body: Data?
-
-    // MARK: Lifecycle
-    /// Init.
-    /// - parameters:
-    ///     - url: A valid `URL`.
-    ///     - method: A valid `Method`. Defaults to `.default`.
-    ///     - query: A valid `Dictionary` of `String`s. Defaults to `[:]`.
-    ///     - header: A valid `Dictionary` of `String`s. Defaults to `[:]`.
-    ///     - body: A valid optional `Data`. Defaults to `nil`.
-    public init(_ url: URL, method: Method = .default, query: [String: String] = [:], body: Data? = nil, header: [String: String] = [:]) {
-        self.url = url
-        self.query = query
-        self.method = method
-        self.body = body
-        self.header = header
-    }
+    /// A valid `TimeInterval`.
+    public var timeout: TimeInterval
 
     /// Init.
+    ///
     /// - parameters:
-    ///     - string: A valid `URL` string.
+    ///     - components: Some optional `URLComponents`.
     ///     - method: A valid `Method`. Defaults to `.default`.
-    ///     - query: A valid `Dictionary` of `String`s. Defaults to `[:]`.
-    ///     - header: A valid `Dictionary` of `String`s. Defaults to `[:]`.
-    ///     - body: A valid optional `Data`. Defaults to `nil`.
-    public init(_ string: String, method: Method = .default, query: [String: String] = [:], body: Data? = nil, header: [String: String] = [:]) {
-        self.url = URL(string: string)!
-        self.query = query
+    ///     - header: A dictionary of `String`s. Defaults to empty.
+    ///     - body: Some optional `Data`. Defaults to `nil`.
+    ///     - timeout: A valid `TimeInterval`. Defaults to `15`.
+    public init(_ components: URLComponents?,
+                method: HTTPMethod = .default,
+                header: [String: String] = [:],
+                body: Data? = nil,
+                timeout: TimeInterval = 15) {
+        self.components = components
         self.method = method
-        self.body = body
         self.header = header
-    }
-}
-
-// MARK: Composable
-/// `Composable` conformacies.
-extension Request: Composable, Parsable {
-    public func replacing(method: Method) -> Request {
-        return copy(self) { $0.method = method }
+        self.body = body
+        self.timeout = timeout
     }
 
-    public func replacing(body data: Data?) -> Request {
-        return copy(self) { $0.body = data }
+    /// Init.
+    ///
+    /// - parameters:
+    ///     - url: An optional `URL`.
+    ///     - query: A dictionary of `String`s. Defaults to empty.
+    ///     - method: A valid `Method`. Defaults to `.default`.
+    ///     - header: A dictionary of `String`s. Defaults to empty.
+    ///     - body: Some optional `Data`. Defaults to `nil`.
+    ///     - timeout: A valid `TimeInterval`. Defaults to `15`.
+    public init(_ url: URL?,
+                query: [String: String] = [:],
+                method: HTTPMethod = .default,
+                header: [String: String] = [:],
+                body: Data? = nil,
+                timeout: TimeInterval = 15) {
+        var components = url.flatMap { URLComponents(url: $0, resolvingAgainstBaseURL: false) }
+        components?.queryItems = query.isEmpty ? nil : query.map { URLQueryItem(name: $0.key, value: $0.value) }
+        self.init(components, method: method, header: header, body: body, timeout: timeout)
     }
 
-    public func replacing(header parameters: [String: String?]) -> Request {
-        return copy(self) { $0.header = parameters.compactMapValues { $0 }}
+    /// Init.
+    ///
+    /// - parameters:
+    ///     - path: An optional `URL` path.
+    ///     - query: A dictionary of `String`s. Defaults to empty.
+    ///     - method: A valid `Method`. Defaults to `.default`.
+    ///     - header: A dictionary of `String`s. Defaults to empty.
+    ///     - body: Some optional `Data`. Defaults to `nil`.
+    ///     - timeout: A valid `TimeInterval`. Defaults to `15`.
+    /// - warning: An exception is thrown on invalid `path`s.
+    public init(_ path: String?,
+                query: [String: String] = [:],
+                method: HTTPMethod = .default,
+                header: [String: String] = [:],
+                body: Data? = nil,
+                timeout: TimeInterval = 15) {
+        self.init(path.flatMap { URL(string: $0) },
+                  query: query,
+                  method: method,
+                  header: header,
+                  body: body,
+                  timeout: timeout)
     }
 
-    public func replacing(query parameters: [String: String?]) -> Request {
-        return copy(self) { $0.query = parameters.compactMapValues { $0 }}
+    /// Init.
+    ///
+    /// - parameters:
+    ///     - path: An optional `URL` path.
+    ///     - query: A dictionary of `String`s. Defaults to empty.
+    ///     - method: A valid `Method`. Defaults to `.default`.
+    ///     - header: A dictionary of `String`s. Defaults to empty.
+    ///     - body: Some optional `Data`. Defaults to `nil`.
+    ///     - timeout: A valid `TimeInterval`. Defaults to `15`.
+    public init(filePath path: String?,
+                query: [String: String] = [:],
+                method: HTTPMethod = .default,
+                header: [String: String] = [:],
+                body: Data? = nil,
+                timeout: TimeInterval = 15) {
+        self.init(path.flatMap { URL(fileURLWithPath: $0) },
+                  query: query,
+                  method: method,
+                  header: header,
+                  body: body,
+                  timeout: timeout)
     }
 
-    public func appending(path pathComponent: String) -> Request {
-        return copy(self) { $0.url.appendPathComponent(pathComponent) }
-    }
-}
-
-// MARK: Requestable
-extension Request: Requestable {
     /// Compute the `URLRequest`.
+    ///
     /// - returns: An optional `URLRequest`.
     public func request() -> URLRequest? {
-        // Create the components.
-        guard var components = URLComponents(url: url, resolvingAgainstBaseURL: false) else { return nil }
-        let queryItems = query.map { URLQueryItem(name: $0, value: $1) }
-        components.queryItems = queryItems.isEmpty ? nil : queryItems
-        guard var request = components.url.flatMap({ URLRequest(url: $0) }) else { return nil }
-        request.allHTTPHeaderFields = header.isEmpty ? nil : header
+        guard let url = components?.url else { return nil }
+        var request = URLRequest(url: url)
+        request.allHTTPHeaderFields = header
         request.httpBody = body
-        request.httpMethod = !method.rawValue.isEmpty ? method.rawValue : (body?.isEmpty == false ? "POST" : "GET")
+        request.httpMethod = method == .default ? (body != nil ? "POST" : "GET") : method.rawValue
+        request.timeoutInterval = timeout
         return request
     }
 }
+
+extension Request: Body, Header, Method, Path, Query, Timeout { }
