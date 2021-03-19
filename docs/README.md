@@ -14,9 +14,10 @@
 
 **ComposableRequest** is a networking layer based on a declarative interface, written in (modern) **Swift**.
 
-It abstracts away `URLSession` implementation, in order to provide concise and powerful endpoint representations, thanks to the power of `Observable`s, compatible with [**Combine**](https://developer.apple.com/documentation/combine) but extremely powerful by themselves. 
+It abstracts away `URLSession` implementation, in order to provide concise and powerful endpoint representations, thanks to the power of **Combine** `Publisher`s. 
+Compatibilty for older versions of **iOS**, **macOS**, **tvOS** and **watchOS** is provided through **CombineX**'s **CXShim**, learn more [here](https://github.com/cx-org/CombineX/wiki/Combine-Compatible-Package).
 
-It comes with `Storage` (inside of **ComposableStorage**), a way of caching `Storable` items, and related concrete implementations (e.g. `UserDefaultsStorage`, `KeychainStorage` – for which you're gonna need to add **ComposableStorageCrypto**, depending on [**Swiftchain**](https://github.com/sbertix/Swiftchain), together with the ability to provide the final user of your API wrapper to inject code and change the way your `Promise` stream will eventually output, allowing for easier pagination and authentication. 
+It comes with `Storage` (inside of **ComposableStorage**), a way of caching `Storable` items, and related concrete implementations (e.g. `UserDefaultsStorage`, `KeychainStorage` – for which you're gonna need to add **ComposableStorageCrypto**, depending on [**Swiftchain**](https://github.com/sbertix/Swiftchain), together with the ability to provide the final user of your API wrapper to inject code through `Provider`s. 
 
 ## Status
 ![push](https://github.com/sbertix/ComposableRequest/workflows/push/badge.svg)
@@ -51,8 +52,7 @@ Furthermore, with the integration of the **Swift Package Manager** in **Xcode 11
     <p>
 
 - **ComposableRequest**, an HTTP client originally integrated in **Swiftagram**, the core library.\
-It defines `Promise`s and their delayed counterparts, in order to tailor endpoint calls to your needs.\
-It supports [`Combine`](https://developer.apple.com/documentation/combine) `Publisher`s out of the box.
+It depends on [**CombineX**](https://github.com/cx-org/CombineX/)'s [**CXShim**](https://github.com/cx-org/CombineX/wiki/Combine-Compatible-Package) to provide **Combine** support on all platforms, reguardless of their minum deployment version. 
 
 - **ComposableStorage**, can be imported together with **ComposableRequest** to extend its functionality.     
     </p>
@@ -73,11 +73,11 @@ public enum MediaEndpoint {
     ///
     /// - parameter identifier: String
     /// - returns: A locked `AnyObservable`, waiting for authentication `HTTPCookie`s.
-    func delete(_ identifier: String) -> LockSessionProvider<[HTTPCookie], AnyObservable<Bool, Error>> {
+    public func delete(_ identifier: String) -> LockSessionProvider<[HTTPCookie], AnyPublisher<Bool, Error>> {
         // Wait for user defined values.
         LockSessionProvider { cookies, session in
             // Defer it so it only resumes when observed.
-            Projectables.Deferred {
+            Deferred {
                 // Fetch first info about the post to learn if it's a video or picture
                 // as they have slightly different endpoints for deletion.
                 Request("https://i.instagram.com/api/v1/media")
@@ -88,8 +88,8 @@ public enum MediaEndpoint {
                     // authentication cookies, but as this is just an example
                     // we leave it to you.
                     .header(appending: HTTPCookie.requestHeaderFields(with: cookies))
-                    // Create the `Projectable`.
-                    .project(session)
+                    // Create the `Publisher`.
+                    .publish(with: session)
                     // Check it returned a valid media.
                     .map(\.data)
                     // Decode it inside a `Wrapper`, allowing to interrogate JSON
@@ -97,10 +97,10 @@ public enum MediaEndpoint {
                     // (It's literally the missing `AnyCodable`).
                     .wrap()
                     // Prepare the new request.
-                    .flatMap { wrapper -> AnyProjectable<Bool, Error> in
+                    .flatMap { wrapper -> AnyPublisher<Bool, Error> in
                         guard let type = wrapper["items"][0].mediaType.int(),
                               [1, 2, 8].contains(type) else {
-                            return Projectables.Just(false).eraseToAnyProjectable()
+                            return Just(false).setFailureType(to: Failure.self).eraseToAnyPublisher()
                         }
                         // Actually delete it now that we have all data.
                         return Request("https://i.instagram.com/api/v1/media")
@@ -110,16 +110,16 @@ public enum MediaEndpoint {
                             // This will be applied exactly as before, but you can add whaterver
                             // you need to it, as it will only affect this `Request`.
                             .header(appending: HTTPCookie.requestHeaderFields(with: cookies))
-                            // Create the `Projectable`.
-                            .project(session)
+                            // Create the `Publisher`.
+                            .publish(with: session)
                             .map(\.data)
                             .wrap()
                             .map { $0.status == "ok" }
                     }
             }
             // Make sure it's observed from the main thread.
-            .observe(on: .main)
-            .eraseToAnyObservable()
+            .receive(on: .main)
+            .eraseToAnyPublisher()
         }
     }
 }
@@ -136,93 +136,24 @@ All the user has to do is…
 let identifier: String = /* a valid String */
 /// A valid array of cookies.
 let cookies: [HTTPCookie] = /* an array of HTTPCookies */
-
-/// Delete it.
-MediaEndpoint.delete(identifier)
-    .unlock(with: cookies)
-    .session(.shared)
-    .observe { print($0) }
-    .resume()
-    .retain()
-```
-
-Or, in case you want to have control over the dispose bag…
-
-```swift
-/// A valid post identifier.
-let identifier: String = /* a valid String */
-/// A valid array of cookies.
-let cookies: [HTTPCookie] = /* an array of HTTPCookies */
-/// The dispose bag.
-let bin: Bin = .init()
-
-/// Delete it.
-MediaEndpoint.delete(identifier)
-    .unlock(with: cookies)
-    .session(.shared)
-    .observe { print($0) }
-    .resume()
-    .store(in: bin)
-```
-
-<br />
-
-> What if they're using **Combine**, instead?
-
-**ComposableRequest** includes support for [**Combine**](https://developer.apple.com/documentation/combine), just add a few lines to the code…
-
-```swift
-/// A valid post identifier.
-let identifier: String = /* a valid String */
-/// A valid array of cookies.
-let cookies: [HTTPCookie] = /* an array of HTTPCookies */
-/// The dispose bag.
+/// A *retained* collection of `AnyCancellable`s.
 var bin: Set<AnyCancellable> = []
 
 /// Delete it.
 MediaEndpoint.delete(identifier)
     .unlock(with: cookies)
     .session(.shared)
-    .publish()
     .sink(receiveCompletion: { _ in }, receiveValue: { print($0) })
     .store(in: &bin)
 ```
+
+<br />
 
 ### Resume and cancel requests
 
 > What about cancelling the request, or starting it a later date?
 
-
-
-```swift
-/// A valid post identifier.
-let identifier: String = /* a valid String */
-/// A valid array of cookies.
-let cookies: [HTTPCookie] = /* an array of HTTPCookies */
-
-/// Prepare the request.
-let deferrable: Deferrable = MediaEndpoint.delete(identifier)
-    .unlock(with: cookies)
-    .session(.shared, controlledBy: source.token)
-    .observe { print($0) }
-// If `deferrable` is not retained, remember
-// to call `retain` or `store(in:)` on it.
-```
-
-If you run the code above, you'll se `observe`'s `outputHandler` is no longer callsed as the underlying `URLSessionDataTask` is never actually fired. 
-You're gonna need to resume it first. 
-
-```swift
-deferrable.resume()
-```
-
-If you wanna cancel it at a later stage, you can simply call `cancel`.
-
-```swift
-deferrable.cancel()
-```
-
-Please **keep in mind** cancelling a `URLSessionDataTask`-related `Projectable` will result in an `Error` being outputted: you're responsible for dealing with it yourself. 
+As **ComposableRequest** is based on the **Combine** runtime, you can simply `cancel` the `Cancellable` returned on `sink`, or emptying the "dispose bag"-like `Set` you've stored it in. 
 
 ### Caching
 Caching of `Storable`s is provided through conformance to the `Storage` protocol, specifically by implementing either `ThrowingStorage` or `NonThrowingStorage`.  
