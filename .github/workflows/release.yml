@@ -1,0 +1,192 @@
+name:                                release
+
+on:
+  repository_dispatch:
+    types:                           [release-command]
+
+jobs:
+  # lint.
+  lint:
+    name:                            lint
+    runs-on:                         ubuntu-latest
+
+    steps:
+      # checkout.
+      - name:                        Checkout
+        uses:                        actions/checkout@v2
+        with:
+          token:                     ${{ secrets.GITHUB_TOKEN }}
+          repository:                ${{ github.event.client_payload.pull_request.head.repo.full_name }}
+          ref:                       ${{ github.event.client_payload.pull_request.head.ref }}
+      # lint code.
+      - name:                        Lint
+        uses:                        norio-nomura/action-swiftlint@3.1.0
+        with:
+          args:                      --strict
+      # notify failure.
+      - name:                        Notify (Failure)
+        uses:                        peter-evans/create-or-update-comment@v1
+        if:                          ${{ failure() }}
+        with:
+          issue-number:              ${{ github.event.client_payload.github.payload.issue.number }}
+          body:                      |
+            Hey @${{ github.event.client_payload.github.actor }} :muscle:
+
+            Unfortunately, linting failed.\
+            Please make sure your code is complying to _.swiftlint.yml_.
+
+            A maintener will get to you soon.
+
+  # validate current commit, merge and tag.
+  tag:
+    name:                            tag
+    needs:                           lint
+    runs-on:                         macos-latest
+
+    steps:
+      # checkout.
+      - name:                        Checkout
+        uses:                        actions/checkout@v2
+        with:
+          fetch-depth:               0
+          token:                     ${{ secrets.GITHUB_TOKEN }}
+          repository:                ${{ github.event.client_payload.pull_request.head.repo.full_name }}
+          ref:                       ${{ github.event.client_payload.pull_request.head.ref }}
+      # config author.
+      - name:                        Config
+        run:                         |
+          git config user.email "${{ github.event.client_payload.github.actor }}@users.noreply.github.com"
+          git config user.name "${{ github.event.client_payload.github.actor }}"
+      # create branch and rebase.
+      - name:                        Prepare
+        run:                         |
+          git checkout -b test
+          git rebase origin/main
+      # test library (Combine).
+      - name:                        Test Combine
+        run:                         swift test --parallel --enable-test-discovery --enable-code-coverage
+      # test library (Combine X).
+      - name:                        Test CombineX
+        env:
+          CX_COMBINE_IMPLEMENTATION: combinex
+        run:                         swift test --parallel --enable-test-discovery --enable-code-coverage
+      # merge into `main`.
+      - name:                        Merge
+        run:                         |
+          git checkout -b main origin/main
+          git merge test -m "Merge \`${{ github.event.client_payload.pull_request.head.ref }}\` into \`main\`" --no-ff
+          git tag ${{ github.event.client_payload.slash_command.args.unnamed.arg1 }}
+          git push origin main --force-with-lease --tags
+      # notify failure.
+      - name:                        Notify (Failure)
+        uses:                        peter-evans/create-or-update-comment@v1
+        if:                          ${{ failure() }}
+        with:
+          issue-number:              ${{ github.event.client_payload.github.payload.issue.number }}
+          body:                      |
+            Hey @${{ github.event.client_payload.github.actor }} :muscle:
+
+            Unfortunately, validation failed.\
+            This might be related to your branch not being up to date with `main`, or due to Instagram anti-spam measures (as we're using a single account to test all requests).
+
+            Either way, a maintener will get to you soon.
+      # check for coverage.
+      - name:                        Coverage (Export)
+        run:                         xcrun llvm-cov export -format="lcov" .build/debug/ComposableRequestPackageTests.xctest/Contents/MacOS/ComposableRequestPackageTests -instr-profile .build/debug/codecov/default.profdata > info.lcov
+        continue-on-error:           true
+      # upload coverage.
+      - name:                        Coverage (Upload)
+        uses:                        codecov/codecov-action@v1
+        timeout-minutes:             1
+        continue-on-error:           true
+
+  # release version.
+  release:
+    name:                            release
+    needs:                           tag
+    runs-on:                         ubuntu-latest
+
+    steps:
+      # checkout the `main` branch.
+      - name:                        Checkout
+        uses:                        actions/checkout@v2
+        with:
+            ref:                     main
+      # fetch tags.
+      - name:                        Commits
+        run:                         git fetch --prune --unshallow --tags
+      # create the changelog.
+      - name:                        Changelogs
+        id:                          changelogs
+        uses:                        heineiuo/create-changelogs@master
+      # actually release.
+      - name:                        Release
+        id:                          release
+        uses:                        actions/create-release@latest
+        env:
+          GITHUB_TOKEN:              ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name:                  ${{ github.event.client_payload.slash_command.args.unnamed.arg1 }}
+          release_name:              v${{ github.event.client_payload.slash_command.args.unnamed.arg1 }}
+          body:                      ${{ steps.changelogs.outputs.changelogs }}
+          draft:                     false
+          prerelease:                ${{ steps.changelogs.outputs.release_type == 'prerelease' }}
+      # notify success.
+      - name:                        Notify (Success)
+        uses:                        peter-evans/create-or-update-comment@v1
+        with:
+          issue-number:              ${{ github.event.client_payload.github.payload.issue.number }}
+          body:                      |
+            Hey @${{ github.event.client_payload.github.actor }} :muscle:\
+            [${{ github.event.client_payload.slash_command.args.unnamed.arg1 }}](${{ steps.release.outputs.html_url }}) was successfully released.
+      # notify failure.
+      - name:                        Notify (Failure)
+        uses:                        peter-evans/create-or-update-comment@v1
+        if:                          ${{ failure() }}
+        with:
+          issue-number:              ${{ github.event.client_payload.github.payload.issue.number }}
+          body:                      |
+            Hey @${{ github.event.client_payload.github.actor }} :muscle:
+
+            Unfortunately, the release couldn't be created.\
+            A maintener will get to you soon.
+
+  # rebase `bugfixes` and `development`.
+  rebase:
+    name:                            rebase
+    needs:                           release
+    runs-on:                         ubuntu-latest
+
+    steps:
+      # checkout.
+      - name:                        Checkout
+        uses:                        actions/checkout@v2
+        with:
+          fetch-depth:               0
+          token:                     ${{ secrets.GITHUB_TOKEN }}
+          ref:                       main
+      # config author.
+      - name:                        Config
+        run:                         |
+          git config user.email "${{ github.event.client_payload.github.actor }}@users.noreply.github.com"
+          git config user.name "${{ github.event.client_payload.github.actor }}"
+      # rebase `bugfixes` and `development`.
+      - name:                        Rebase
+        run:                         |
+          git checkout -b bugfixes origin/bugfixes
+          git rebase origin/main
+          git push origin bugfixes --force-with-lease
+          git checkout -b development origin/development
+          git rebase origin/main
+          git push origin development --force-with-lease
+      # notify failure.
+      - name:                        Notify (Failure)
+        uses:                        peter-evans/create-or-update-comment@v1
+        if:                          ${{ failure() }}
+        with:
+          issue-number:              ${{ github.event.client_payload.github.payload.issue.number }}
+          body:                      |
+            Hey @${{ github.event.client_payload.github.actor }} :muscle:\
+            Unfortunately, we could not rebase `bugfixes` and `development` branches.
+
+            A maintener will get to you soon.
