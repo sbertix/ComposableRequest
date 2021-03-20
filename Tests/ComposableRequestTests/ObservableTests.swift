@@ -136,6 +136,34 @@ final class ObservableTests: XCTestCase {
         wait(for: expectations, timeout: 30)
     }
     
+    
+    /// Test a pagination request using a ranked offset.
+    func testRankedOffsetPagination() {
+        let values = Array(0...3)
+        let expectations = ["0", "1", "2", "3", "completion"].map(XCTestExpectation.init)
+        let offset = Atomic(0)
+        // Prepare the provider.
+        PagerProvider { (pages: PagerProviderInput<RankedOffset<Int, [Int]>>) in
+            Pager(pages) { Just(pages.rank[$0]).iterateFirst { $0+1 }}
+        }
+        .pages(values.count, offset: 0, rank: values)
+        .sink(
+            receiveCompletion: {
+                if case .failure(let error) = $0 { XCTFail(error.localizedDescription) }
+                expectations.last?.fulfill()
+            },
+            receiveValue: { value in
+                offset.sync {
+                    XCTAssert(value == $0)
+                    expectations[value].fulfill()
+                    $0 = value+1
+                }
+            }
+        )
+        .store(in: &bin)
+        wait(for: expectations, timeout: 30)
+    }
+    
     /// Test a remote paginated fetch request.
     func testRemotePagination() {
         let languages = ["en", "it", "de", "fr"]

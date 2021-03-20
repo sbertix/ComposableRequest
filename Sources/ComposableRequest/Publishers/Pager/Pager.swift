@@ -125,3 +125,30 @@ public extension Pager where Offset: ComposableOptionalType {
         self.init(count, offset: .optionalTypeNone, generator: generator)
     }
 }
+
+public extension Pager where Offset: Ranked {
+    /// Init.
+    ///
+    /// - parameters:
+    ///     - count: A valid `Int`. Defaults to `.max`.
+    ///     - offset: A valid `Offset`.
+    ///     - generator: A valid generator.
+    init(_ count: Int = .max,
+         offset: Offset,
+         generator: @escaping (_ offset: Offset.Offset) -> Pager<Offset.Offset, Stream>.Iteration) {
+        self.init(count, offset: offset) { offset -> Iteration in
+            let iteration = generator(offset.offset)
+            return .init(stream: iteration.stream) { iteration.offset($0).flatMap { .init(offset: $0, rank: offset.rank) }}
+        }
+    }
+
+    /// Init.
+    ///
+    /// - parameters:
+    ///     - pages: A valid `PagesProviderInput`.
+    ///     - generator: A valid generator.
+    init(_ pages: PagerProviderInput<Offset>,
+         generator: @escaping (_ offset: Offset.Offset) -> Pager<Offset.Offset, Stream>.Iteration) {
+        self.init(pages.count, offset: pages.offset, generator: generator)
+    }
+}
