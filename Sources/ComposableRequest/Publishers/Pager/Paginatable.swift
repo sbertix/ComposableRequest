@@ -24,11 +24,27 @@ public extension Publisher where Output: Paginatable {
         iterateFirst { $0?.offset }
     }
 
+    /// Create the iteration, after only one output, making sure we don't get stuck inside an infinite loop.
+    ///
+    /// - parameter exception: A valid `Offset` handler. Return `true` to stop the stream.
+    /// - returns: A valid `Pager.Iteration`.
+    func iterateFirst(stoppingAt exception: @escaping (Output.Offset) -> Bool) -> Pager<Output.Offset, Publishers.Output<Self>>.Iteration {
+        iterateFirst(stoppingAt: exception) { $0?.offset }
+    }
+
     /// Create the iteration, on the last output alone.
     ///
     /// - returns: A valid `Pager.Iteration`.
     func iterateLast() -> Pager<Output.Offset, Publishers.Last<Self>>.Iteration {
         iterateLast { $0?.offset }
+    }
+
+    /// Create the iteration, on the last output alone., making sure we don't get stuck inside an infinite loop.
+    ///
+    /// - parameter exception: A valid `Offset` handler. Return `true` to stop the stream.
+    /// - returns: A valid `Pager.Iteration`.
+    func iterateLast(stoppingAt exception: @escaping (Output.Offset) -> Bool) -> Pager<Output.Offset, Publishers.Last<Self>>.Iteration {
+        iterateLast(stoppingAt: exception) { $0?.offset }
     }
 }
 
@@ -38,7 +54,7 @@ public extension Publisher where Output: Paginatable, Output.Offset: Equatable {
     /// - parameter exception: A valid `Offset`.
     /// - returns: A valid `Pager.Iteration`.
     func iterateFirst(stoppingAt exception: Output.Offset) -> Pager<Output.Offset, Publishers.Output<Self>>.Iteration {
-        iterateFirst(stoppingAt: exception) { $0?.offset }
+        iterateFirst(stoppingAt: { $0 == exception })
     }
 
     /// Create the iteration, on the last output alone, making sure not to get stucked inside an infinite loop.
@@ -46,6 +62,6 @@ public extension Publisher where Output: Paginatable, Output.Offset: Equatable {
     /// - parameter exception: A valid `Offset`.
     /// - returns: A valid `Pager.Iteration`.
     func iterateLast(stoppingAt exception: Output.Offset) -> Pager<Output.Offset, Publishers.Last<Self>>.Iteration {
-        iterateLast(stoppingAt: exception) { $0?.offset }
+        iterateLast(stoppingAt: { $0 == exception })
     }
 }
