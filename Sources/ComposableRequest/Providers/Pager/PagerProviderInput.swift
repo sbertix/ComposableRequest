@@ -24,3 +24,8 @@ public struct PagerProviderInput<Offset> {
         self.offset = offset
     }
 }
+
+public extension PagerProviderInput where Offset: Ranked {
+    /// The underlying rank.
+    var rank: Offset.Rank { offset.rank }
+}
