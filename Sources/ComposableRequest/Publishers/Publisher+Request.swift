@@ -24,9 +24,9 @@ public extension Request {
             .retry(max(input.retries, 0))
             .map(Request.Response.init)
             .handleEvents(
+                receiveSubscription: { _ in logger.log(request: request) },
                 receiveOutput: { logger.log(.success($0)) },
-                receiveCompletion: { if case .failure(let error) = $0 { logger.log(.failure(error)) }},
-                receiveRequest: { if $0.max ?? 0 > 0 { logger.log(request: request) }}
+                receiveCompletion: { if case .failure(let error) = $0 { logger.log(.failure(error)) }}
             )
             .catch { Fail(error: $0) }
             .eraseToAnyPublisher()
