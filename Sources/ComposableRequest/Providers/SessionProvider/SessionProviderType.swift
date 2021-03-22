@@ -28,7 +28,7 @@ public extension SessionProviderType {
     /// - returns: Some `Content`.
     func session(_ session: URLSession,
                  retries: Int = 0,
-                 logging logger: Logger.Level? = nil) -> Output {
+                 logging logger: Logger? = nil) -> Output {
         self.session(.init(session: session,
                            retries: retries,
                            logger: logger))

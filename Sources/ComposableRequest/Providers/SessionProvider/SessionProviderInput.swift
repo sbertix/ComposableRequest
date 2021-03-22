@@ -13,8 +13,8 @@ public struct SessionProviderInput {
     public let session: URLSession
     /// The number of retries before outputting an exception.
     public let retries: Int
-    /// An optional logger level.
-    public let logger: Logger.Level?
+    /// An optional logger.
+    public let logger: Logger?
 
     /// Init.
     ///
@@ -24,7 +24,7 @@ public struct SessionProviderInput {
     ///     - logger: An optional `Logger`.
     public init(session: URLSession,
                 retries: Int,
-                logger: Logger.Level?) {
+                logger: Logger?) {
         self.session = session
         self.retries = retries
         self.logger = logger

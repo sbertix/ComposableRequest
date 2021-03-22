@@ -27,7 +27,6 @@ final class ObservableTests: XCTestCase {
     /// Set up.
     override func setUp() {
         bin.removeAll()         // This should already been taken care of.
-        Logger.default = .none  // This should already been taken care of.
         ObservableTests.runtime
     }
     
@@ -47,6 +46,7 @@ final class ObservableTests: XCTestCase {
                             .assertBackgroundThread()
                     }
                     .map(\.data)
+                    .map(Optional.some) // Additional tests.
                     .wrap()
                     .compactMap { $0["string"].string() }
                     .assertBackgroundThread()
@@ -55,7 +55,7 @@ final class ObservableTests: XCTestCase {
             .assertMainThread()
         }
         .unlock(with: url)
-        .session(.shared)
+        .session(.shared, logging: .init(level: .all) { _ in })
         .sink(
             receiveCompletion: {
                 if case .failure(let error) = $0 { XCTFail(error.localizedDescription) }

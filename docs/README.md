@@ -147,8 +147,6 @@ MediaEndpoint.delete(identifier)
     .store(in: &bin)
 ```
 
-<br />
-
 ### Resume and cancel requests
 
 > What about cancelling the request, or starting it a later date?
