@@ -88,7 +88,7 @@ final class CompositionTests: XCTestCase {
     func testPath() {
         /// The actual test.
         func test(_ item: Path) {
-            XCTAssert(item.test.components?.url?.lastPathComponent == "test")
+            XCTAssert(item.path(appending: "test").components?.url?.lastPathComponent == "test")
         }
         
         let request = Request("https://google.com")

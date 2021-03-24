@@ -27,7 +27,6 @@ final class ObservableTests: XCTestCase {
     /// Set up.
     override func setUp() {
         bin.removeAll()         // This should already been taken care of.
-        Logger.default = .none  // This should already been taken care of.
         ObservableTests.runtime
     }
     
@@ -47,6 +46,7 @@ final class ObservableTests: XCTestCase {
                             .assertBackgroundThread()
                     }
                     .map(\.data)
+                    .map(Optional.some) // Additional tests.
                     .wrap()
                     .compactMap { $0["string"].string() }
                     .assertBackgroundThread()
@@ -55,7 +55,7 @@ final class ObservableTests: XCTestCase {
             .assertMainThread()
         }
         .unlock(with: url)
-        .session(.shared)
+        .session(.shared, logging: .init(level: .all) { _ in })
         .sink(
             receiveCompletion: {
                 if case .failure(let error) = $0 { XCTFail(error.localizedDescription) }
@@ -206,27 +206,6 @@ final class ObservableTests: XCTestCase {
         Request(url)
             .publish(session: .shared)
             .map(\.response)
-            .receive(on: RunLoop.main.cx)
-            .sink(
-                receiveCompletion: { _ in XCTFail("This should not complete") },
-                receiveValue: { _ in XCTFail("This should not output") }
-            )
-            .store(in: &bin)
-        DispatchQueue.main.asyncAfter(deadline: .now()) {
-            self.bin.removeAll()
-            expectations.first?.fulfill()
-        }
-        wait(for: expectations, timeout: 5)
-    }
-    
-    /// Test cancellation recover.
-    func testCancellationRecovery() {
-        let expectations = ["completion"].map(XCTestExpectation.init)
-        Request(url)
-            .publish(session: .shared)
-            .assertMainThread()
-            .compactMap(\.response.url?.absoluteString)
-            .catch { _ in Just("test") }
             .receive(on: RunLoop.main.cx)
             .sink(
                 receiveCompletion: { _ in XCTFail("This should not complete") },
