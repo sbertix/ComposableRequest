@@ -219,27 +219,6 @@ final class ObservableTests: XCTestCase {
         wait(for: expectations, timeout: 5)
     }
     
-    /// Test cancellation recover.
-    func testCancellationRecovery() {
-        let expectations = ["completion"].map(XCTestExpectation.init)
-        Request(url)
-            .publish(session: .shared)
-            .assertMainThread()
-            .compactMap(\.response.url?.absoluteString)
-            .catch { _ in Just("test") }
-            .receive(on: RunLoop.main.cx)
-            .sink(
-                receiveCompletion: { _ in XCTFail("This should not complete") },
-                receiveValue: { _ in XCTFail("This should not output") }
-            )
-            .store(in: &bin)
-        DispatchQueue.main.asyncAfter(deadline: .now()) {
-            self.bin.removeAll()
-            expectations.first?.fulfill()
-        }
-        wait(for: expectations, timeout: 5)
-    }
-    
     /// Test paginated cancellation.
     func testPaginatedCancellation() {
         let expectations = ["output", "completion"].map(XCTestExpectation.init)
