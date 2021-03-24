@@ -19,16 +19,16 @@ public extension Request {
         }
         // Return the actual stream.
         let logger = input.logger ?? Logger.default
-        return input.session.cx
+        return (input.session.cx as CXWrappers.URLSession)
             .dataTaskPublisher(for: request)
             .retry(max(input.retries, 0))
             .map(Request.Response.init)
+            .catch { Fail<Request.Response, Swift.Error>(error: $0) }
             .handleEvents(
                 receiveSubscription: { _ in logger.log(request) },
                 receiveOutput: { logger.log(.success($0)) },
                 receiveCompletion: { if case .failure(let error) = $0 { logger.log(.failure(error)) }}
             )
-            .catch { Fail(error: $0) }
             .eraseToAnyPublisher()
     }
 
