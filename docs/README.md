@@ -2,7 +2,7 @@
 <img alt="Header" src="https://raw.githubusercontent.com/sbertix/ComposableRequest/master/Resources/header.png" height="72" />
 <br />
 
-[![Swift](https://img.shields.io/badge/Swift-5.0-%23DE5C43?style=flat&logo=swift)](https://swift.org)
+[![Swift](https://img.shields.io/badge/Swift-5.2-%23DE5C43?style=flat&logo=swift)](https://swift.org)
 [![codecov](https://codecov.io/gh/sbertix/ComposableRequest/branch/main/graph/badge.svg)](https://codecov.io/gh/sbertix/Swiftagram)
 <br />
 ![iOS](https://img.shields.io/badge/iOS-9.0-8CFF96)
