@@ -19,6 +19,18 @@ public protocol Wrapped: Codable, Wrappable {
     init(wrapper: @escaping () -> Wrapper)
 }
 
+extension Wrapper: Wrapped {
+    /// A closure escaping `self`.
+    public var wrapper: () -> Wrapper { { self } }
+
+    /// Init.
+    ///
+    /// - parameter wrapper: A closure returning `Wrapper`.
+    public init(wrapper: @escaping () -> Wrapper) {
+        self = wrapper()
+    }
+}
+
 public extension Wrapped {
     // MARK: Lifecycle
 
