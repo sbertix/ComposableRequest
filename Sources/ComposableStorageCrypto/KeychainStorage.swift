@@ -7,7 +7,7 @@
 
 import Foundation
 
-import ComposableStorage
+@_exported import ComposableStorage
 import Swiftchain
 
 /// A `struct` defining a `Storage` caching `Item`s **safely** inside the user's **Keychain**.
