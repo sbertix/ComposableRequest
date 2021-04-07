@@ -13,11 +13,11 @@ let package = Package(
                 .tvOS(.v9),
                 .watchOS(.v2)],
     // Exposed libraries.
-    products: [.library(name: "ComposableRequest",
+    products: [.library(name: "Requests",
                         targets: ["ComposableRequest"]),
-               .library(name: "ComposableStorage",
+               .library(name: "Storage",
                         targets: ["ComposableStorage"]),
-               .library(name: "ComposableStorageCrypto",
+               .library(name: "StorageCrypto",
                         targets: ["ComposableStorageCrypto"])],
     // Package dependencies.
     dependencies: [.package(url: "https://github.com/cx-org/CombineX",
