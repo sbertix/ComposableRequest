@@ -111,6 +111,7 @@ final class StorageTests: XCTestCase {
         let storage = KeychainStorage<Item>()
         try process(storage)
         try process(storage: storage)
+        try process(storage: AnyStorage(storage))
     }
     
     /// Test `TransientStorage`.
@@ -134,5 +135,6 @@ final class StorageTests: XCTestCase {
         let storage = UserDefaultsStorage<Item>()
         process(storage)
         try process(storage: storage)
+        try process(storage: AnyStorage(storage))
     }
 }

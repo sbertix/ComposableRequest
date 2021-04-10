@@ -7,8 +7,16 @@
 
 import Foundation
 
-@_exported import ComposableStorage
 import Swiftchain
+import protocol ComposableStorage.Storable
+import protocol ComposableStorage.ThrowingStorage
+
+/// A `typealias` for `Swiftchain.Keychain`.
+///
+/// - note:
+///     We prefer this to `import @_exported`, as we can't guarantee `@_exported`
+///     to stick with future versions of **Swift**.
+public typealias Keychain = Swiftchain.Keychain
 
 /// A `struct` defining a `Storage` caching `Item`s **safely** inside the user's **Keychain**.
 public struct KeychainStorage<Item: Storable>: ThrowingStorage {
