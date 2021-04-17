@@ -12,9 +12,16 @@ import CoreGraphics
 #endif
 
 /// A `protocol` allowing to `init` `Wrapper`s.
-public protocol Wrappable {
+public protocol Wrappable: CustomStringConvertible {
     /// Wrap `self` into a `Wrapper`.
     var wrapped: Wrapper { get }
+}
+
+public extension Wrappable {
+    /// The description.
+    ///
+    /// - note: Override this for custom behavior.
+    var description: String { wrapped.description }
 }
 
 extension Bool: Wrappable {
@@ -45,6 +52,13 @@ extension String: Wrappable {
 extension NSNull: Wrappable {
     /// Wrap `self` into a `Wrapper`.
     public var wrapped: Wrapper { .empty }
+}
+
+extension Optional: CustomStringConvertible where Wrapped: Wrappable {
+    /// The description.
+    ///
+    /// - note: Override this for custom behavior.
+    public var description: String { self?.description ?? "<empty>" }
 }
 
 extension Optional: Wrappable where Wrapped: Wrappable {
