@@ -53,7 +53,7 @@ public struct KeychainStorage<Item: Storable>: ThrowingStorage {
     public func item(matching label: String) throws -> Item? {
         try keychain.container(for: label)
             .fetch()
-            .flatMap { try Item.decoding($0) }
+            .flatMap { try? Item.decoding($0) }
     }
 
     /// Return all stored `Item`s.
@@ -84,7 +84,7 @@ public struct KeychainStorage<Item: Storable>: ThrowingStorage {
     public func discard(_ label: String) throws -> Item? {
         try keychain.container(for: label)
             .drop()
-            .flatMap { try Item.decoding($0) }
+            .flatMap { try? Item.decoding($0) }
     }
 
     /// Empty storage.
@@ -92,5 +92,9 @@ public struct KeychainStorage<Item: Storable>: ThrowingStorage {
     /// - throws: Some `Error`.
     public func empty() throws {
         try keychain.empty()
+        // If it's not empty just manually delete them all.
+        let keys = try keychain.keys()
+        guard !keys.isEmpty else { return }
+        keys.forEach { try? keychain.container(for: $0).drop() }
     }
 }
