@@ -63,8 +63,8 @@ public extension Publishers {
             iteration.stream
                 .collect()
                 .flatMap { [count, generator] outputs -> AnyPublisher<Output, Failure> in
-                    Publishers.Sequence(sequence: outputs.map(Just.init))
-                        .flatMap(maxPublishers: .max(1)) { $0 }
+                    Publishers.Sequence(sequence: outputs.map { Just($0).setFailureType(to: Failure.self) })
+                        .flatMap(maxPublishers: Subscribers.Demand.max(1)) { $0 }
                         .append(iteration.offset(outputs).flatMap { Pager(count-1, offset: $0, generator: generator) }?.eraseToAnyPublisher()
                                     ?? Empty().eraseToAnyPublisher())
                         .eraseToAnyPublisher()

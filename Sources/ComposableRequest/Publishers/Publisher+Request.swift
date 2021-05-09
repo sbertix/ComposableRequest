@@ -19,7 +19,7 @@ public extension Request {
         }
         // Return the actual stream.
         let logger = input.logger ?? Logger.default
-        return (input.session.cx as CXWrappers.URLSession)
+        return input.session
             .dataTaskPublisher(for: request)
             .retry(max(input.retries, 0))
             .map(Request.Response.init)

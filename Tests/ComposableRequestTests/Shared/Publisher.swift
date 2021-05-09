@@ -5,10 +5,9 @@
 //  Created by Stefano Bertagno on 10/03/21.
 //
 
+import Combine
 import Foundation
 import XCTest
-
-import CXShim
 
 extension Publisher {
     /// Assert main thread.
