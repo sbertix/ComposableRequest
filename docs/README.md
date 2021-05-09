@@ -5,17 +5,16 @@
 [![Swift](https://img.shields.io/badge/Swift-5.2-%23DE5C43?style=flat&logo=swift)](https://swift.org)
 [![codecov](https://codecov.io/gh/sbertix/ComposableRequest/branch/main/graph/badge.svg)](https://codecov.io/gh/sbertix/Swiftagram)
 <br />
-![iOS](https://img.shields.io/badge/iOS-9.0-8CFF96)
-![macOS](https://img.shields.io/badge/macOS-10.10-8CFF96)
-![tvOS](https://img.shields.io/badge/tvOS-9.0-8CFF96)
-![watchOS](https://img.shields.io/badge/watchOS-2.0-8CFF96)
+![iOS](https://img.shields.io/badge/iOS-13.0-8CFF96)
+![macOS](https://img.shields.io/badge/macOS-10.15-8CFF96)
+![tvOS](https://img.shields.io/badge/tvOS-13.0-8CFF96)
+![watchOS](https://img.shields.io/badge/watchOS-6.0-8CFF96)
 
 <br />
 
 **ComposableRequest** is a networking layer based on a declarative interface, written in (modern) **Swift**.
 
 It abstracts away `URLSession` implementation, in order to provide concise and powerful endpoint representations, thanks to the power of **Combine** `Publisher`s. 
-Compatibilty for older versions of **iOS**, **macOS**, **tvOS** and **watchOS** is provided through **CombineX**'s **CXShim**, learn more [here](https://github.com/cx-org/CombineX/wiki/Combine-Compatible-Package).
 
 It comes with `Storage` (inside of **ComposableStorage**), a way of caching `Storable` items, and related concrete implementations (e.g. `UserDefaultsStorage`, `KeychainStorage` – for which you're gonna need to add **ComposableStorageCrypto**, depending on [**Swiftchain**](https://github.com/sbertix/Swiftchain), together with the ability to provide the final user of your API wrapper to inject code through `Provider`s. 
 
@@ -51,9 +50,7 @@ Furthermore, with the integration of the **Swift Package Manager** in **Xcode 11
 <details><summary><strong>Targets</strong></summary>
     <p>
 
-- **ComposableRequest**, an HTTP client originally integrated in **Swiftagram**, the core library.\
-It depends on [**CombineX**](https://github.com/cx-org/CombineX/)'s [**CXShim**](https://github.com/cx-org/CombineX/wiki/Combine-Compatible-Package) to provide **Combine** support on all platforms, reguardless of their minum deployment version. 
-
+- **ComposableRequest**, an HTTP client originally integrated in **Swiftagram**, the core library.
 - **ComposableStorage**, can be imported together with **ComposableRequest** to extend its functionality.     
     </p>
 </details>
