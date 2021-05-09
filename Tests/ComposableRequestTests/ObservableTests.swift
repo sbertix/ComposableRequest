@@ -5,6 +5,7 @@
 //  Created by Stefano Bertagno on 06/05/2020.
 //
 
+import Combine
 import XCTest
 
 @testable import ComposableRequest
@@ -51,7 +52,7 @@ final class ObservableTests: XCTestCase {
                     .compactMap { $0["string"].string() }
                     .assertBackgroundThread()
             }
-            .receive(on: RunLoop.main.cx)
+            .receive(on: RunLoop.main)
             .assertMainThread()
         }
         .unlock(with: url)
@@ -74,8 +75,9 @@ final class ObservableTests: XCTestCase {
     func testRemoteFuture() {
         let expectations = ["output", "completion"].map(XCTestExpectation.init)
         Just(url)
+            .setFailureType(to: Error.self)
             .assertMainThread()
-            .receive(on: RunLoop.main.cx)
+            .receive(on: RunLoop.main)
             .assertMainThread()
             .flatMap {
                 Request($0)
@@ -85,7 +87,7 @@ final class ObservableTests: XCTestCase {
                     .wrap()
                     .compactMap { $0["string"].string() }
             }
-            .subscribe(on: RunLoop.main.cx)
+            .subscribe(on: RunLoop.main)
             .sink(
                 receiveCompletion: {
                     if case .failure(let error) = $0 { XCTFail(error.localizedDescription) }
@@ -119,7 +121,7 @@ final class ObservableTests: XCTestCase {
             }
         }
         .pages(languages.count, offset: 0)
-        .receive(on: RunLoop.main.cx)
+        .receive(on: RunLoop.main)
         .assertMainThread()
         .sink(
             receiveCompletion: {
@@ -206,7 +208,7 @@ final class ObservableTests: XCTestCase {
         Request(url)
             .publish(session: .shared)
             .map(\.response)
-            .receive(on: RunLoop.main.cx)
+            .receive(on: RunLoop.main)
             .sink(
                 receiveCompletion: { _ in XCTFail("This should not complete") },
                 receiveValue: { _ in XCTFail("This should not output") }
