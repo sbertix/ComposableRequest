@@ -41,7 +41,7 @@ public extension PagerProviderType where Offset: ComposableOptionalType {
     /// - parameter count: A valid `Int`.
     /// - returns: Some `Content`.
     func pages(_ count: Int) -> Output {
-        self.pages(count, offset: .optionalTypeNone)
+        self.pages(count, offset: .composableNone)
     }
 }
 
@@ -66,7 +66,7 @@ public extension PagerProviderType where Offset: Ranked, Offset.Offset: Composab
     ///     - rank: A valid `Rank`.
     /// - returns: Some `Content`.
     func pages(_ count: Int, rank: Offset.Rank) -> Output {
-        self.pages(count, offset: .init(offset: .optionalTypeNone, rank: rank))
+        self.pages(count, offset: .init(offset: .composableNone, rank: rank))
     }
 }
 
@@ -78,7 +78,7 @@ public extension PagerProviderType where Offset: Ranked, Offset.Rank: Composable
     ///     - offset: A valid `Offset`.
     /// - returns: Some `Content`.
     func pages(_ count: Int, offset: Offset.Offset) -> Output {
-        self.pages(count, offset: .init(offset: offset, rank: .optionalTypeNone))
+        self.pages(count, offset: .init(offset: offset, rank: .composableNone))
     }
 }
 
@@ -88,6 +88,6 @@ public extension PagerProviderType where Offset: Ranked, Offset.Offset: Composab
     /// - parameter count: A valid `Int`.
     /// - returns: Some `Content`.
     func pages(_ count: Int) -> Output {
-        self.pages(count, offset: .init(offset: .optionalTypeNone, rank: .optionalTypeNone))
+        self.pages(count, offset: .init(offset: .composableNone, rank: .composableNone))
     }
 }
