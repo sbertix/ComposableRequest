@@ -51,7 +51,7 @@ Furthermore, with the integration of the **Swift Package Manager** in **Xcode 11
     <p>
 
 - **ComposableRequest**, an HTTP client originally integrated in **Swiftagram**, the core library.
-- **ComposableStorage**, can be imported together with **ComposableRequest** to extend its functionality.     
+- **ComposableStorage**, depending on [**KeychainAccess**](https://github.com/kishikawakatsumi/KeychainAccess), can be imported together with **ComposableRequest** to extend its functionality.     
     </p>
 </details>
 

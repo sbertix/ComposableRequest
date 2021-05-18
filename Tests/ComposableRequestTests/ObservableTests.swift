@@ -117,7 +117,7 @@ final class ObservableTests: XCTestCase {
                     Just($0).map { _ in offset }
                 }
                 .unlock(with: languages[offset])
-                .iterateFirst(stoppingAt: offset) { $0+1 }
+                .iterateFirst(stoppingAt: offset) { .load($0+1) }
             }
         }
         .pages(languages.count, offset: 0)
@@ -146,7 +146,7 @@ final class ObservableTests: XCTestCase {
         let offset = Atomic(0)
         // Prepare the provider.
         PagerProvider { (pages: PagerProviderInput<RankedOffset<Int, [Int]>>) in
-            Pager(pages) { Just(pages.rank[$0]).iterateFirst { $0+1 }}
+            Pager(pages) { Just(pages.rank[$0]).iterateFirst { .load($0+1) }}
         }
         .pages(values.count, offset: 0, rank: values)
         .sink(
@@ -179,7 +179,7 @@ final class ObservableTests: XCTestCase {
                     .query(appending: languages[offset], forKey: "l")
                     .publish(with: session)
                     .map { _ in offset }
-                    .iterateLast { ($0 ?? -1)+1 }
+                    .iterateLast { .load(($0 ?? -1)+1) }
             }
         }
         .unlock(with: url)

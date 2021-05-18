@@ -20,14 +20,14 @@ let package = Package(
                .library(name: "StorageCrypto",
                         targets: ["ComposableStorageCrypto"])],
     // Package dependencies.
-    dependencies: [.package(url: "https://github.com/sbertix/Swiftchain.git",
-                            .upToNextMinor(from: "1.0.0"))],
+    dependencies: [.package(url: "https://github.com/kishikawakatsumi/KeychainAccess",
+                            .upToNextMinor(from: "4.2.2"))],
     // All targets.
     targets: [.target(name: "ComposableRequest"),
               .target(name: "ComposableStorage",
                       dependencies: []),
               .target(name: "ComposableStorageCrypto",
-                      dependencies: ["ComposableStorage", "Swiftchain"]),
+                      dependencies: ["ComposableStorage", "KeychainAccess"]),
               .testTarget(name: "ComposableRequestTests",
                           dependencies: ["ComposableRequest", "ComposableStorage", "ComposableStorageCrypto"])]
 )

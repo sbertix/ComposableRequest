@@ -58,16 +58,24 @@ public extension Publishers {
                 Empty().subscribe(subscriber)
                 return
             }
-            // The actual stream.
-            let iteration = generator(offset)
-            iteration.stream
+            // Prepare the iterator.
+            let iterator = generator(offset)
+            iterator.stream
                 .collect()
                 .flatMap { [count, generator] outputs -> AnyPublisher<Output, Failure> in
-                    Publishers.Sequence(sequence: outputs.map { Just($0).setFailureType(to: Failure.self) })
-                        .flatMap(maxPublishers: Subscribers.Demand.max(1)) { $0 }
-                        .append(iteration.offset(outputs).flatMap { Pager(count-1, offset: $0, generator: generator) }?.eraseToAnyPublisher()
-                                    ?? Empty().eraseToAnyPublisher())
-                        .eraseToAnyPublisher()
+                    // The current publisher.
+                    let current = Publishers.Sequence(sequence: outputs.map(Just.init))
+                        .flatMap(maxPublishers: .max(1)) { $0 }
+                        .setFailureType(to: Failure.self)
+                    // The next instruction.
+                    switch iterator.offset(outputs) {
+                    case .stop:
+                        return current.eraseToAnyPublisher()
+                    case .load(let next):
+                        return current
+                            .append(Pager(count-1, offset: next, generator: generator))
+                            .eraseToAnyPublisher()
+                    }
                 }
                 .subscribe(subscriber)
         }
@@ -122,7 +130,7 @@ public extension Pager where Offset: ComposableOptionalType {
     ///     - count: A valid `Int`. Defaults to `.max`.
     ///     - generator: A valid generator.
     init(_ count: Int = .max, generator: @escaping (_ offset: Offset) -> Iteration) {
-        self.init(count, offset: .optionalTypeNone, generator: generator)
+        self.init(count, offset: .composableNone, generator: generator)
     }
 }
 
@@ -138,7 +146,14 @@ public extension Pager where Offset: Ranked {
          generator: @escaping (_ offset: Offset.Offset) -> Pager<Offset.Offset, Stream>.Iteration) {
         self.init(count, offset: offset) { offset -> Iteration in
             let iteration = generator(offset.offset)
-            return .init(stream: iteration.stream) { iteration.offset($0).flatMap { .init(offset: $0, rank: offset.rank) }}
+            return .init(stream: iteration.stream) {
+                switch iteration.offset($0) {
+                case .stop:
+                    return .stop
+                case .load(let next):
+                    return .load(.init(offset: next, rank: offset.rank))
+                }
+            }
         }
     }
 
