@@ -11,7 +11,7 @@ import XCTest
 @testable import ComposableStorageCrypto
 
 import ComposableRequest
-import Swiftchain
+import KeychainAccess
 
 /// A static item.
 fileprivate let item = Item.default
@@ -106,13 +106,13 @@ final class StorageTests: XCTestCase {
     
     // MARK: Cases
     
-    /// Test `KeychainStorage`.
-    func testKeychainStorage() throws {
-        let storage = KeychainStorage<Item>()
-        try process(storage)
-        try process(storage: storage)
-        try process(storage: AnyStorage(storage))
-    }
+//    /// Test `KeychainStorage`.
+//    func testKeychainStorage() throws {
+//        let storage = KeychainStorage<Item>()
+//        try process(storage)
+//        try process(storage: storage)
+//        try process(storage: AnyStorage(storage))
+//    }
     
     /// Test `TransientStorage`.
     func testTransientStorage() {

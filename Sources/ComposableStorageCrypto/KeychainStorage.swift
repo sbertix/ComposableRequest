@@ -7,41 +7,73 @@
 
 import Foundation
 
-import Swiftchain
+import KeychainAccess
 import protocol ComposableStorage.Storable
 import protocol ComposableStorage.ThrowingStorage
 
-/// A `typealias` for `Swiftchain.Keychain`.
+/// A `typealias` for `KeychainAccess.Keychain`.
 ///
 /// - note:
 ///     We prefer this to `import @_exported`, as we can't guarantee `@_exported`
 ///     to stick with future versions of **Swift**.
-public typealias Keychain = Swiftchain.Keychain
+public typealias Keychain = KeychainAccess.Keychain
+
+/// A `typealias` for `KeychainAccess.Accessibility`.
+///
+/// - note:
+///     We prefer this to `import @_exported`, as we can't guarantee `@_exported`
+///     to stick with future versions of **Swift**.
+public typealias Accessibility = KeychainAccess.Accessibility
+
+/// A `typealias` for `KeychainAccess.AuthenticationPolicy`.
+///
+/// - note:
+///     We prefer this to `import @_exported`, as we can't guarantee `@_exported`
+///     to stick with future versions of **Swift**.
+public typealias AuthenticationPolicy = KeychainAccess.AuthenticationPolicy
 
 /// A `struct` defining a `Storage` caching `Item`s **safely** inside the user's **Keychain**.
 public struct KeychainStorage<Item: Storable>: ThrowingStorage {
     /// The underlying keychain.
     private let keychain: Keychain
 
+    #if os(watchOS)
     /// Init.
     ///
     /// - parameters:
     ///     - service: An optional `String` identifying the service name for the keychain instance.
     ///     - group: An optional `String` identifying the service name for the keychain instance. Defaults to `nil`.
-    ///     - accessibility: A valid `Keychain.Accessibility` value. Defaults to `.whenUnlocked`.
-    ///     - authentication: A valid `Keychain.Authentication` value. Defaults to empty.
+    ///     - accessibility: A valid `Accessibility` value. Defaults to `.whenUnlocked`.
     ///     - isSynchronizable: A `Bool` representing whether the `Secret` should be shared through iCloud Keychain or not. Defaults to `false`.
     public init(service: String? = nil,
                 group: String? = nil,
-                accessibility: Keychain.Accessibility = .whenUnlocked,
-                authentication: Keychain.Authentication = [],
+                accessibility: Accessibility = .whenUnlocked,
                 isSynchronizable: Bool = false) {
-        self.keychain = .init(service: service ?? Bundle.main.bundleIdentifier ?? "Swiftagram",
-                              group: group,
-                              accessibility: accessibility,
-                              authentication: authentication,
-                              isSynchronizable: isSynchronizable)
+        let service = service ?? Bundle.main.bundleIdentifier ?? "Swiftagram"
+        self.keychain = (group.flatMap { Keychain(service: service, accessGroup: $0) } ?? Keychain(service: service))
+            .synchronizable(isSynchronizable)
+            .accessibility(accessibility)
     }
+    #else
+    /// Init.
+    ///
+    /// - parameters:
+    ///     - service: An optional `String` identifying the service name for the keychain instance.
+    ///     - group: An optional `String` identifying the service name for the keychain instance. Defaults to `nil`.
+    ///     - accessibility: A valid `Accessibility` value. Defaults to `.whenUnlocked`.
+    ///     - authentication: A valid `Authentication` value. Defaults to empty.
+    ///     - isSynchronizable: A `Bool` representing whether the `Secret` should be shared through iCloud Keychain or not. Defaults to `false`.
+    public init(service: String? = nil,
+                group: String? = nil,
+                accessibility: Accessibility = .whenUnlocked,
+                authentication: AuthenticationPolicy = [],
+                isSynchronizable: Bool = false) {
+        let service = service ?? Bundle.main.bundleIdentifier ?? "Swiftagram"
+        self.keychain = (group.flatMap { Keychain(service: service, accessGroup: $0) } ?? Keychain(service: service))
+            .synchronizable(isSynchronizable)
+            .accessibility(accessibility, authenticationPolicy: authentication)
+    }
+    #endif
 
     // MARK: Storable
 
@@ -51,9 +83,7 @@ public struct KeychainStorage<Item: Storable>: ThrowingStorage {
     /// - returns: An optional `Item`.
     /// - throws: Some `Error`.
     public func item(matching label: String) throws -> Item? {
-        try keychain.container(for: label)
-            .fetch()
-            .flatMap { try? Item.decoding($0) }
+        try keychain.getData(label).flatMap { try? Item.decoding($0) }
     }
 
     /// Return all stored `Item`s.
@@ -61,7 +91,7 @@ public struct KeychainStorage<Item: Storable>: ThrowingStorage {
     /// - returns: An order collection of `Item`s.
     /// - throws: Some `Error`.
     public func items() throws -> [Item] {
-        try keychain.keys().compactMap(item)
+        try keychain.allKeys().compactMap(item)
     }
 
     /// Store some `Item`, overwriting the ones matching its `label`.
@@ -71,7 +101,7 @@ public struct KeychainStorage<Item: Storable>: ThrowingStorage {
     /// - throws: Some `Error`.
     @discardableResult
     public func store(_ item: Item) throws -> Item {
-        try keychain.container(for: item.label).store(Item.encoding(item))
+        try keychain.set(Item.encoding(item), key: item.label)
         return item
     }
 
@@ -82,19 +112,18 @@ public struct KeychainStorage<Item: Storable>: ThrowingStorage {
     /// - throws: Some `Error`.
     @discardableResult
     public func discard(_ label: String) throws -> Item? {
-        try keychain.container(for: label)
-            .drop()
-            .flatMap { try? Item.decoding($0) }
+        guard let item = try? item(matching: label) else { return nil }
+        try keychain.remove(label)
+        return item
     }
 
     /// Empty storage.
     ///
     /// - throws: Some `Error`.
     public func empty() throws {
-        try keychain.empty()
-        // If it's not empty just manually delete them all.
-        let keys = try keychain.keys()
-        guard !keys.isEmpty else { return }
-        keys.forEach { try? keychain.container(for: $0).drop() }
+        // Delete matching `Storables`.
+        let labels = try items().map(\.label)
+        guard labels.isEmpty else { return }
+        try labels.forEach { try keychain.remove($0) }
     }
 }
