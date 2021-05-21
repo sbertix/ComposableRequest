@@ -37,7 +37,7 @@ public struct UserDefaultsStorage<Item: Storable>: NonThrowingStorage {
     /// - returns: An order collection of `Item`s.
     public func items() -> [Item] {
         userDefaults.dictionaryRepresentation()
-            .compactMap { ($0.value as? Data).flatMap { try? Item.decoding($0) }}
+            .compactMap { ($0.value as? Data).flatMap { try? Item.decoding($0) } }
     }
 
     /// Store some `Item`, overwriting the ones matching its `label`.

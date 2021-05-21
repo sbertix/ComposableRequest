@@ -10,16 +10,18 @@ import XCTest
 @testable import ComposableRequest
 
 /// A `class` defining tests for composition `protocol`s.
-final class CompositionTests: XCTestCase {
+internal final class CompositionTests: XCTestCase {
     /// Test `Body`.
     func testBody() throws {
         /// The actual test.
         func test(_ item: Body) {
             // Replacing.
-            XCTAssert(item.body("test".data(using: .utf8)!).body?.isEmpty == false)
+            XCTAssert("test".data(using: .utf8).flatMap(item.body)?.body?.isEmpty == false)
             XCTAssert(try item.body([3]).body.flatMap(Wrapper.decode)?.array()?.first?.int() == 3)
             XCTAssert(item.body(["key": "value"]).body.flatMap { String(data: $0, encoding: .utf8) } == "key=value")
-            XCTAssert(item.body("value", forKey: "key").body.flatMap { String(data: $0, encoding: .utf8) } == "key=value")
+            XCTAssert(item.body("value", forKey: "key")
+                        .body
+                        .flatMap { String(data: $0, encoding: .utf8) } == "key=value")
             // Updating.
             let copy = item.body(["key": "value"])
             XCTAssert(copy
@@ -29,12 +31,12 @@ final class CompositionTests: XCTestCase {
                         .flatMap { String(data: $0, encoding: .utf8) }
                         .flatMap { $0.contains("key=value2") && $0.contains("key2=value") } ?? false)
         }
-        
+
         let request = Request("https://google.com")
         test(request)
         test(request as Body)
     }
-    
+
     /// Test `Header`.
     func testHeader() {
         /// The actual test.
@@ -55,12 +57,12 @@ final class CompositionTests: XCTestCase {
                         .joined(separator: ",") == "value2,value")
             XCTAssert(copy.header(appending: ["key": nil]).header["key"] == nil)
         }
-        
+
         let request = Request("https://google.com")
         test(request)
         test(request as Header)
     }
-    
+
     /// Test `Method`.
     func testMethod() {
         XCTAssert(HTTPMethod.get.rawValue == "GET")
@@ -72,13 +74,13 @@ final class CompositionTests: XCTestCase {
         XCTAssert(HTTPMethod.options.rawValue == "OPTIONS")
         XCTAssert(HTTPMethod.trace.rawValue == "TRACE")
         XCTAssert(HTTPMethod.patch.rawValue == "PATCH")
-        XCTAssert(HTTPMethod.default.rawValue == "")
-        
+        XCTAssert(HTTPMethod.default.rawValue.isEmpty)
+
         /// The actual test.
         func test(_ item: ComposableRequest.Method) {
             XCTAssert(item.method(.connect).method == .connect)
         }
-        
+
         let request = Request("https://google.com")
         test(request)
         test(request as ComposableRequest.Method)
@@ -90,12 +92,12 @@ final class CompositionTests: XCTestCase {
         func test(_ item: Path) {
             XCTAssert(item.path(appending: "test").components?.url?.lastPathComponent == "test")
         }
-        
+
         let request = Request("https://google.com")
         test(request)
         test(request as Path)
     }
-    
+
     /// Test `Query`.
     func testQuery() {
         /// The actual test.
@@ -142,19 +144,19 @@ final class CompositionTests: XCTestCase {
                         .compactMap(\.value)
                         .joined(separator: ",") == "value")
         }
-        
+
         let request = Request("https://google.com")
         test(request)
         test(request as Query)
     }
-    
+
     /// Test `Timeout`.
     func testTimeout() {
         /// The actual test.
         func test(_ item: Timeout) {
             XCTAssert(item.timeout(after: 5).timeout == 5)
         }
-        
+
         let request = Request("https://google.com")
         test(request)
         test(request as Timeout)

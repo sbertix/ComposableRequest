@@ -26,7 +26,9 @@ public final class CodableHTTPCookie: HTTPCookie, Codable {
     /// - parameter decoder: A valid `Decoder`.
     public convenience init(from decoder: Decoder) throws {
         let container = try decoder.singleValueContainer()
+        // swiftlint:disable force_unwrapping
         self.init(properties: try container.decode([HTTPCookiePropertyKey: String].self))!
+        // swiftlint:enable force_unwrapping
     }
 
     /// Encode.

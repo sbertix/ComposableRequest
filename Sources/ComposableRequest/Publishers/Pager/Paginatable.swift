@@ -69,7 +69,7 @@ public extension Publisher where Output: Instructable, Output.Offset: Equatable 
     /// - parameter exception: A valid `Offset`.
     /// - returns: A valid `Pager.Iteration`.
     func iterateFirst(stoppingAt exception: Output.Offset) -> Pager<Output.Offset, Publishers.Output<Self>>.Iteration {
-        iterateFirst(stoppingAt: { $0 == exception })
+        iterateFirst { $0 == exception }
     }
 
     /// Create the iteration, on the last output alone, making sure not to get stucked inside an infinite loop.
@@ -77,6 +77,6 @@ public extension Publisher where Output: Instructable, Output.Offset: Equatable 
     /// - parameter exception: A valid `Offset`.
     /// - returns: A valid `Pager.Iteration`.
     func iterateLast(stoppingAt exception: Output.Offset) -> Pager<Output.Offset, Publishers.Last<Self>>.Iteration {
-        iterateLast(stoppingAt: { $0 == exception })
+        iterateLast { $0 == exception }
     }
 }

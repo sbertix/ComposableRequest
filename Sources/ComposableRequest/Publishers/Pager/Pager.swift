@@ -7,15 +7,13 @@
 
 import Foundation
 
+/// A `typealias` for `Publishers.Pager`.
+public typealias Pager = Publishers.Pager
+
 public extension Publishers {
     /// A `struct` defining a `Publisher` emitting a sequence
     /// of outputs, until it fails or completes.
     struct Pager<Offset, Stream: Publisher>: Publisher {
-        /// The associated output type.
-        public typealias Output = Stream.Output
-        /// The associated failure type.
-        public typealias Failure = Stream.Failure
-
         /// The maximum number of complete iterations.
         /// This is not the maximum number of outputs, instead is the
         /// maximum number of subscriber (and completed) `Stream`s.
@@ -53,11 +51,13 @@ public extension Publishers {
         ///
         /// - parameter subscriber: A valid subscriber.
         public func receive<S: Subscriber>(subscriber: S) where S.Input == Output, S.Failure == Failure {
+            // swiftlint:disable empty_count
             // Make sure there's demand for it.
             guard count > 0 else {
                 Empty().subscribe(subscriber)
                 return
             }
+            // swiftlint:enable empty_count
             // Prepare the iterator.
             let iterator = generator(offset)
             iterator.stream
@@ -73,7 +73,7 @@ public extension Publishers {
                         return current.eraseToAnyPublisher()
                     case .load(let next):
                         return current
-                            .append(Pager(count-1, offset: next, generator: generator))
+                            .append(Pager(count - 1, offset: next, generator: generator))
                             .eraseToAnyPublisher()
                     }
                 }
@@ -82,8 +82,12 @@ public extension Publishers {
     }
 }
 
-/// A `typealias` for `Publishers.Pager`.
-public typealias Pager = Publishers.Pager
+public extension Pager {
+    /// The associated output type.
+    typealias Output = Stream.Output
+    /// The associated failure type.
+    typealias Failure = Stream.Failure
+}
 
 public extension Pager where Offset == Void {
     /// Init.

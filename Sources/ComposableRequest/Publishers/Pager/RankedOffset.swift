@@ -52,7 +52,7 @@ extension RankedOffset: Equatable where Offset: Equatable {
     ///     - lhs: A valid `RankedOffset`.
     ///     - rhs: A valid `RankedOffset`.
     /// - returns: A valid `Bool`.
-    public static func ==(lhs: RankedOffset, rhs: RankedOffset) -> Bool {
+    public static func == (lhs: RankedOffset, rhs: RankedOffset) -> Bool {
         lhs.offset == rhs.offset
     }
 }

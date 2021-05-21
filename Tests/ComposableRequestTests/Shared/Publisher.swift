@@ -15,7 +15,7 @@ extension Publisher {
         handleEvents(receiveOutput: { _ in XCTAssert(Thread.isMainThread) },
                      receiveCompletion: { _ in XCTAssert(Thread.isMainThread) })
     }
-    
+
     /// Assert background thread.
     func assertBackgroundThread() -> Publishers.HandleEvents<Self> {
         handleEvents(receiveOutput: { _ in XCTAssert(!Thread.isMainThread) },

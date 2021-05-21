@@ -32,13 +32,36 @@ extension Wrapper: Wrapped {
 }
 
 public extension Wrapped {
+    // MARK: Wrappable
+
+    /// Return the underlying `Wrapper`.
+    var wrapped: Wrapper { wrapper() }
+
     // MARK: Lifecycle
 
     /// Init.
     ///
     /// - parameter response: A valid `Wrapper`.
     init(wrapper: Wrapper) {
-        self.init(wrapper: { wrapper })
+        self.init { wrapper }
+    }
+
+    /// Decode the `Wrapper`.
+    ///
+    /// - parameter decode: A valid `Decoder`
+    init(from decoder: Decoder) throws {
+        let container = try decoder.singleValueContainer()
+        self.init(wrapper: try container.decode(Wrapper.self))
+    }
+
+    // MARK: Codable
+
+    /// Encode the `Wrapper`.
+    ///
+    /// - parameter encode: A valid `Encoder`.
+    func encode(to encoder: Encoder) throws {
+        var container = encoder.singleValueContainer()
+        try container.encode(wrapper())
     }
 
     // MARK: Subscript
@@ -63,27 +86,4 @@ public extension Wrapped {
     subscript(index: Int) -> Wrapper {
         return wrapper()[index]
     }
-
-    // MARK: Codable
-
-    /// Encode the `Wrapper`.
-    ///
-    /// - parameter encode: A valid `Encoder`.
-    func encode(to encoder: Encoder) throws {
-        var container = encoder.singleValueContainer()
-        try container.encode(wrapper())
-    }
-
-    /// Decode the `Wrapper`.
-    /// 
-    /// - parameter decode: A valid `Decoder`
-    init(from decoder: Decoder) throws {
-        let container = try decoder.singleValueContainer()
-        self.init(wrapper: try container.decode(Wrapper.self))
-    }
-
-    // MARK: Wrappable
-
-    /// Return the underlying `Wrapper`.
-    var wrapped: Wrapper { wrapper() }
 }

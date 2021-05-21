@@ -10,29 +10,20 @@ import XCTest
 
 @testable import ComposableRequest
 
+// swiftlint:disable force_unwrapping
 /// A url to a json resource.
-fileprivate let url = URL(string: ["https://gist.githubusercontent.com/sbertix/",
-                                   "8959f2534f815ee3f6018965c6c5f9e2/raw/",
-                                   "c38d855d9aac95fb095b6c5fc75f9a0219183648/Test.json"].joined())!
+private let url = URL(string: ["https://gist.githubusercontent.com/sbertix/",
+                               "8959f2534f815ee3f6018965c6c5f9e2/raw/",
+                               "c38d855d9aac95fb095b6c5fc75f9a0219183648/Test.json"].joined())!
+// swiftlint:enable force_unwrapping
 
 /// A `class` defining a series of tests on `Observable`s.
-final class ObservableTests: XCTestCase {
-    /// The combine runtime alert.
-    private static let runtime: Void = {
-        print("Combine runtime: "+(ProcessInfo.processInfo.environment["CX_COMBINE_IMPLEMENTATION"] ?? "combine"))
-        return ()
-    }()
+internal final class ObservableTests: XCTestCase {
     /// The dispose bag.
     private var bin: Set<AnyCancellable> = []
-    
-    /// Set up.
-    override func setUp() {
-        bin.removeAll()         // This should already been taken care of.
-        ObservableTests.runtime
-    }
-    
+
     // MARK: Simple
-    
+
     /// Test a generic future request.
     func testFuture() {
         let expectations = ["output", "completion"].map(XCTestExpectation.init)
@@ -70,7 +61,7 @@ final class ObservableTests: XCTestCase {
         .store(in: &bin)
         wait(for: expectations, timeout: 30)
     }
-    
+
     /// Test remote promises.
     func testRemoteFuture() {
         let expectations = ["output", "completion"].map(XCTestExpectation.init)
@@ -101,13 +92,13 @@ final class ObservableTests: XCTestCase {
             .store(in: &bin)
         wait(for: expectations, timeout: 30)
     }
-    
+
     // MARK: Pagination
-    
+
     /// Test a paginated fetch request.
     func testPagination() {
         let languages = ["en", "it", "de", "fr"]
-        let expectations = languages.map(XCTestExpectation.init)+[XCTestExpectation(description: "completion")]
+        let expectations = languages.map(XCTestExpectation.init) + [XCTestExpectation(description: "completion")]
         let offset = Reference(0)
         // Prepare the provider.
         PagerProvider { pages in
@@ -117,7 +108,7 @@ final class ObservableTests: XCTestCase {
                     Just($0).map { _ in offset }
                 }
                 .unlock(with: languages[offset])
-                .iterateFirst(stoppingAt: offset) { .load($0+1) }
+                .iterateFirst(stoppingAt: offset) { .load($0 + 1) }
             }
         }
         .pages(languages.count, offset: 0)
@@ -130,15 +121,14 @@ final class ObservableTests: XCTestCase {
             },
             receiveValue: {
                 XCTAssert(offset.value == $0)
-                offset.value = $0+1
+                offset.value = $0 + 1
                 expectations[$0].fulfill()
             }
         )
         .store(in: &bin)
         wait(for: expectations, timeout: 30)
     }
-    
-    
+
     /// Test a pagination request using a ranked offset.
     func testRankedOffsetPagination() {
         let values = Array(0...3)
@@ -146,7 +136,7 @@ final class ObservableTests: XCTestCase {
         let offset = Atomic(0)
         // Prepare the provider.
         PagerProvider { (pages: PagerProviderInput<RankedOffset<Int, [Int]>>) in
-            Pager(pages) { Just(pages.rank[$0]).iterateFirst { .load($0+1) }}
+            Pager(pages) { Just(pages.rank[$0]).iterateFirst { .load($0 + 1) } }
         }
         .pages(values.count, offset: 0, rank: values)
         .sink(
@@ -158,18 +148,18 @@ final class ObservableTests: XCTestCase {
                 offset.sync {
                     XCTAssert(value == $0)
                     expectations[value].fulfill()
-                    $0 = value+1
+                    $0 = value + 1
                 }
             }
         )
         .store(in: &bin)
         wait(for: expectations, timeout: 30)
     }
-    
+
     /// Test a remote paginated fetch request.
     func testRemotePagination() {
         let languages = ["en", "it", "de", "fr"]
-        let expectations = languages.map(XCTestExpectation.init)+[XCTestExpectation(description: "completion")]
+        let expectations = languages.map(XCTestExpectation.init) + [XCTestExpectation(description: "completion")]
         let offset = Reference(0)
         // Prepare the provider.
         LockSessionPagerProvider { url, session, pages in    // Additional tests.
@@ -179,7 +169,7 @@ final class ObservableTests: XCTestCase {
                     .query(appending: languages[offset], forKey: "l")
                     .publish(with: session)
                     .map { _ in offset }
-                    .iterateLast { .load(($0 ?? -1)+1) }
+                    .iterateLast { .load(($0 ?? -1) + 1) }
             }
         }
         .unlock(with: url)
@@ -192,16 +182,16 @@ final class ObservableTests: XCTestCase {
             },
             receiveValue: {
                 XCTAssert(offset.value == $0)
-                offset.value = $0+1
+                offset.value = $0 + 1
                 expectations[$0].fulfill()
             }
         )
         .store(in: &bin)
-        wait(for: expectations, timeout: 30*TimeInterval(languages.count))
+        wait(for: expectations, timeout: 30 * TimeInterval(languages.count))
     }
-    
+
     // MARK: Cancellation
-    
+
     /// Test cancellation.
     func testCancellation() {
         let expectations = ["completion"].map(XCTestExpectation.init)
@@ -220,7 +210,7 @@ final class ObservableTests: XCTestCase {
         }
         wait(for: expectations, timeout: 5)
     }
-    
+
     /// Test paginated cancellation.
     func testPaginatedCancellation() {
         let expectations = ["output", "completion"].map(XCTestExpectation.init)
@@ -241,7 +231,7 @@ final class ObservableTests: XCTestCase {
             }
         )
         .store(in: &bin)
-        DispatchQueue.main.asyncAfter(deadline: .now()+25) { expectations.last?.fulfill() }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 25) { expectations.last?.fulfill() }
         wait(for: expectations, timeout: 30)
     }
 }

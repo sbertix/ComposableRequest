@@ -10,6 +10,9 @@ import Foundation
 /// A `struct` defining a generic and abstract `Codable` value.
 @dynamicMemberLookup
 public struct Wrapper {
+    /// An accessory for an empty `Wrapper`.
+    public static var empty: Wrapper { .init(value: NSNull()) }
+
     /// The underlying value.
     public var value: Wrappable
 
@@ -27,13 +30,8 @@ public struct Wrapper {
                   string(converting: false),
                   url()] as [Any?])
             .lazy
-            .contains(where: { $0 != nil })
+            .contains { $0 != nil }
     }
-
-    // MARK: Lifecycle
-
-    /// An accessory for an empty `Wrapper`.
-    public static var empty: Wrapper { .init(value: NSNull()) }
 
     /// Init.
     ///
@@ -41,7 +39,20 @@ public struct Wrapper {
     /// - note: Use `value.wrapped` instead of initializing `Wrapper` directly.
     init(value: Wrappable) { self.value = value }
 
-    // MARK: Accessories
+    /// Decode `data` into a `Wrapper`.
+    ///
+    /// - parameter data: Some valid `Data`.
+    /// - note: Prefer this, to using a custom `JSONDecoder`.
+    /// - throws: An `DecodingError`.
+    /// - returns: A valid `Wrapper`.
+    public static func decode(_ data: Data) throws -> Wrapper { try JSONDecoder().decode(Wrapper.self, from: data) }
+
+    /// Encode `self` into `Data`.
+    ///
+    /// - note: Prefer this, to using a custom `JSONEncoder`.
+    /// - throws: An `EncodingError`.
+    /// - returns: Some valid `Data`.
+    public func encode() throws -> Data { try JSONEncoder().encode(self) }
 
     /// Flat map to `self`.
     ///
@@ -57,7 +68,8 @@ public struct Wrapper {
             return array.map { $0.snakeCased() }.wrapped
         case let dictionary as [String: Wrapper]:
             return Dictionary(dictionary.map { ($0.snakeCased, $1.snakeCased()) }) { lhs, _ in lhs }.wrapped
-        default: return self
+        default:
+            return self
         }
     }
 
@@ -70,26 +82,10 @@ public struct Wrapper {
             return array.map { $0.camelCased() }.wrapped
         case let dictionary as [String: Wrapper]:
             return Dictionary(dictionary.map { ($0.camelCased, $1.camelCased()) }) { lhs, _ in lhs }.wrapped
-        default: return self
+        default:
+            return self
         }
     }
-
-    // MARK: Coding
-
-    /// Encode `self` into `Data`.
-    ///
-    /// - note: Prefer this, to using a custom `JSONEncoder`.
-    /// - throws: An `EncodingError`.
-    /// - returns: Some valid `Data`.
-    public func encode() throws -> Data { try JSONEncoder().encode(self) }
-
-    /// Decode `data` into a `Wrapper`.
-    ///
-    /// - parameter data: Some valid `Data`.
-    /// - note: Prefer this, to using a custom `JSONDecoder`.
-    /// - throws: An `DecodingError`.
-    /// - returns: A valid `Wrapper`.
-    public static func decode(_ data: Data) throws -> Wrapper { try JSONDecoder().decode(Wrapper.self, from: data) }
 
     // MARK: Subscripts
 
@@ -127,28 +123,33 @@ public struct Wrapper {
         guard let array = optional()?.array(), index >= 0, index < array.count else { return .empty }
         return array[index]
     }
+}
 
-    // MARK: Accessories
-
+public extension Wrapper {
     /// An optional array of `Wrapper`s
     ///
     /// - returns: An array of `Wrapper`s, if `value` is an array, `nil` otherwise.
-    public func array() -> [Wrapper]? { value as? [Wrapper] }
+    func array() -> [Wrapper]? { value as? [Wrapper] }
 
     /// An optional `Bool`.
     ///
     /// - parameter shouldConvert: A `Bool` referencing whether you should try to read `Bool` from `String`s or not. Defaults to `true`.
     /// - returns: A `Bool`, if `value`is a `NSNumber` or it can be converted to a `Bool` and `shouldConvert` is `true` , `nil` otherwise.
-    public func bool(converting shouldConvert: Bool = true) -> Bool? {
+    func bool(converting shouldConvert: Bool = true) -> Bool? {
         switch value {
-        case let number as NSNumber: return number.boolValue
+        case let number as NSNumber:
+            return number.boolValue
         case let string as String where shouldConvert:
             switch string.lowercased() {
-            case "y", "yes", "t", "true", "1": return true
-            case "n", "no", "f", "false", "0": return false
-            default: return nil
+            case "y", "yes", "t", "true", "1":
+                return true
+            case "n", "no", "f", "false", "0":
+                return false
+            default:
+                return nil
             }
-        default: return nil
+        default:
+            return nil
         }
     }
 
@@ -158,35 +159,39 @@ public struct Wrapper {
     ///     - reference: A `Date` representing when to start counting seconds. Defauts to midnight, Jenuary 1st, 1970.
     ///     - shouldConver: A `Bool` referencing whether you should try to read `Date` from `String`s or not. Defaults to `false`.
     /// - returns: A `Date`, if `value` is a `Date`, `nil` otherwise.
-    public func date(countingFrom reference: Date = .init(timeIntervalSince1970: 0),
-                     converting shouldConvert: Bool = false) -> Date? {
+    func date(countingFrom reference: Date = .init(timeIntervalSince1970: 0),
+              converting shouldConvert: Bool = false) -> Date? {
         switch value {
         case let number as NSNumber:
             let double = number.doubleValue
-            let seconds = double/pow(10.0, max(floor(log10(double))-9, 0))
+            let seconds = double / pow(10.0, max(floor(log10(double)) - 9, 0))
             return reference.addingTimeInterval(seconds)
         case let string as String where shouldConvert:
             let double = Double(string)
-            let seconds = double.flatMap { $0/pow(10.0, max(floor(log10($0))-9, 0)) }
+            let seconds = double.flatMap { $0 / pow(10.0, max(floor(log10($0)) - 9, 0)) }
             return seconds.flatMap { reference.addingTimeInterval($0) }
-        default: return nil
+        default:
+            return nil
         }
     }
 
     /// An optional dictionary of `Wrapper`s
     ///
     /// - returns: A dictionary of `Wrapper`s, if `value` is a dictionary, `nil` otherwise.
-    public func dictionary() -> [String: Wrapper]? { value as? [String: Wrapper] }
+    func dictionary() -> [String: Wrapper]? { value as? [String: Wrapper] }
 
     /// An optional `Double`.
     ///
     /// - parameter shouldConvert: A `Bool` referencing whether you should try to read `Double` from `String`s or not. Defaults to `true`.
     /// - returns: A `Double`, if `value`is a `NSNumber` or it can be converted to a `Double` and `shouldConvert` is `true` , `nil` otherwise.
-    public func double(converting shouldConvert: Bool = true) -> Double? {
+    func double(converting shouldConvert: Bool = true) -> Double? {
         switch value {
-        case let number as NSNumber: return number.doubleValue
-        case let string as String where shouldConvert: return Double(string)
-        default: return nil
+        case let number as NSNumber:
+            return number.doubleValue
+        case let string as String where shouldConvert:
+            return Double(string)
+        default:
+            return nil
         }
     }
 
@@ -194,11 +199,14 @@ public struct Wrapper {
     ///
     /// - parameter shouldConvert: A `Bool` referencing whether you should try to read `Int` from `String`s or not. Defaults to `true`.
     /// - returns: An `Int`, if `value`is a `NSNumber` or it can be converted to a `Int` and `shouldConvert` is `true` , `nil` otherwise.
-    public func int(converting shouldConvert: Bool = true) -> Int? {
+    func int(converting shouldConvert: Bool = true) -> Int? {
         switch value {
-        case let number as NSNumber: return number.intValue
-        case let string as String where shouldConvert: return Int(string)
-        default: return nil
+        case let number as NSNumber:
+            return number.intValue
+        case let string as String where shouldConvert:
+            return Int(string)
+        default:
+            return nil
         }
     }
 
@@ -206,47 +214,31 @@ public struct Wrapper {
     ///
     /// - parameter shouldConvert: A `Bool` referencing whether you should try to read `String` from `NSNumber`s or not. Defaults to `false`.
     /// - returns: A `String`, if `value`is a `String` or it can be converted to a `String` and `shouldConvert` is `true` , `nil` otherwise.
-    public func string(converting shouldConvert: Bool = false) -> String? {
+    func string(converting shouldConvert: Bool = false) -> String? {
         switch value {
-        case let number as NSNumber where shouldConvert: return number.description
-        case let string as String: return string
-        default: return nil
+        case let number as NSNumber where shouldConvert:
+            return number.description
+        case let string as String:
+            return string
+        default:
+            return nil
         }
     }
 
     /// An optional `URL`.
     ///
     /// - returns: A `URL`, if `value` is a `String` representing a valid (local or remote) URL address, `nil` otherwise.
-    public func url() -> URL? {
+    func url() -> URL? {
         switch value {
         case let string as String:
             return URL(string: string) ?? URL(fileURLWithPath: string)
-        default: return nil
+        default:
+            return nil
         }
     }
 }
 
 extension Wrapper: Codable {
-    /// Encode `value`.
-    ///
-    /// - parameter encoder: A valid `Encoder`.
-    /// - throws: An `EncodingError`.
-    public func encode(to encoder: Encoder) throws {
-        var container = encoder.singleValueContainer()
-        switch value {
-        case is NSNull: try container.encodeNil()
-        case let array as [Wrapper]: try container.encode(array)
-        case let dictionary as [String: Wrapper]:
-            try container.encode(Dictionary(uniqueKeysWithValues: dictionary.map { ($0.snakeCased, $1) }))
-        case let value as Bool: try container.encode(value)
-        case let value as Int: try container.encode(value)
-        case let value as Double: try container.encode(value)
-        case let string as String: try container.encode(string)
-        default: throw EncodingError.invalidValue(value, EncodingError.Context(codingPath: container.codingPath,
-                                                                               debugDescription: "Invalid type for `Wrapper`."))
-        }
-    }
-
     /// Init.
     ///
     /// - parameter decoder: A valid `Decoder`.
@@ -271,6 +263,34 @@ extension Wrapper: Codable {
             throw DecodingError.dataCorruptedError(in: container, debugDescription: "Invalid type for `Wrapper`.")
         }
     }
+
+    /// Encode `value`.
+    ///
+    /// - parameter encoder: A valid `Encoder`.
+    /// - throws: An `EncodingError`.
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.singleValueContainer()
+        switch value {
+        case is NSNull:
+            try container.encodeNil()
+        case let array as [Wrapper]:
+            try container.encode(array)
+        case let dictionary as [String: Wrapper]:
+            try container.encode(Dictionary(uniqueKeysWithValues: dictionary.map { ($0.snakeCased, $1) }))
+        case let value as Bool:
+            try container.encode(value)
+        case let value as Int:
+            try container.encode(value)
+        case let value as Double:
+            try container.encode(value)
+        case let string as String:
+            try container.encode(string)
+        default:
+            throw EncodingError.invalidValue(value,
+                                             EncodingError.Context(codingPath: container.codingPath,
+                                                                   debugDescription: "Invalid type for `Wrapper`."))
+        }
+    }
 }
 
 extension Wrapper: CustomStringConvertible {
@@ -293,12 +313,18 @@ extension Wrapper: Equatable {
     /// - returns: `true` if `lhs` and `rhs` are equal, otherwise `false`.
     public static func == (lhs: Wrapper, rhs: Wrapper) -> Bool {
         switch (lhs.value, rhs.value) {
-        case is (NSNull, NSNull): return true
-        case let (lhs, rhs) as ([Wrapper], [Wrapper]): return lhs == rhs
-        case let (lhs, rhs) as ([String: Wrapper], [String: Wrapper]): return lhs == rhs
-        case let (lhs, rhs) as (NSNumber, NSNumber): return lhs == rhs
-        case let (lhs, rhs) as (String, String): return lhs == rhs
-        default: return false
+        case is (NSNull, NSNull):
+            return true
+        case let (lhs, rhs) as ([Wrapper], [Wrapper]):
+            return lhs == rhs
+        case let (lhs, rhs) as ([String: Wrapper], [String: Wrapper]):
+            return lhs == rhs
+        case let (lhs, rhs) as (NSNumber, NSNumber):
+            return lhs == rhs
+        case let (lhs, rhs) as (String, String):
+            return lhs == rhs
+        default:
+            return false
         }
     }
 }
@@ -312,7 +338,7 @@ extension Wrapper: ExpressibleByArrayLiteral {
     /// Init with an array.
     ///
     /// - parameter elements: An array of `Wrapper`s.
-    internal init(arrayLiteral elements: [Wrapper]) { self.init(value: elements.filter { !$0.isEmpty }) }
+    public init(arrayLiteral elements: [Wrapper]) { self.init(value: elements.filter { !$0.isEmpty }) }
 }
 
 extension Wrapper: ExpressibleByBooleanLiteral {
@@ -327,14 +353,13 @@ extension Wrapper: ExpressibleByDictionaryLiteral {
     ///
     /// - parameter elements: A collection of `String`s and `Wrapper`s.
     public init(dictionaryLiteral elements: (String, Wrapper)...) {
-        self.init(dictionaryLiteral: Dictionary(elements.compactMap { $1.isEmpty ? nil : ($0.camelCased, $1) },
-                                                uniquingKeysWith: { _, rhs in rhs }))
+        self.init(dictionaryLiteral: Dictionary(elements.compactMap { $1.isEmpty ? nil : ($0.camelCased, $1) }) { $1 })
     }
 
     /// Init with a dictionary representation.
     ///
     /// - parameter elements: A dictionary of `Wrapper`s.
-    internal init(dictionaryLiteral elements: [String: Wrapper]) { self.init(value: elements) }
+    public init(dictionaryLiteral elements: [String: Wrapper]) { self.init(value: elements) }
 }
 
 extension Wrapper: ExpressibleByFloatLiteral {

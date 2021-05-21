@@ -82,7 +82,8 @@ public extension PagerProviderType where Offset: Ranked, Offset.Rank: Composable
     }
 }
 
-public extension PagerProviderType where Offset: Ranked, Offset.Offset: ComposableOptionalType, Offset.Rank: ComposableOptionalType {
+public extension PagerProviderType
+where Offset: Ranked, Offset.Offset: ComposableOptionalType, Offset.Rank: ComposableOptionalType {
     /// Set up pagination.
     ///
     /// - parameter count: A valid `Int`.

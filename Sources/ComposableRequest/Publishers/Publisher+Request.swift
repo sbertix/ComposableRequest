@@ -27,7 +27,7 @@ public extension Request {
             .handleEvents(
                 receiveSubscription: { _ in logger.log(request) },
                 receiveOutput: { logger.log(.success($0)) },
-                receiveCompletion: { if case .failure(let error) = $0 { logger.log(.failure(error)) }}
+                receiveCompletion: { if case .failure(let error) = $0 { logger.log(.failure(error)) } }
             )
             .eraseToAnyPublisher()
     }

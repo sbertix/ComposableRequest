@@ -21,18 +21,18 @@ public extension String {
     /// To `snake-case`.
     var snakeCased: String {
         return reduce(into: "") { result, new in
-            result += new.isUppercase ? "_"+String(new).lowercased() : String(new)
+            result += new.isUppercase ? "_" + String(new).lowercased() : String(new)
         }
     }
 
     /// Convert first letter to uppercase.
     var beginningWithUppercase: String {
-        return prefix(1).uppercased()+dropFirst()
+        return prefix(1).uppercased() + dropFirst()
     }
 
     /// Convert first letter to lowercase.
     var beginningWithLowercase: String {
-        return prefix(1).lowercased()+dropFirst()
+        return prefix(1).lowercased() + dropFirst()
     }
 }
 

@@ -27,7 +27,7 @@ public struct Logger {
     ///     - handler: A valid log handler. Defaults to `nil`, printing to the console.
     public init(level: Level?, handler: ((String) -> Void)? = nil) {
         self.level = level
-        self.handler = handler ?? { log in DispatchQueue.main.async { print(log) }}
+        self.handler = handler ?? { log in DispatchQueue.main.async { print(log) } }
     }
 
     /// Log the request.
@@ -53,7 +53,7 @@ public struct Logger {
         // Compose.
         let components = [url, method, header, body].compactMap { $0 }
         guard !components.isEmpty else { return }
-        let log = (["Request:"]+components).joined(separator: "\n")
+        let log = (["Request:"] + components).joined(separator: "\n")
         handler(log)
     }
 
@@ -75,16 +75,16 @@ public struct Logger {
             ? (response?.allHeaderFields as? [String: String]).flatMap { "\tHeader: "+$0.debugDescription }
             : nil
         let body = level.contains(Logger.Level.Response.body)
-            ? (item?.data).flatMap { "\tBody: "+(String(data: $0, encoding: .utf8) ?? "<parser error>") }
+            ? (item?.data).flatMap { "\tBody: " + (String(data: $0, encoding: .utf8) ?? "<parser error>") }
             : nil
         var exception: String?
         if case .failure(let error) = result {
-            exception = "\tError: "+error.localizedDescription
+            exception = "\tError: " + error.localizedDescription
         }
         // Compose.
         let components = [url, statusCode, header, body, exception].compactMap { $0 }
         guard !components.isEmpty else { return }
-        let log = (["Response:"]+components).joined(separator: "\n")
+        let log = (["Response:"] + components).joined(separator: "\n")
         handler(log)
     }
 }
