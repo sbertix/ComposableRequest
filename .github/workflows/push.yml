@@ -111,9 +111,10 @@ jobs:
           filters:           |
             src:
               - '**/*.swift'
+              - '**/push.yml'
       # create documentation for `ComposableRequest`.
       - name:                Docs (Requests)
-        if:                  ${{ steps.changelog.outputs.skipped == 'false' }}
+        if:                  steps.changes.outputs.src == 'true'
         uses:                SwiftDocOrg/swift-doc@master
         with:
           base-url:          "https://sbertix.github.io/ComposableRequest/Requests/"
@@ -123,7 +124,7 @@ jobs:
           output:            docs/Requests
       # create documentation for `ComposableStorage`.
       - name:                Docs (Storage)
-        if:                  ${{ steps.changelog.outputs.skipped == 'false' }}
+        if:                  steps.changes.outputs.src == 'true'
         uses:                SwiftDocOrg/swift-doc@master
         with:
           base-url:          "https://sbertix.github.io/ComposableRequest/Storage/"
@@ -133,7 +134,7 @@ jobs:
           output:            docs/Storage
       # create documentation for `ComposableStorageCrypto`.
       - name:                Docs (StorageCrypto)
-        if:                  ${{ steps.changelog.outputs.skipped == 'false' }}
+        if:                  steps.changes.outputs.src == 'true'
         uses:                SwiftDocOrg/swift-doc@master
         with:
           base-url:          "https://sbertix.github.io/ComposableRequest/StorageCrypto/"
@@ -143,11 +144,11 @@ jobs:
           output:            docs/StorageCrypto
       # update permissions.
       - name:                Update Permissions
-        if:                  ${{ steps.changelog.outputs.skipped == 'false' }}
+        if:                  steps.changes.outputs.src == 'true'
         run:                 'sudo chown --recursive $USER docs'
       # publish to GitHub pages.
       - name:                Publish
-        if:                  ${{ steps.changelog.outputs.skipped == 'false' }}
+        if:                  steps.changes.outputs.src == 'true'
         uses:                JamesIves/github-pages-deploy-action@releases/v3
         with:
           ACCESS_TOKEN:      ${{ secrets.CHATOPS_PAT }}
