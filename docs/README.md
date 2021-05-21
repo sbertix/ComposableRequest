@@ -14,9 +14,9 @@
 
 **ComposableRequest** is a networking layer based on a declarative interface, written in (modern) **Swift**.
 
-It abstracts away `URLSession` implementation, in order to provide concise and powerful endpoint representations, thanks to the power of **Combine** `Publisher`s. 
+It abstracts away `URLSession` implementation, in order to provide concise and powerful endpoint representations, thanks to the power of **Combine** `Publisher`s.
 
-It comes with `Storage` (inside of **ComposableStorage**), a way of caching `Storable` items, and related concrete implementations (e.g. `UserDefaultsStorage`, `KeychainStorage` – for which you're gonna need to add **ComposableStorageCrypto**, depending on [**Swiftchain**](https://github.com/sbertix/Swiftchain), together with the ability to provide the final user of your API wrapper to inject code through `Provider`s. 
+It comes with `Storage` (inside of **ComposableStorage**), a way of caching `Storable` items, and related concrete implementations (e.g. `UserDefaultsStorage`, `KeychainStorage` – for which you're gonna need to add **ComposableStorageCrypto**, depending on [**Swiftchain**](https://github.com/sbertix/Swiftchain), together with the ability to provide the final user of your API wrapper to inject code through `Provider`s.
 
 ## Status
 ![push](https://github.com/sbertix/ComposableRequest/workflows/push/badge.svg)
@@ -26,7 +26,7 @@ You can find all changelogs directly under every [release](https://github.com/sb
 
 > What's next?
 
-**ComposableRequest** was initially [**Swiftagram**](https://github.com/sbertix/Swiftagram)'s networking layer and it still tends to follow roughly the same development cycle. 
+**ComposableRequest** was initially [**Swiftagram**](https://github.com/sbertix/Swiftagram)'s networking layer and it still tends to follow roughly the same development cycle.
 
 [Milestones](https://github.com/sbertix/ComposableRequest/milestones), [issues](https://github.com/sbertix/ComposableRequest/issues), are the best way to keep updated with active developement.
 
@@ -56,7 +56,7 @@ Furthermore, with the integration of the **Swift Package Manager** in **Xcode 11
 </details>
 
 ## Usage
-Check out [**Swiftagram**](https://github.com/sbertix/Swiftagram) or visit the (_auto-generated_) [Documentation](https://sbertix.github.io/ComposableRequest) to learn about use cases.  
+Check out [**Swiftagram**](https://github.com/sbertix/Swiftagram) or visit the (_auto-generated_) documentation for [**ComposableRequest**](https://sbertix.github.io/ComposableRequest/ComposableRequest/), [**ComposableStorage**](https://sbertix.github.io/ComposableRequest/ComposableStorage/) and [**ComposableStorageCrypto**](https://sbertix.github.io/ComposableRequest/ComposableStorageCrypto/) to learn about use cases.  
 
 ### Endpoint
 
@@ -148,7 +148,7 @@ MediaEndpoint.delete(identifier)
 
 > What about cancelling the request, or starting it a later date?
 
-As **ComposableRequest** is based on the **Combine** runtime, you can simply `cancel` the `Cancellable` returned on `sink`, or emptying the "dispose bag"-like `Set` you've stored it in. 
+As **ComposableRequest** is based on the **Combine** runtime, you can simply `cancel` the `Cancellable` returned on `sink`, or emptying the "dispose bag"-like `Set` you've stored it in.
 
 ### Caching
 Caching of `Storable`s is provided through conformance to the `Storage` protocol, specifically by implementing either `ThrowingStorage` or `NonThrowingStorage`.  
