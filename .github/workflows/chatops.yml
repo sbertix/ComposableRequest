@@ -6,6 +6,7 @@ on:
 
 jobs:
   chatops:
+    name:                ChatOps
     runs-on:             ubuntu-latest
 
     steps:
@@ -16,5 +17,4 @@ jobs:
           token:         ${{ secrets.CHATOPS_PAT }}
           dispatch_type: workflow
           commands:      |
-            release
             test
