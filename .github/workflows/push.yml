@@ -112,6 +112,9 @@ jobs:
             src:
               - '**/*.swift'
               - '**/push.yml'
+      # remove `@_exported` files.
+      - name:                Suppress @_exported
+        run:                 find Sources -name "@_exported.swift" -delete
       # create documentation for `ComposableRequest`.
       - name:                Docs (Requests)
         if:                  steps.changes.outputs.src == 'true'
