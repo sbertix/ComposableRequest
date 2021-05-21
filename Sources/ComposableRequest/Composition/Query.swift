@@ -51,7 +51,7 @@ public extension Query {
     /// - parameter query: A collection of `URLQueryItem`s.
     /// - returns: A copy of `self`.
     func query<C: Collection>(appending query: C) -> Self where C.Element == URLQueryItem {
-        self.query((components?.queryItems ?? [])+query)
+        self.query((components?.queryItems ?? []) + query)
     }
 
     /// Append `query`, as parameters, to current ones.

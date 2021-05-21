@@ -15,12 +15,12 @@ import CoreGraphics
 @testable import ComposableRequest
 
 /// A `class` defining all models test cases.
-final class WrappersTests: XCTestCase {
+internal final class WrappersTests: XCTestCase {
     /// A `struct` defining a custom `Wrapped`.
-    struct Wrapped: ComposableRequest.Wrapped {
+    private struct Wrapped: ComposableRequest.Wrapped {
         /// The underlying wrapper.
         var wrapper: () -> Wrapper
-        
+
         /// Init.
         ///
         /// - parameter wrapper: A valid closure.
@@ -44,27 +44,28 @@ final class WrappersTests: XCTestCase {
         XCTAssert(CGFloat(2.1).wrapped.double() == 2.1)
         #endif
     }
-    
+
     /// Test `Wrapped`.
-    func testWrapped() {
+    func testWrapped() throws {
         let array = Wrapped(wrapper: [["key": 2]])
         XCTAssert(array[0].dictionary() == ["key": 2])
-        XCTAssert((try? JSONDecoder().decode(Wrapped.self, from: JSONEncoder().encode(array)))?[0].dictionary() == ["key": 2])
+        XCTAssert(try JSONDecoder().decode(Wrapped.self, from: JSONEncoder().encode(array))[0]
+                    .dictionary() == ["key": 2])
         let dictionary = Wrapped(wrapper: ["key": 2])
         XCTAssert(dictionary["key"] == 2)
         XCTAssert(dictionary.key == 2)
     }
-    
+
     /// Test `Wrapper`.
-    func testWrapper() {
+    func testWrapper() throws {
         let value: Wrapper = [["integer": 1,
                                "null": NSNull().wrapped,
                                "camel_case_string": "",
                                "bool": true,
                                "double": 2.3,
                                "url": "https://google.com"]]
-        let data = try! value.encode()
-        var response = try! Wrapper.decode(data)
+        let data = try value.encode()
+        var response = try Wrapper.decode(data)
         let first = response.array()?.first
         XCTAssert(first == response[0])
         XCTAssert(first?.integer.int() == 1, "Int is not `Int`.")
@@ -87,8 +88,8 @@ final class WrappersTests: XCTestCase {
         XCTAssert(response.int() == 2)
         response = [1, 2]
         XCTAssert(response[1].int() == 2)
-        response = 1000
-        XCTAssert(response.date()?.timeIntervalSince1970 == 1000)
+        response = 1_000
+        XCTAssert(response.date()?.timeIntervalSince1970 == 1_000)
         response = .empty
     }
 }

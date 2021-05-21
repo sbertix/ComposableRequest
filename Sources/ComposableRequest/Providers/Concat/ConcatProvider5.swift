@@ -8,7 +8,7 @@
 import Foundation
 
 /// A `struct` defining a composition of `Provider`s.
-public struct ConcatProvider5<A: Provider,
+public struct ConcatProvider5 < A: Provider,
                               B: Provider,
                               C: Provider,
                               D: Provider,

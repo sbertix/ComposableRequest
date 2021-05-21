@@ -8,7 +8,7 @@
 @testable import ComposableRequest
 import XCTest
 
-final class ExtensionsTests: XCTestCase {
+internal final class ExtensionsTests: XCTestCase {
     /// Test `String` extensions.
     func testString() {
         XCTAssert("camel_cased".camelCased == "camelCased")
@@ -18,13 +18,16 @@ final class ExtensionsTests: XCTestCase {
     }
 
     /// Test `HTTPCookie` extensions..
-    func testCookie() {
-        let cookie = CodableHTTPCookie(properties: [.name: "name",
-                                                    .value: "value",
-                                                    .domain: "domain",
-                                                    .path: "path"])!
-        let decoded = try! JSONDecoder().decode(CodableHTTPCookie.self,
-                                                from: JSONEncoder().encode(cookie))
+    func testCookie() throws {
+        guard let cookie = CodableHTTPCookie(properties: [.name: "name",
+                                                          .value: "value",
+                                                          .domain: "domain",
+                                                          .path: "path"]) else {
+            XCTFail("Invalid cookies")
+            return
+        }
+        let decoded = try JSONDecoder().decode(CodableHTTPCookie.self,
+                                               from: JSONEncoder().encode(cookie))
         XCTAssert(decoded == cookie)
     }
 }

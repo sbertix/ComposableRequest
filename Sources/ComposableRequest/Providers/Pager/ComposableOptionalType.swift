@@ -43,8 +43,10 @@ extension Optional: ComposableOptionalType {
     /// Check whether it's `nil` or not.
     public var composableIsNone: Bool {
         switch self {
-        case .none: return true
-        default: return false
+        case .none:
+            return true
+        default:
+            return false
         }
     }
 

@@ -7,6 +7,14 @@
 
 import Foundation
 
+/// An `enum` listing all valid instructions.
+public enum Instruction<Offset> {
+    /// Stop paginating.
+    case stop
+    /// Load next offset.
+    case load(Offset)
+}
+
 public extension Pager {
     /// A `struct` defining a valid `Publisher`
     /// iteration instance for `Pager`s.
@@ -16,14 +24,6 @@ public extension Pager {
         /// The underlying offset generator.
         public let offset: ([Output]) -> Instruction<Offset>
     }
-}
-
-/// An `enum` listing all valid instructions.
-public enum Instruction<Offset> {
-    /// Stop paginating.
-    case stop
-    /// Load next offset.
-    case load(Offset)
 }
 
 public extension Publisher {
@@ -59,8 +59,7 @@ public extension Publisher {
     ///     - exception: A valid `Offset`.
     ///     - offet: A valid offset generator.
     /// - returns: A valid `Pager.Iteration`.
-    func iterate<O>(stoppingAt exception: O,
-                    with offset: @escaping ([Output]) -> Instruction<O>) -> Pager<O, Self>.Iteration where O: Equatable {
+    func iterate<O>(stoppingAt exception: O, with offset: @escaping ([Output]) -> Instruction<O>) -> Pager<O, Self>.Iteration where O: Equatable {
         iterate(stoppingAt: { $0 == exception }, with: offset)
     }
 
@@ -78,8 +77,7 @@ public extension Publisher {
     ///     - exception: A valid `Offset` handler. Return `true` to stop the stream.
     ///     - offet: A valid offset generator.
     /// - returns: A valid `Pager.Iteration`.
-    func iterateFirst<O>(stoppingAt exception: @escaping (O) -> Bool,
-                         with offset: @escaping (Output?) -> Instruction<O>) -> Pager<O, Publishers.Output<Self>>.Iteration {
+    func iterateFirst<O>(stoppingAt exception: @escaping (O) -> Bool, with offset: @escaping (Output?) -> Instruction<O>) -> Pager<O, Publishers.Output<Self>>.Iteration {
         iterateFirst {
             switch offset($0) {
             case .stop:
@@ -96,8 +94,7 @@ public extension Publisher {
     ///     - exception: A valid `Offset`.
     ///     - offet: A valid offset generator.
     /// - returns: A valid `Pager.Iteration`.
-    func iterateFirst<O>(stoppingAt exception: O,
-                         with offset: @escaping (Output?) -> Instruction<O>) -> Pager<O, Publishers.Output<Self>>.Iteration where O: Equatable {
+    func iterateFirst<O>(stoppingAt exception: O, with offset: @escaping (Output?) -> Instruction<O>) -> Pager<O, Publishers.Output<Self>>.Iteration where O: Equatable {
         iterateFirst(stoppingAt: { $0 == exception }, with: offset)
     }
 
@@ -115,8 +112,7 @@ public extension Publisher {
     ///     - exception: A valid `Offset` handler. Return `true` to stop the stream.
     ///     - offet: A valid offset generator.
     /// - returns: A valid `Pager.Iteration`.
-    func iterateLast<O>(stoppingAt exception: @escaping (O) -> Bool,
-                        with offset: @escaping (Output?) -> Instruction<O>) -> Pager<O, Publishers.Last<Self>>.Iteration {
+    func iterateLast<O>(stoppingAt exception: @escaping (O) -> Bool, with offset: @escaping (Output?) -> Instruction<O>) -> Pager<O, Publishers.Last<Self>>.Iteration {
         iterateLast {
             switch offset($0) {
             case .stop:
@@ -133,8 +129,7 @@ public extension Publisher {
     ///     - exception: A valid `Offset`.
     ///     - offet: A valid offset generator.
     /// - returns: A valid `Pager.Iteration`.
-    func iterateLast<O>(stoppingAt exception: O,
-                        with offset: @escaping (Output?) -> Instruction<O>) -> Pager<O, Publishers.Last<Self>>.Iteration where O: Equatable {
+    func iterateLast<O>(stoppingAt exception: O, with offset: @escaping (Output?) -> Instruction<O>) -> Pager<O, Publishers.Last<Self>>.Iteration where O: Equatable {
         iterateLast(stoppingAt: { $0 == exception }, with: offset)
     }
 
@@ -148,6 +143,7 @@ public extension Publisher {
 }
 
 public extension Publisher where Failure == Never {
+    // swiftlint:disable force_unwrapping
     /// Create the iteration, after only one output.
     ///
     /// - warning: The `Publisher` is still not guaranteed to return an output. You should only use this when you're certain it will.
@@ -163,8 +159,7 @@ public extension Publisher where Failure == Never {
     ///     - exception: A valid `Offset` handler. Return `true` to stop the stream.
     ///     - offet: A valid offset generator.
     /// - returns: A valid `Pager.Iteration`.
-    func iterateFirst<O>(stoppingAt exception: @escaping (O) -> Bool,
-                         with offset: @escaping (Output) -> Instruction<O>) -> Pager<O, Publishers.Output<Self>>.Iteration {
+    func iterateFirst<O>(stoppingAt exception: @escaping (O) -> Bool, with offset: @escaping (Output) -> Instruction<O>) -> Pager<O, Publishers.Output<Self>>.Iteration {
         iterateFirst(stoppingAt: exception) { offset($0!) }
     }
 
@@ -174,8 +169,7 @@ public extension Publisher where Failure == Never {
     ///     - exception: A valid `Offset`.
     ///     - offet: A valid offset generator.
     /// - returns: A valid `Pager.Iteration`.
-    func iterateFirst<O>(stoppingAt exception: O,
-                         with offset: @escaping (Output) -> Instruction<O>) -> Pager<O, Publishers.Output<Self>>.Iteration where O: Equatable {
+    func iterateFirst<O>(stoppingAt exception: O, with offset: @escaping (Output) -> Instruction<O>) -> Pager<O, Publishers.Output<Self>>.Iteration where O: Equatable {
         iterateFirst(stoppingAt: { $0 == exception }, with: offset)
     }
 
@@ -194,8 +188,7 @@ public extension Publisher where Failure == Never {
     ///     - exception: A valid `Offset` handler. Return `true` to stop the stream.
     ///     - offet: A valid offset generator.
     /// - returns: A valid `Pager.Iteration`.
-    func iterateLast<O>(stoppingAt exception: @escaping (O) -> Bool,
-                        with offset: @escaping (Output) -> Instruction<O>) -> Pager<O, Publishers.Last<Self>>.Iteration {
+    func iterateLast<O>(stoppingAt exception: @escaping (O) -> Bool, with offset: @escaping (Output) -> Instruction<O>) -> Pager<O, Publishers.Last<Self>>.Iteration {
         iterateLast(stoppingAt: exception) { offset($0!) }
     }
 
@@ -206,8 +199,8 @@ public extension Publisher where Failure == Never {
     ///     - exception: A valid `Offset`.
     ///     - offet: A valid offset generator.
     /// - returns: A valid `Pager.Iteration`.
-    func iterateLast<O>(stoppingAt exception: O,
-                        with offset: @escaping (Output) -> Instruction<O>) -> Pager<O, Publishers.Last<Self>>.Iteration where O: Equatable {
+    func iterateLast<O>(stoppingAt exception: O, with offset: @escaping (Output) -> Instruction<O>) -> Pager<O, Publishers.Last<Self>>.Iteration where O: Equatable {
         iterateLast(stoppingAt: { $0 == exception }, with: offset)
     }
+    // swiftlint:enable force_unwrapping
 }

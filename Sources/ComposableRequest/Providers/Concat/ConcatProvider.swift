@@ -28,7 +28,7 @@ public struct ConcatProvider<A: Provider, B: Provider>: Provider where A.Output 
     ///
     /// - parameter generator: A valid generator.
     public init(_ generator: @escaping (A.Input, B.Input) -> B.Output) {
-        self.generator = { input in .init { generator(input, $0) }}
+        self.generator = { input in .init { generator(input, $0) } }
     }
 
     // MARK: Provider

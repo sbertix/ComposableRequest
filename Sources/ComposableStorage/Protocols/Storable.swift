@@ -29,24 +29,6 @@ public protocol Storable {
 }
 
 public extension Storable {
-    /// Cache `self` in a valid `Storage`.
-    ///
-    /// - parameter storage: A valid `NonThrowingStorage`.
-    /// - returns: `self`.
-    @discardableResult
-    func store<S: NonThrowingStorage>(in storage: S) -> Self where S.Item == Self {
-        storage.store(self)
-    }
-
-    /// Cache `self` in a valid `Storage`.
-    ///
-    /// - parameter storage: A valid `ThrowingStorage`.
-    /// - returns: `self`.
-    @discardableResult
-    func store<S: ThrowingStorage>(in storage: S) throws -> Self where S.Item == Self {
-        try storage.store(self)
-    }
-
     /// Return the first `Self` matching `label` in `storage`, `nil` if none was found.
     ///
     /// - parameters:
@@ -65,5 +47,23 @@ public extension Storable {
     /// - returns: An optional `Self`.
     static func matching<S: ThrowingStorage>(_ label: String, in storage: S) throws -> Self? where S.Item == Self {
         try storage.item(matching: label)
+    }
+
+    /// Cache `self` in a valid `Storage`.
+    ///
+    /// - parameter storage: A valid `NonThrowingStorage`.
+    /// - returns: `self`.
+    @discardableResult
+    func store<S: NonThrowingStorage>(in storage: S) -> Self where S.Item == Self {
+        storage.store(self)
+    }
+
+    /// Cache `self` in a valid `Storage`.
+    ///
+    /// - parameter storage: A valid `ThrowingStorage`.
+    /// - returns: `self`.
+    @discardableResult
+    func store<S: ThrowingStorage>(in storage: S) throws -> Self where S.Item == Self {
+        try storage.store(self)
     }
 }

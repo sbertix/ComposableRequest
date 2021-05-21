@@ -73,7 +73,7 @@ extension Array: Wrappable where Element: Wrappable {
 
 extension Dictionary: Wrappable where Key == String, Value: Wrappable {
     /// Wrap `self` into a `Wrapper`.
-    public var wrapped: Wrapper { .init(dictionaryLiteral: mapValues { $0.wrapped}) }
+    public var wrapped: Wrapper { .init(dictionaryLiteral: mapValues { $0.wrapped }) }
 }
 
 extension Wrapper: Wrappable {

@@ -11,12 +11,8 @@ import ComposableRequest
 import ComposableStorage
 
 /// A `struct` defining a `Storable`.
-struct Item: Equatable, Codable, Storable {
-    /// The underlying label.
-    let label: String
-    /// The underlying user info.
-    let cookies: [CodableHTTPCookie]
-    
+internal struct Item: Equatable, Codable, Storable {
+    // swiftlint:disable force_unwrapping
     /// A default `Item`.
     static let `default` = Item(label: "item",
                                 cookies: [CodableHTTPCookie(properties: [.name: "ds_user_id",
@@ -31,4 +27,10 @@ struct Item: Equatable, Codable, Storable {
                                                                          .path: "test",
                                                                          .value: "test",
                                                                          .domain: "test"])!])
+    // swiftlint:enable force_unwrapping
+
+    /// The underlying label.
+    let label: String
+    /// The underlying user info.
+    let cookies: [CodableHTTPCookie]
 }

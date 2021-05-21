@@ -12,11 +12,11 @@ public extension Data {
     var parameters: [String: String]? {
         return String(data: self, encoding: .utf8)?
             .components(separatedBy: "&")
-            .reduce(into: [String: String](), { dictionary, element in
+            .reduce(into: [String: String]()) { dictionary, element in
                 let components = element.components(separatedBy: "=")
                 guard components.count == 2 else { return }
                 dictionary[components[0]] = components[1].removingPercentEncoding
-            })
+            }
     }
 }
 
