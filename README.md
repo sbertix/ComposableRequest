@@ -56,7 +56,7 @@ Furthermore, with the integration of the **Swift Package Manager** in **Xcode 11
 </details>
 
 ## Usage
-Check out [**Swiftagram**](https://github.com/sbertix/Swiftagram) or visit the (_auto-generated_) documentation for [**ComposableRequest**](https://sbertix.github.io/ComposableRequest/ComposableRequest/), [**ComposableStorage**](https://sbertix.github.io/ComposableRequest/ComposableStorage/) and [**ComposableStorageCrypto**](https://sbertix.github.io/ComposableRequest/ComposableStorageCrypto/) to learn about use cases.  
+Check out [**Swiftagram**](https://github.com/sbertix/Swiftagram) or visit the (_auto-generated_) documentation for [**ComposableRequest**](https://sbertix.github.io/ComposableRequest/Requests/), [**ComposableStorage**](https://sbertix.github.io/ComposableRequest/Storage/) and [**ComposableStorageCrypto**](https://sbertix.github.io/ComposableRequest/StorageCrypto/) to learn about use cases.  
 
 ### Endpoint
 
