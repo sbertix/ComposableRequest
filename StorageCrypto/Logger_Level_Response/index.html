@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StorageCrypto - Logger.Level.Response</title>
+    <link rel="stylesheet" type="text/css" href="https://sbertix.github.io/ComposableRequest/StorageCrypto/all.css" media="all" />
+</head>
+<body>
+    <header>
+        <a href="https://sbertix.github.io/ComposableRequest/StorageCrypto/">
+            <strong>
+                StorageCrypto
+            </strong>
+            <span>Documentation</span>
+        </a>
+        <sup>Beta</sup>
+    </header>
+
+    <!--
+    <form class="search">
+        <input type="search" placeholder="Search" />
+    </form>
+    -->
+
+    <nav>
+        <div class="wrapper">
+            <h2>On This Page</h2>
+            <ol><li><a href="#relationships">Relationships</a><ul><li><a href="#relationships">Member Of</a></li></ul></li><li><a href="#properties">Properties</a><ul><li class="variable"><a href="#logger.level.response.url">url</a></li><li class="variable"><a href="#logger.level.response.statuscode">status​Code</a></li><li class="variable"><a href="#logger.level.response.error">error</a></li><li class="variable"><a href="#logger.level.response.header">header</a></li><li class="variable"><a href="#logger.level.response.body">body</a></li><li class="variable"><a href="#logger.level.response.basic">basic</a></li><li class="variable"><a href="#logger.level.response.all">all</a></li></ul></li></ol>
+        </div>
+    </nav>
+
+    <main>
+        <article>
+            <h1>
+    <small>Enumeration</small>
+    <code class="name">Logger.​Level.​Response</code>
+</h1>
+
+<div class="declaration">
+<pre class="highlight"><code><span class="keyword">enum</span> <span class="type">Response</span> </code></pre>
+</div>
+<div class="summary" role="doc-abstract">
+    <p>A <code>module</code>-like <code>enum</code> defining response-based <code>Level</code>s.</p>
+
+</div>
+<section id="relationships">
+    <h2 hidden>Relationships</h2>
+        
+        <h3>Member Of</h3>
+<dl>
+    <dt class="structure"><code><a href="https://sbertix.github.io/ComposableRequest/StorageCrypto/Logger_Level">Logger.Level</a></code></dt>
+<dd><p>An <code>enum</code>-like <code>struct</code> listing the different
+levels of logging.</p>
+</dd>
+</dl>
+</section>
+    <section id="properties">
+        <h2>Properties</h2>
+
+        <div role="article" class="variable" id="logger.level.response.url">
+    <h3>
+        <code>url</code>
+    </h3>
+    <div class="declaration">
+<pre class="highlight"><code><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">var</span> <span class="variable">url</span>: <span class="type">Logger</span>.<span class="type">Level</span> </code></pre>
+</div>
+<div class="summary" role="doc-abstract">
+    <p>HTTP response URL. Dispatched at response time.</p>
+
+</div>
+</div>
+<div role="article" class="variable" id="logger.level.response.statuscode">
+    <h3>
+        <code>status​Code</code>
+    </h3>
+    <div class="declaration">
+<pre class="highlight"><code><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">var</span> <span class="variable">statusCode</span>: <span class="type">Logger</span>.<span class="type">Level</span> </code></pre>
+</div>
+<div class="summary" role="doc-abstract">
+    <p>HTTP response status code. Dispatched at response time.</p>
+
+</div>
+</div>
+<div role="article" class="variable" id="logger.level.response.error">
+    <h3>
+        <code>error</code>
+    </h3>
+    <div class="declaration">
+<pre class="highlight"><code><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">var</span> <span class="variable">error</span>: <span class="type">Logger</span>.<span class="type">Level</span> </code></pre>
+</div>
+<div class="summary" role="doc-abstract">
+    <p>HTTP response error. Dispatched at response time.</p>
+
+</div>
+</div>
+<div role="article" class="variable" id="logger.level.response.header">
+    <h3>
+        <code>header</code>
+    </h3>
+    <div class="declaration">
+<pre class="highlight"><code><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">var</span> <span class="variable">header</span>: <span class="type">Logger</span>.<span class="type">Level</span> </code></pre>
+</div>
+<div class="summary" role="doc-abstract">
+    <p>HTTP response header. Dispatched at response time.</p>
+
+</div>
+</div>
+<div role="article" class="variable" id="logger.level.response.body">
+    <h3>
+        <code>body</code>
+    </h3>
+    <div class="declaration">
+<pre class="highlight"><code><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">var</span> <span class="variable">body</span>: <span class="type">Logger</span>.<span class="type">Level</span> </code></pre>
+</div>
+<div class="summary" role="doc-abstract">
+    <p>HTTP Response data. Dispatched at response time.</p>
+
+</div>
+</div>
+<div role="article" class="variable" id="logger.level.response.basic">
+    <h3>
+        <code>basic</code>
+    </h3>
+    <div class="declaration">
+<pre class="highlight"><code><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">let</span> <span class="variable">basic</span>: <span class="type">Logger</span>.<span class="type">Level</span> = [<span class="type">Response</span>.<span class="variable">url</span>, <span class="variable">Response</span>.<span class="variable">statusCode</span>, <span class="variable">Response</span>.<span class="variable">error</span>]</code></pre>
+</div>
+<div class="summary" role="doc-abstract">
+    <p>Basic response.</p>
+
+</div>
+</div>
+<div role="article" class="variable" id="logger.level.response.all">
+    <h3>
+        <code>all</code>
+    </h3>
+    <div class="declaration">
+<pre class="highlight"><code><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">let</span> <span class="variable">all</span>: <span class="type">Logger</span>.<span class="type">Level</span> = [<span class="type">Response</span>.<span class="variable">basic</span>, <span class="variable">Response</span>.<span class="variable">header</span>, <span class="variable">Response</span>.<span class="variable">body</span>]</code></pre>
+</div>
+<div class="summary" role="doc-abstract">
+    <p>Full response.</p>
+
+</div>
+</div>
+    </section>
+
+
+
+        </article>
+    </main>
+
+    <footer>
+        <p>
+    Generated on <time datetime="2021-05-21T09:42:56+0000">May 21, 2021</time> using <a href="https://github.com/SwiftDocOrg/swift-doc">swift-doc</a> <span class="version">1.0.0-beta.6</span>.
+</p>
+    </footer>
+</body>
+</html>

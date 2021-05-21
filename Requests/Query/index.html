@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Requests - Query</title>
+    <link rel="stylesheet" type="text/css" href="https://sbertix.github.io/ComposableRequest/Requests/all.css" media="all" />
+</head>
+<body>
+    <header>
+        <a href="https://sbertix.github.io/ComposableRequest/Requests/">
+            <strong>
+                Requests
+            </strong>
+            <span>Documentation</span>
+        </a>
+        <sup>Beta</sup>
+    </header>
+
+    <!--
+    <form class="search">
+        <input type="search" placeholder="Search" />
+    </form>
+    -->
+
+    <nav>
+        <div class="wrapper">
+            <h2>On This Page</h2>
+            <ol><li><a href="#default implementations">Default Implementations</a><ul><li class="function"><a href="#query.query(_:)">query(_:​)</a></li><li class="function"><a href="#query.query(_:)">query(_:​)</a></li><li class="function"><a href="#query.query(_:)">query(_:​)</a></li><li class="function"><a href="#query.query(appending:)">query(appending:​)</a></li><li class="function"><a href="#query.query(appending:)">query(appending:​)</a></li><li class="function"><a href="#query.query(appending:)">query(appending:​)</a></li><li class="function"><a href="#query.query(appending:forkey:)">query(appending:​for​Key:​)</a></li></ul></li><li><a href="#requirements">Requirements</a><ul><li class="variable"><a href="#query.components">components</a></li></ul></li></ol>
+        </div>
+    </nav>
+
+    <main>
+        <article>
+            <h1>
+    <small>Protocol</small>
+    <code class="name">Query</code>
+</h1>
+
+<div class="declaration">
+<pre class="highlight"><code><span class="keyword">public</span> <span class="keyword">protocol</span> <span class="type">Query</span> </code></pre>
+</div>
+<div class="summary" role="doc-abstract">
+    <p>A <code>protocol</code> describing an instance providing the query items of a <code>URLRequest</code>.</p>
+
+</div>
+<div class="discussion">
+    <aside class="Note">
+    <p>When dealing with <code>String</code> dictionaries, instead of <code>URLQueryItem</code>s, all keys are expected to be <strong>unique</strong>, repeated values will be overwritten.</p>
+
+</aside>
+</div>
+
+    <section id="default implementations">
+        <h2>Default Implementations</h2>
+
+        <div role="article" class="function" id="query.query(_:)">
+    <h3>
+        <code>query(_:​)</code>
+    </h3>
+    <div class="declaration">
+<pre class="highlight"><code><span class="keyword">func</span> <span class="function">query</span>&lt;<span class="variable">C</span>: <span class="type">Collection</span>&gt;(<span class="keyword">_</span> <span class="variable">query</span>: <span class="type">C</span>) -&gt; <span class="keyword">Self</span> <span class="keyword">where</span> <span class="type">C</span>.<span class="type">Element</span> == <span class="type">URLQueryItem</span> </code></pre>
+</div>
+<div class="summary" role="doc-abstract">
+    <p>Copy <code>self</code> and replace its <code>query</code>.</p>
+
+</div>
+<h4>Parameters</h4>
+
+<table class="parameters">
+  <thead hidden>
+  <tr>
+      <th>Name</th>
+      <th>Type</th>
+      <th>Description</th>
+  </tr>
+  </thead>
+  <tbody>
+    <tr>
+    <th>query</th>
+    <td><code class="type">C</code></td>
+    <td><p>A collection of <code>URLQueryItem</code>s.</p>
+</td>
+</tr>
+  </tbody>
+</table>
+  <h4>Returns</h4>
+  <p>A copy of <code>self</code>.</p>
+
+</div>
+<div role="article" class="function" id="query.query(_:)">
+    <h3>
+        <code>query(_:​)</code>
+    </h3>
+    <div class="declaration">
+<pre class="highlight"><code><span class="keyword">func</span> <span class="function">query</span>(<span class="keyword">_</span> <span class="variable">query</span>: [<span class="type">String</span>: <span class="type">String</span>]) -&gt; <span class="keyword">Self</span> </code></pre>
+</div>
+<div class="summary" role="doc-abstract">
+    <p>Copy <code>self</code> and replace its <code>query</code>.</p>
+
+</div>
+<h4>Parameters</h4>
+
+<table class="parameters">
+  <thead hidden>
+  <tr>
+      <th>Name</th>
+      <th>Type</th>
+      <th>Description</th>
+  </tr>
+  </thead>
+  <tbody>
+    <tr>
+    <th>query</th>
+    <td><code class="type">[String:​ String]</code></td>
+    <td><p>A dictionary of <code>String</code>s.</p>
+</td>
+</tr>
+  </tbody>
+</table>
+  <h4>Returns</h4>
+  <p>A copy of <code>self</code>.</p>
+
+</div>
+<div role="article" class="function" id="query.query(_:)">
+    <h3>
+        <code>query(_:​)</code>
+    </h3>
+    <div class="declaration">
+<pre class="highlight"><code><span class="keyword">func</span> <span class="function">query</span>(<span class="keyword">_</span> <span class="variable">query</span>: [<span class="type">String</span>: <span class="type">String</span>?]) -&gt; <span class="keyword">Self</span> </code></pre>
+</div>
+<div class="summary" role="doc-abstract">
+    <p>Copy <code>self</code> and replace its <code>query</code>.</p>
+
+</div>
+<h4>Parameters</h4>
+
+<table class="parameters">
+  <thead hidden>
+  <tr>
+      <th>Name</th>
+      <th>Type</th>
+      <th>Description</th>
+  </tr>
+  </thead>
+  <tbody>
+    <tr>
+    <th>query</th>
+    <td><code class="type">[String:​ String?]</code></td>
+    <td><p>A dictionary of optional <code>String</code>s.</p>
+</td>
+</tr>
+  </tbody>
+</table>
+  <h4>Returns</h4>
+  <p>A copy of <code>self</code>.</p>
+
+</div>
+<div role="article" class="function" id="query.query(appending:)">
+    <h3>
+        <code>query(appending:​)</code>
+    </h3>
+    <div class="declaration">
+<pre class="highlight"><code><span class="keyword">func</span> <span class="function">query</span>&lt;<span class="variable">C</span>: <span class="type">Collection</span>&gt;(<span class="variable">appending</span> <span class="variable">query</span>: <span class="type">C</span>) -&gt; <span class="keyword">Self</span> <span class="keyword">where</span> <span class="type">C</span>.<span class="type">Element</span> == <span class="type">URLQueryItem</span> </code></pre>
+</div>
+<div class="summary" role="doc-abstract">
+    <p>Append <code>query</code>, as parameters, to current ones.</p>
+
+</div>
+<h4>Parameters</h4>
+
+<table class="parameters">
+  <thead hidden>
+  <tr>
+      <th>Name</th>
+      <th>Type</th>
+      <th>Description</th>
+  </tr>
+  </thead>
+  <tbody>
+    <tr>
+    <th>query</th>
+    <td><code class="type">C</code></td>
+    <td><p>A collection of <code>URLQueryItem</code>s.</p>
+</td>
+</tr>
+  </tbody>
+</table>
+  <h4>Returns</h4>
+  <p>A copy of <code>self</code>.</p>
+
+</div>
+<div role="article" class="function" id="query.query(appending:)">
+    <h3>
+        <code>query(appending:​)</code>
+    </h3>
+    <div class="declaration">
+<pre class="highlight"><code><span class="keyword">func</span> <span class="function">query</span>(<span class="variable">appending</span> <span class="variable">query</span>: [<span class="type">String</span>: <span class="type">String</span>]) -&gt; <span class="keyword">Self</span> </code></pre>
+</div>
+<div class="summary" role="doc-abstract">
+    <p>Append <code>query</code>, as parameters, to current ones.</p>
+
+</div>
+<h4>Parameters</h4>
+
+<table class="parameters">
+  <thead hidden>
+  <tr>
+      <th>Name</th>
+      <th>Type</th>
+      <th>Description</th>
+  </tr>
+  </thead>
+  <tbody>
+    <tr>
+    <th>query</th>
+    <td><code class="type">[String:​ String]</code></td>
+    <td><p>Some dictionary of <code>String</code>s.</p>
+</td>
+</tr>
+  </tbody>
+</table>
+  <h4>Returns</h4>
+  <p>A copy of <code>self</code>.</p>
+
+</div>
+<div role="article" class="function" id="query.query(appending:)">
+    <h3>
+        <code>query(appending:​)</code>
+    </h3>
+    <div class="declaration">
+<pre class="highlight"><code><span class="keyword">func</span> <span class="function">query</span>(<span class="variable">appending</span> <span class="variable">query</span>: [<span class="type">String</span>: <span class="type">String</span>?]) -&gt; <span class="keyword">Self</span> </code></pre>
+</div>
+<div class="summary" role="doc-abstract">
+    <p>Append <code>query</code>, as parameters, to current ones.</p>
+
+</div>
+<h4>Parameters</h4>
+
+<table class="parameters">
+  <thead hidden>
+  <tr>
+      <th>Name</th>
+      <th>Type</th>
+      <th>Description</th>
+  </tr>
+  </thead>
+  <tbody>
+    <tr>
+    <th>query</th>
+    <td><code class="type">[String:​ String?]</code></td>
+    <td><p>A dictionary of optional <code>String</code>s.</p>
+</td>
+</tr>
+  </tbody>
+</table>
+  <h4>Returns</h4>
+  <p>A copy of <code>self</code>.</p>
+
+</div>
+<div role="article" class="function" id="query.query(appending:forkey:)">
+    <h3>
+        <code>query(appending:​for​Key:​)</code>
+    </h3>
+    <div class="declaration">
+<pre class="highlight"><code><span class="keyword">func</span> <span class="function">query</span>(<span class="variable">appending</span> <span class="variable">value</span>: <span class="type">String</span>?, <span class="variable">forKey</span> <span class="variable">key</span>: <span class="type">String</span>) -&gt; <span class="keyword">Self</span> </code></pre>
+</div>
+<div class="summary" role="doc-abstract">
+    <p>Append <code>value</code>, as a parameter, to the current query.</p>
+
+</div>
+<h4>Parameters</h4>
+
+<table class="parameters">
+  <thead hidden>
+  <tr>
+      <th>Name</th>
+      <th>Type</th>
+      <th>Description</th>
+  </tr>
+  </thead>
+  <tbody>
+    <tr>
+    <th>value</th>
+    <td><code class="type">String?</code></td>
+    <td><p>An optional <code>String</code>.</p>
+</td>
+</tr>
+<tr>
+    <th>key</th>
+    <td><code class="type">String</code></td>
+    <td><p>A valid <code>String</code>.</p>
+</td>
+</tr>
+  </tbody>
+</table>
+  <h4>Returns</h4>
+  <p>A copy of <code>self</code>.</p>
+
+</div>
+    </section>
+
+
+    <section id="requirements">
+        <h2>Requirements</h2>
+
+        <div role="article" class="variable" id="query.components">
+    <h3>
+        <code>components</code>
+    </h3>
+    <div class="declaration">
+<pre class="highlight"><code><span class="keyword">var</span> <span class="variable">components</span>: <span class="type">URLComponents</span>? </code></pre>
+</div>
+<div class="summary" role="doc-abstract">
+    <p>The underlying request url components.</p>
+
+</div>
+</div>
+    </section>
+        </article>
+    </main>
+
+    <footer>
+        <p>
+    Generated on <time datetime="2021-05-21T09:42:53+0000">May 21, 2021</time> using <a href="https://github.com/SwiftDocOrg/swift-doc">swift-doc</a> <span class="version">1.0.0-beta.6</span>.
+</p>
+    </footer>
+</body>
+</html>

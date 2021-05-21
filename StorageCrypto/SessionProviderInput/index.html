@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StorageCrypto - SessionProviderInput</title>
+    <link rel="stylesheet" type="text/css" href="https://sbertix.github.io/ComposableRequest/StorageCrypto/all.css" media="all" />
+</head>
+<body>
+    <header>
+        <a href="https://sbertix.github.io/ComposableRequest/StorageCrypto/">
+            <strong>
+                StorageCrypto
+            </strong>
+            <span>Documentation</span>
+        </a>
+        <sup>Beta</sup>
+    </header>
+
+    <!--
+    <form class="search">
+        <input type="search" placeholder="Search" />
+    </form>
+    -->
+
+    <nav>
+        <div class="wrapper">
+            <h2>On This Page</h2>
+            <ol><li><a href="#initializers">Initializers</a><ul><li class="initializer"><a href="#sessionproviderinput.init(session:retries:logger:)">init(session:​retries:​logger:​)</a></li></ul></li><li><a href="#properties">Properties</a><ul><li class="variable"><a href="#sessionproviderinput.session">session</a></li><li class="variable"><a href="#sessionproviderinput.retries">retries</a></li><li class="variable"><a href="#sessionproviderinput.logger">logger</a></li></ul></li></ol>
+        </div>
+    </nav>
+
+    <main>
+        <article>
+            <h1>
+    <small>Structure</small>
+    <code class="name">Session​Provider​Input</code>
+</h1>
+
+<div class="declaration">
+<pre class="highlight"><code><span class="keyword">public</span> <span class="keyword">struct</span> <span class="type">SessionProviderInput</span> </code></pre>
+</div>
+<div class="summary" role="doc-abstract">
+    <p>A <code>struct</code> defining a <code>SessionProviderInput</code>.</p>
+
+</div>
+
+    <section id="initializers">
+        <h2>Initializers</h2>
+
+        <div role="article" class="initializer" id="sessionproviderinput.init(session:retries:logger:)">
+    <h3>
+        <code>init(session:​retries:​logger:​)</code>
+    </h3>
+    <div class="declaration">
+<pre class="highlight"><code><span class="keyword">public</span> <span class="keyword">init</span>(<span class="variable">session</span>: <span class="type">URLSession</span>,
+                <span class="variable">retries</span>: <span class="type">Int</span>,
+                <span class="variable">logger</span>: <span class="type">Logger</span>?) </code></pre>
+</div>
+<div class="summary" role="doc-abstract">
+    <p>Init.</p>
+
+</div>
+<h4>Parameters</h4>
+
+<table class="parameters">
+  <thead hidden>
+  <tr>
+      <th>Name</th>
+      <th>Type</th>
+      <th>Description</th>
+  </tr>
+  </thead>
+  <tbody>
+    <tr>
+    <th>session</th>
+    <td><code class="type">URLSession</code></td>
+    <td><p>A valid <code>URLSession</code>.</p>
+</td>
+</tr>
+<tr>
+    <th>retries</th>
+    <td><code class="type">Int</code></td>
+    <td><p>A valid <code>Int</code>.</p>
+</td>
+</tr>
+<tr>
+    <th>logger</th>
+    <td><code class="type">Logger?</code></td>
+    <td><p>An optional <code>Logger</code>.</p>
+</td>
+</tr>
+  </tbody>
+</table>
+</div>
+    </section>
+    <section id="properties">
+        <h2>Properties</h2>
+
+        <div role="article" class="variable" id="sessionproviderinput.session">
+    <h3>
+        <code>session</code>
+    </h3>
+    <div class="declaration">
+<pre class="highlight"><code><span class="keyword">public</span> <span class="keyword">let</span> <span class="variable">session</span>: <span class="type">URLSession</span></code></pre>
+</div>
+<div class="summary" role="doc-abstract">
+    <p>The request session.</p>
+
+</div>
+</div>
+<div role="article" class="variable" id="sessionproviderinput.retries">
+    <h3>
+        <code>retries</code>
+    </h3>
+    <div class="declaration">
+<pre class="highlight"><code><span class="keyword">public</span> <span class="keyword">let</span> <span class="variable">retries</span>: <span class="type">Int</span></code></pre>
+</div>
+<div class="summary" role="doc-abstract">
+    <p>The number of retries before outputting an exception.</p>
+
+</div>
+</div>
+<div role="article" class="variable" id="sessionproviderinput.logger">
+    <h3>
+        <code>logger</code>
+    </h3>
+    <div class="declaration">
+<pre class="highlight"><code><span class="keyword">public</span> <span class="keyword">let</span> <span class="variable">logger</span>: <span class="type">Logger</span>?</code></pre>
+</div>
+<div class="summary" role="doc-abstract">
+    <p>An optional logger.</p>
+
+</div>
+</div>
+    </section>
+
+
+
+        </article>
+    </main>
+
+    <footer>
+        <p>
+    Generated on <time datetime="2021-05-21T09:42:55+0000">May 21, 2021</time> using <a href="https://github.com/SwiftDocOrg/swift-doc">swift-doc</a> <span class="version">1.0.0-beta.6</span>.
+</p>
+    </footer>
+</body>
+</html>

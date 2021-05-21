@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Storage - Body</title>
+    <link rel="stylesheet" type="text/css" href="https://sbertix.github.io/ComposableRequest/Storage/all.css" media="all" />
+</head>
+<body>
+    <header>
+        <a href="https://sbertix.github.io/ComposableRequest/Storage/">
+            <strong>
+                Storage
+            </strong>
+            <span>Documentation</span>
+        </a>
+        <sup>Beta</sup>
+    </header>
+
+    <!--
+    <form class="search">
+        <input type="search" placeholder="Search" />
+    </form>
+    -->
+
+    <nav>
+        <div class="wrapper">
+            <h2>On This Page</h2>
+            <ol><li><a href="#default implementations">Default Implementations</a><ul><li class="function"><a href="#body.body(_:)">body(_:​)</a></li><li class="function"><a href="#body.body(_:)">body(_:​)</a></li><li class="function"><a href="#body.body(_:)">body(_:​)</a></li><li class="function"><a href="#body.body(_:forkey:)">body(_:​for​Key:​)</a></li><li class="function"><a href="#body.body(appending:)">body(appending:​)</a></li><li class="function"><a href="#body.body(appending:forkey:)">body(appending:​for​Key:​)</a></li></ul></li><li><a href="#requirements">Requirements</a><ul><li class="variable"><a href="#body.body">body</a></li></ul></li></ol>
+        </div>
+    </nav>
+
+    <main>
+        <article>
+            <h1>
+    <small>Protocol</small>
+    <code class="name">Body</code>
+</h1>
+
+<div class="declaration">
+<pre class="highlight"><code><span class="keyword">public</span> <span class="keyword">protocol</span> <span class="type">Body</span> </code></pre>
+</div>
+<div class="summary" role="doc-abstract">
+    <p>A <code>protocol</code> describing an instance providing the body of a <code>URLRequest</code>.</p>
+
+</div>
+
+    <section id="default implementations">
+        <h2>Default Implementations</h2>
+
+        <div role="article" class="function" id="body.body(_:)">
+    <h3>
+        <code>body(_:​)</code>
+    </h3>
+    <div class="declaration">
+<pre class="highlight"><code><span class="keyword">func</span> <span class="function">body</span>(<span class="keyword">_</span> <span class="variable">body</span>: <span class="type">Data</span>?) -&gt; <span class="keyword">Self</span> </code></pre>
+</div>
+<div class="summary" role="doc-abstract">
+    <p>Copy <code>self</code> and replace its <code>body</code>.</p>
+
+</div>
+<h4>Parameters</h4>
+
+<table class="parameters">
+  <thead hidden>
+  <tr>
+      <th>Name</th>
+      <th>Type</th>
+      <th>Description</th>
+  </tr>
+  </thead>
+  <tbody>
+    <tr>
+    <th>body</th>
+    <td><code class="type">Data?</code></td>
+    <td><p>Some optional <code>Data</code>.</p>
+</td>
+</tr>
+  </tbody>
+</table>
+  <h4>Returns</h4>
+  <p>A copy of <code>self</code>.</p>
+
+</div>
+<div role="article" class="function" id="body.body(_:)">
+    <h3>
+        <code>body(_:​)</code>
+    </h3>
+    <div class="declaration">
+<pre class="highlight"><code><span class="keyword">func</span> <span class="function">body</span>&lt;<span class="variable">W</span>: <span class="type">Wrappable</span>&gt;(<span class="keyword">_</span> <span class="variable">body</span>: <span class="type">W</span>) <span class="keyword">throws</span> -&gt; <span class="keyword">Self</span> </code></pre>
+</div>
+<div class="summary" role="doc-abstract">
+    <p>Copy <code>self</code> and replace its <code>body</code> with a JSON representation of a <code>Wrappable</code> element.</p>
+
+</div>
+<h4>Parameters</h4>
+
+<table class="parameters">
+  <thead hidden>
+  <tr>
+      <th>Name</th>
+      <th>Type</th>
+      <th>Description</th>
+  </tr>
+  </thead>
+  <tbody>
+    <tr>
+    <th>body</th>
+    <td><code class="type">W</code></td>
+    <td><p>A valid <code>Wrappable</code>.</p>
+</td>
+</tr>
+  </tbody>
+</table>
+  <h4>Throws</h4>
+  <p>Some encoding-related <code>Error</code>.</p>
+
+  <h4>Returns</h4>
+  <p>A copy of <code>self</code>.</p>
+
+</div>
+<div role="article" class="function" id="body.body(_:)">
+    <h3>
+        <code>body(_:​)</code>
+    </h3>
+    <div class="declaration">
+<pre class="highlight"><code><span class="keyword">func</span> <span class="function">body</span>(<span class="keyword">_</span> <span class="variable">body</span>: [<span class="type">String</span>: <span class="type">String</span>]) -&gt; <span class="keyword">Self</span> </code></pre>
+</div>
+<div class="summary" role="doc-abstract">
+    <p>Copy <code>self</code> and replace its <code>body</code>, as parameters.</p>
+
+</div>
+<div class="discussion">
+    <p>A dictionary like <code>[&quot;key1&quot;: &quot;value1&quot;, &quot;key2&quot;: &quot;value2&quot;]</code>
+converts into the data representation of a <code>String</code> like
+<code>key1=value1&amp;key2=value2</code>.</p>
+
+</div>
+<h4>Parameters</h4>
+
+<table class="parameters">
+  <thead hidden>
+  <tr>
+      <th>Name</th>
+      <th>Type</th>
+      <th>Description</th>
+  </tr>
+  </thead>
+  <tbody>
+    <tr>
+    <th>body</th>
+    <td><code class="type">[String:​ String]</code></td>
+    <td><p>Some dictionary of <code>String</code>.</p>
+</td>
+</tr>
+  </tbody>
+</table>
+  <h4>Returns</h4>
+  <p>A copy of <code>self</code>.</p>
+
+</div>
+<div role="article" class="function" id="body.body(_:forkey:)">
+    <h3>
+        <code>body(_:​for​Key:​)</code>
+    </h3>
+    <div class="declaration">
+<pre class="highlight"><code><span class="keyword">func</span> <span class="function">body</span>(<span class="keyword">_</span> <span class="variable">value</span>: <span class="type">String</span>, <span class="variable">forKey</span> <span class="variable">key</span>: <span class="type">String</span>) -&gt; <span class="keyword">Self</span> </code></pre>
+</div>
+<div class="summary" role="doc-abstract">
+    <p>Copy <code>self</code> and replace its <code>body</code>.</p>
+
+</div>
+<h4>Parameters</h4>
+
+<table class="parameters">
+  <thead hidden>
+  <tr>
+      <th>Name</th>
+      <th>Type</th>
+      <th>Description</th>
+  </tr>
+  </thead>
+  <tbody>
+    <tr>
+    <th>value</th>
+    <td><code class="type">String</code></td>
+    <td><p>A valid <code>String</code>.</p>
+</td>
+</tr>
+<tr>
+    <th>key</th>
+    <td><code class="type">String</code></td>
+    <td><p>A valid <code>String</code>.</p>
+</td>
+</tr>
+  </tbody>
+</table>
+  <h4>Returns</h4>
+  <p>A copy of <code>self</code>.</p>
+
+</div>
+<div role="article" class="function" id="body.body(appending:)">
+    <h3>
+        <code>body(appending:​)</code>
+    </h3>
+    <div class="declaration">
+<pre class="highlight"><code><span class="keyword">func</span> <span class="function">body</span>(<span class="variable">appending</span> <span class="variable">body</span>: [<span class="type">String</span>: <span class="type">String</span>]) -&gt; <span class="keyword">Self</span> </code></pre>
+</div>
+<div class="summary" role="doc-abstract">
+    <p>Append <code>body</code>, as parameters, to current one, if valid.
+Replace them otherwise.</p>
+
+</div>
+<h4>Parameters</h4>
+
+<table class="parameters">
+  <thead hidden>
+  <tr>
+      <th>Name</th>
+      <th>Type</th>
+      <th>Description</th>
+  </tr>
+  </thead>
+  <tbody>
+    <tr>
+    <th>body</th>
+    <td><code class="type">[String:​ String]</code></td>
+    <td><p>Some dictionary of <code>String</code>.</p>
+</td>
+</tr>
+  </tbody>
+</table>
+  <h4>Returns</h4>
+  <p>A copy of <code>self</code>.</p>
+
+</div>
+<div role="article" class="function" id="body.body(appending:forkey:)">
+    <h3>
+        <code>body(appending:​for​Key:​)</code>
+    </h3>
+    <div class="declaration">
+<pre class="highlight"><code><span class="keyword">func</span> <span class="function">body</span>(<span class="variable">appending</span> <span class="variable">value</span>: <span class="type">String</span>, <span class="variable">forKey</span> <span class="variable">key</span>: <span class="type">String</span>) -&gt; <span class="keyword">Self</span> </code></pre>
+</div>
+<div class="summary" role="doc-abstract">
+    <p>Append <code>value</code>, as a parameter, to the current body, if valid.
+Replace it otherwise.</p>
+
+</div>
+<h4>Parameters</h4>
+
+<table class="parameters">
+  <thead hidden>
+  <tr>
+      <th>Name</th>
+      <th>Type</th>
+      <th>Description</th>
+  </tr>
+  </thead>
+  <tbody>
+    <tr>
+    <th>value</th>
+    <td><code class="type">String</code></td>
+    <td><p>A valid <code>String</code>.</p>
+</td>
+</tr>
+<tr>
+    <th>key</th>
+    <td><code class="type">String</code></td>
+    <td><p>A valid <code>String</code>.</p>
+</td>
+</tr>
+  </tbody>
+</table>
+  <h4>Returns</h4>
+  <p>A copy of <code>self</code>.</p>
+
+</div>
+    </section>
+
+
+    <section id="requirements">
+        <h2>Requirements</h2>
+
+        <div role="article" class="variable" id="body.body">
+    <h3>
+        <code>body</code>
+    </h3>
+    <div class="declaration">
+<pre class="highlight"><code><span class="keyword">var</span> <span class="variable">body</span>: <span class="type">Data</span>? </code></pre>
+</div>
+<div class="summary" role="doc-abstract">
+    <p>The underlying request body.</p>
+
+</div>
+</div>
+    </section>
+        </article>
+    </main>
+
+    <footer>
+        <p>
+    Generated on <time datetime="2021-05-21T09:42:54+0000">May 21, 2021</time> using <a href="https://github.com/SwiftDocOrg/swift-doc">swift-doc</a> <span class="version">1.0.0-beta.6</span>.
+</p>
+    </footer>
+</body>
+</html>

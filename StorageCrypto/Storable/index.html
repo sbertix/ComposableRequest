@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StorageCrypto - Storable</title>
+    <link rel="stylesheet" type="text/css" href="https://sbertix.github.io/ComposableRequest/StorageCrypto/all.css" media="all" />
+</head>
+<body>
+    <header>
+        <a href="https://sbertix.github.io/ComposableRequest/StorageCrypto/">
+            <strong>
+                StorageCrypto
+            </strong>
+            <span>Documentation</span>
+        </a>
+        <sup>Beta</sup>
+    </header>
+
+    <!--
+    <form class="search">
+        <input type="search" placeholder="Search" />
+    </form>
+    -->
+
+    <nav>
+        <div class="wrapper">
+            <h2>On This Page</h2>
+            <ol><li><a href="#default implementations">Default Implementations</a><ul><li class="function"><a href="#storable.encoding(_:)">encoding(_:​)</a></li><li class="function"><a href="#storable.decoding(_:)">decoding(_:​)</a></li><li class="function"><a href="#storable.matching(_:in:)">matching(_:​in:​)</a></li><li class="function"><a href="#storable.matching(_:in:)">matching(_:​in:​)</a></li><li class="function"><a href="#storable.store(in:)">store(in:​)</a></li><li class="function"><a href="#storable.store(in:)">store(in:​)</a></li></ul></li><li><a href="#requirements">Requirements</a><ul><li class="variable"><a href="#storable.label">label</a></li><li class="function"><a href="#storable.encoding(_:)">encoding(_:​)</a></li><li class="function"><a href="#storable.decoding(_:)">decoding(_:​)</a></li></ul></li></ol>
+        </div>
+    </nav>
+
+    <main>
+        <article>
+            <h1>
+    <small>Protocol</small>
+    <code class="name">Storable</code>
+</h1>
+
+<div class="declaration">
+<pre class="highlight"><code><span class="keyword">public</span> <span class="keyword">protocol</span> <span class="type">Storable</span> </code></pre>
+</div>
+<div class="summary" role="doc-abstract">
+    <p>A <code>protocol</code> defining an instance capable of being turned into
+some <code>Data</code>, while being identified by some <code>String</code>.</p>
+
+</div>
+
+    <section id="default implementations">
+        <h2>Default Implementations</h2>
+
+        <div role="article" class="function" id="storable.encoding(_:)">
+    <h3>
+        <code>encoding(_:​)</code>
+    </h3>
+    <div class="declaration">
+<pre class="highlight"><code><span class="keyword">static</span> <span class="keyword">func</span> <span class="function">encoding</span>(<span class="keyword">_</span> <span class="variable">storable</span>: <span class="keyword">Self</span>) <span class="keyword">throws</span> -&gt; <span class="type">Data</span> </code></pre>
+</div>
+<div class="summary" role="doc-abstract">
+    <p>A way to encode the <code>Data</code>.</p>
+
+</div>
+<h4>Parameters</h4>
+
+<table class="parameters">
+  <thead hidden>
+  <tr>
+      <th>Name</th>
+      <th>Type</th>
+      <th>Description</th>
+  </tr>
+  </thead>
+  <tbody>
+    <tr>
+    <th>storable</th>
+    <td><code class="type">Self</code></td>
+    <td><p>A valid instance of <code>Self</code>.</p>
+</td>
+</tr>
+  </tbody>
+</table>
+  <h4>Throws</h4>
+  <p>Some <code>Error</code>.</p>
+
+  <h4>Returns</h4>
+  <p>Some <code>Data</code>.</p>
+
+</div>
+<div role="article" class="function" id="storable.decoding(_:)">
+    <h3>
+        <code>decoding(_:​)</code>
+    </h3>
+    <div class="declaration">
+<pre class="highlight"><code><span class="keyword">static</span> <span class="keyword">func</span> <span class="function">decoding</span>(<span class="keyword">_</span> <span class="variable">data</span>: <span class="type">Data</span>) <span class="keyword">throws</span> -&gt; <span class="keyword">Self</span> </code></pre>
+</div>
+<div class="summary" role="doc-abstract">
+    <p>A way to decode some <code>Data</code>.</p>
+
+</div>
+<h4>Parameters</h4>
+
+<table class="parameters">
+  <thead hidden>
+  <tr>
+      <th>Name</th>
+      <th>Type</th>
+      <th>Description</th>
+  </tr>
+  </thead>
+  <tbody>
+    <tr>
+    <th>data</th>
+    <td><code class="type">Data</code></td>
+    <td><p>Some <code>Data</code>.</p>
+</td>
+</tr>
+  </tbody>
+</table>
+  <h4>Throws</h4>
+  <p>Some <code>Error</code>.</p>
+
+  <h4>Returns</h4>
+  <p>A valid instance of <code>Self</code>.</p>
+
+</div>
+<div role="article" class="function" id="storable.matching(_:in:)">
+    <h3>
+        <code>matching(_:​in:​)</code>
+    </h3>
+    <div class="declaration">
+<pre class="highlight"><code><span class="keyword">static</span> <span class="keyword">func</span> <span class="function">matching</span>&lt;<span class="variable">S</span>: <span class="type">NonThrowingStorage</span>&gt;(<span class="keyword">_</span> <span class="variable">label</span>: <span class="type">String</span>, <span class="variable">in</span> <span class="variable">storage</span>: <span class="type">S</span>) -&gt; <span class="keyword">Self</span>? <span class="keyword">where</span> <span class="type">S</span>.<span class="type">Item</span> == <span class="keyword">Self</span> </code></pre>
+</div>
+<div class="summary" role="doc-abstract">
+    <p>Return the first <code>Self</code> matching <code>label</code> in <code>storage</code>, <code>nil</code> if none was found.</p>
+
+</div>
+<h4>Parameters</h4>
+
+<table class="parameters">
+  <thead hidden>
+  <tr>
+      <th>Name</th>
+      <th>Type</th>
+      <th>Description</th>
+  </tr>
+  </thead>
+  <tbody>
+    <tr>
+    <th>label</th>
+    <td><code class="type">String</code></td>
+    <td><p>A valid <code>String</code>.</p>
+</td>
+</tr>
+<tr>
+    <th>storage</th>
+    <td><code class="type">S</code></td>
+    <td><p>A valid <code>NonThrowingStorage</code>.</p>
+</td>
+</tr>
+  </tbody>
+</table>
+  <h4>Returns</h4>
+  <p>An optional <code>Self</code>.</p>
+
+</div>
+<div role="article" class="function" id="storable.matching(_:in:)">
+    <h3>
+        <code>matching(_:​in:​)</code>
+    </h3>
+    <div class="declaration">
+<pre class="highlight"><code><span class="keyword">static</span> <span class="keyword">func</span> <span class="function">matching</span>&lt;<span class="variable">S</span>: <span class="type">ThrowingStorage</span>&gt;(<span class="keyword">_</span> <span class="variable">label</span>: <span class="type">String</span>, <span class="variable">in</span> <span class="variable">storage</span>: <span class="type">S</span>) <span class="keyword">throws</span> -&gt; <span class="keyword">Self</span>? <span class="keyword">where</span> <span class="type">S</span>.<span class="type">Item</span> == <span class="keyword">Self</span> </code></pre>
+</div>
+<div class="summary" role="doc-abstract">
+    <p>Return the first <code>Self</code> matching <code>label</code> in <code>storage</code>, <code>nil</code> if none was found.</p>
+
+</div>
+<h4>Parameters</h4>
+
+<table class="parameters">
+  <thead hidden>
+  <tr>
+      <th>Name</th>
+      <th>Type</th>
+      <th>Description</th>
+  </tr>
+  </thead>
+  <tbody>
+    <tr>
+    <th>label</th>
+    <td><code class="type">String</code></td>
+    <td><p>A valid <code>String</code>.</p>
+</td>
+</tr>
+<tr>
+    <th>storage</th>
+    <td><code class="type">S</code></td>
+    <td><p>A valid <code>ThrowingStorage</code>.</p>
+</td>
+</tr>
+  </tbody>
+</table>
+  <h4>Returns</h4>
+  <p>An optional <code>Self</code>.</p>
+
+</div>
+<div role="article" class="function" id="storable.store(in:)">
+    <h3>
+        <code>store(in:​)</code>
+    </h3>
+    <div class="declaration">
+<pre class="highlight"><code><span class="attribute">@</span><span class="attribute">discardableResult</span>
+    <span class="keyword">func</span> <span class="function">store</span>&lt;<span class="variable">S</span>: <span class="type">NonThrowingStorage</span>&gt;(<span class="variable">in</span> <span class="variable">storage</span>: <span class="type">S</span>) -&gt; <span class="keyword">Self</span> <span class="keyword">where</span> <span class="type">S</span>.<span class="type">Item</span> == <span class="keyword">Self</span> </code></pre>
+</div>
+<div class="summary" role="doc-abstract">
+    <p>Cache <code>self</code> in a valid <code>Storage</code>.</p>
+
+</div>
+<h4>Parameters</h4>
+
+<table class="parameters">
+  <thead hidden>
+  <tr>
+      <th>Name</th>
+      <th>Type</th>
+      <th>Description</th>
+  </tr>
+  </thead>
+  <tbody>
+    <tr>
+    <th>storage</th>
+    <td><code class="type">S</code></td>
+    <td><p>A valid <code>NonThrowingStorage</code>.</p>
+</td>
+</tr>
+  </tbody>
+</table>
+  <h4>Returns</h4>
+  <p><code>self</code>.</p>
+
+</div>
+<div role="article" class="function" id="storable.store(in:)">
+    <h3>
+        <code>store(in:​)</code>
+    </h3>
+    <div class="declaration">
+<pre class="highlight"><code><span class="attribute">@</span><span class="attribute">discardableResult</span>
+    <span class="keyword">func</span> <span class="function">store</span>&lt;<span class="variable">S</span>: <span class="type">ThrowingStorage</span>&gt;(<span class="variable">in</span> <span class="variable">storage</span>: <span class="type">S</span>) <span class="keyword">throws</span> -&gt; <span class="keyword">Self</span> <span class="keyword">where</span> <span class="type">S</span>.<span class="type">Item</span> == <span class="keyword">Self</span> </code></pre>
+</div>
+<div class="summary" role="doc-abstract">
+    <p>Cache <code>self</code> in a valid <code>Storage</code>.</p>
+
+</div>
+<h4>Parameters</h4>
+
+<table class="parameters">
+  <thead hidden>
+  <tr>
+      <th>Name</th>
+      <th>Type</th>
+      <th>Description</th>
+  </tr>
+  </thead>
+  <tbody>
+    <tr>
+    <th>storage</th>
+    <td><code class="type">S</code></td>
+    <td><p>A valid <code>ThrowingStorage</code>.</p>
+</td>
+</tr>
+  </tbody>
+</table>
+  <h4>Returns</h4>
+  <p><code>self</code>.</p>
+
+</div>
+    </section>
+
+
+    <section id="requirements">
+        <h2>Requirements</h2>
+
+        <div role="article" class="variable" id="storable.label">
+    <h3>
+        <code>label</code>
+    </h3>
+    <div class="declaration">
+<pre class="highlight"><code><span class="keyword">var</span> <span class="variable">label</span>: <span class="type">String</span> </code></pre>
+</div>
+<div class="summary" role="doc-abstract">
+    <p>The underlying identfiier.</p>
+
+</div>
+</div>
+<div role="article" class="function" id="storable.encoding(_:)">
+    <h3>
+        <code>encoding(_:​)</code>
+    </h3>
+    <div class="declaration">
+<pre class="highlight"><code><span class="keyword">static</span> <span class="keyword">func</span> <span class="function">encoding</span>(<span class="keyword">_</span> <span class="variable">storable</span>: <span class="keyword">Self</span>) <span class="keyword">throws</span> -&gt; <span class="type">Data</span></code></pre>
+</div>
+<div class="summary" role="doc-abstract">
+    <p>A way to encode the <code>Data</code>.</p>
+
+</div>
+<h4>Parameters</h4>
+
+<table class="parameters">
+  <thead hidden>
+  <tr>
+      <th>Name</th>
+      <th>Type</th>
+      <th>Description</th>
+  </tr>
+  </thead>
+  <tbody>
+    <tr>
+    <th>storable</th>
+    <td><code class="type">Self</code></td>
+    <td><p>A valid instance of <code>Self</code>.</p>
+</td>
+</tr>
+  </tbody>
+</table>
+  <h4>Throws</h4>
+  <p>Some <code>Error</code>.</p>
+
+  <h4>Returns</h4>
+  <p>Some <code>Data</code>.</p>
+
+</div>
+<div role="article" class="function" id="storable.decoding(_:)">
+    <h3>
+        <code>decoding(_:​)</code>
+    </h3>
+    <div class="declaration">
+<pre class="highlight"><code><span class="keyword">static</span> <span class="keyword">func</span> <span class="function">decoding</span>(<span class="keyword">_</span> <span class="variable">data</span>: <span class="type">Data</span>) <span class="keyword">throws</span> -&gt; <span class="keyword">Self</span></code></pre>
+</div>
+<div class="summary" role="doc-abstract">
+    <p>A way to decode some <code>Data</code>.</p>
+
+</div>
+<h4>Parameters</h4>
+
+<table class="parameters">
+  <thead hidden>
+  <tr>
+      <th>Name</th>
+      <th>Type</th>
+      <th>Description</th>
+  </tr>
+  </thead>
+  <tbody>
+    <tr>
+    <th>data</th>
+    <td><code class="type">Data</code></td>
+    <td><p>Some <code>Data</code>.</p>
+</td>
+</tr>
+  </tbody>
+</table>
+  <h4>Throws</h4>
+  <p>Some <code>Error</code>.</p>
+
+  <h4>Returns</h4>
+  <p>A valid instance of <code>Self</code>.</p>
+
+</div>
+    </section>
+        </article>
+    </main>
+
+    <footer>
+        <p>
+    Generated on <time datetime="2021-05-21T09:42:55+0000">May 21, 2021</time> using <a href="https://github.com/SwiftDocOrg/swift-doc">swift-doc</a> <span class="version">1.0.0-beta.6</span>.
+</p>
+    </footer>
+</body>
+</html>

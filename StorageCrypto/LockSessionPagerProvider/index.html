@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StorageCrypto - LockSessionPagerProvider</title>
+    <link rel="stylesheet" type="text/css" href="https://sbertix.github.io/ComposableRequest/StorageCrypto/all.css" media="all" />
+</head>
+<body>
+    <header>
+        <a href="https://sbertix.github.io/ComposableRequest/StorageCrypto/">
+            <strong>
+                StorageCrypto
+            </strong>
+            <span>Documentation</span>
+        </a>
+        <sup>Beta</sup>
+    </header>
+
+    <!--
+    <form class="search">
+        <input type="search" placeholder="Search" />
+    </form>
+    -->
+
+    <nav>
+        <div class="wrapper">
+            <h2>On This Page</h2>
+            <ol/>
+        </div>
+    </nav>
+
+    <main>
+        <article>
+            <h1>
+    <small>Typealias</small>
+    <span class="name">Lock​Session​Pager​Provider</span>
+</h1>
+
+<div class="declaration">
+<pre class="highlight"><code><span class="keyword">public</span> <span class="keyword">typealias</span> <span class="variable">LockSessionPagerProvider</span> &lt;<span class="variable">Input</span>, <span class="variable">Offset</span>, <span class="variable">Output</span>&gt; = <span class="type">ConcatProvider3</span>&lt;<span class="type">LockProvider</span>&lt;<span class="type">Input</span>, <span class="type">SessionProvider</span>&lt;<span class="type">PagerProvider</span> &lt;<span class="type">Offset</span>, <span class="type">Output</span>&gt;&gt;&gt;,
+                                                                                    <span class="type">SessionProvider</span>&lt;<span class="type">PagerProvider</span>&lt;<span class="type">Offset</span>, <span class="type">Output</span>&gt;&gt;,
+                                                                                    <span class="type">PagerProvider</span>&lt;<span class="type">Offset</span>, <span class="type">Output</span>&gt;&gt;</code></pre>
+</div>
+<div class="summary" role="doc-abstract">
+    <p>A <code>typealias</code> for a composition of <code>LockProvider</code>,
+<code>SessionProvider</code> and <code>PagerProvider</code>.</p>
+
+</div>
+        </article>
+    </main>
+
+    <footer>
+        <p>
+    Generated on <time datetime="2021-05-21T09:42:56+0000">May 21, 2021</time> using <a href="https://github.com/SwiftDocOrg/swift-doc">swift-doc</a> <span class="version">1.0.0-beta.6</span>.
+</p>
+    </footer>
+</body>
+</html>

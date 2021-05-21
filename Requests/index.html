@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Requests - Requests</title>
+    <link rel="stylesheet" type="text/css" href="https://sbertix.github.io/ComposableRequest/Requests/all.css" media="all" />
+</head>
+<body>
+    <header>
+        <a href="https://sbertix.github.io/ComposableRequest/Requests/">
+            <strong>
+                Requests
+            </strong>
+            <span>Documentation</span>
+        </a>
+        <sup>Beta</sup>
+    </header>
+
+    <!--
+    <form class="search">
+        <input type="search" placeholder="Search" />
+    </form>
+    -->
+
+    <nav>
+        <div class="wrapper">
+            <h2>On This Page</h2>
+            <ol><li><a href="#classes">Classes</a></li><li><a href="#structures">Structures</a></li><li><a href="#enumerations">Enumerations</a></li><li><a href="#protocols">Protocols</a></li><li><a href="#typealiases">Typealiases</a></li><li><a href="#extensions">Extensions</a></li></ol>
+        </div>
+    </nav>
+
+    <main>
+        <article>
+                <section id="classes">
+        <h2>Classes</h2>
+        <dl>
+            <dt class="class">
+    <a href="https://sbertix.github.io/ComposableRequest/Requests/CodableHTTPCookie" title="class - CodableHTTPCookie">
+        Codable​HTTPCookie
+    </a>
+</dt>
+<dd>
+    <p>A <code>subclass</code> of <code>HTTPCookie</code> conforming to <code>Codable</code>.</p>
+
+</dd>
+<dt class="class">
+    <a href="https://sbertix.github.io/ComposableRequest/Requests/Atomic" title="class - Atomic">
+        Atomic
+    </a>
+</dt>
+<dd>
+    <p>A <code>class</code> defining an atomic reference to some value.</p>
+
+</dd>
+<dt class="class">
+    <a href="https://sbertix.github.io/ComposableRequest/Requests/Reference" title="class - Reference">
+        Reference
+    </a>
+</dt>
+<dd>
+    <p>A <code>class</code> defining a reference-typed rapper
+for some value.</p>
+
+</dd>
+        </dl>
+    </section>
+    <section id="structures">
+        <h2>Structures</h2>
+        <dl>
+            <dt class="structure">
+    <a href="https://sbertix.github.io/ComposableRequest/Requests/Logger_Level" title="structure - Logger.Level">
+        Logger.​Level
+    </a>
+</dt>
+<dd>
+    <p>An <code>enum</code>-like <code>struct</code> listing the different
+levels of logging.</p>
+
+</dd>
+<dt class="structure">
+    <a href="https://sbertix.github.io/ComposableRequest/Requests/Logger" title="structure - Logger">
+        Logger
+    </a>
+</dt>
+<dd>
+    <p>A <code>struct</code> defining an instance handling <code>Request</code> logs.</p>
+
+</dd>
+<dt class="structure">
+    <a href="https://sbertix.github.io/ComposableRequest/Requests/ConcatProvider" title="structure - ConcatProvider">
+        Concat​Provider
+    </a>
+</dt>
+<dd>
+    <p>A <code>struct</code> defining a composition of <code>Provider</code>s.</p>
+
+</dd>
+<dt class="structure">
+    <a href="https://sbertix.github.io/ComposableRequest/Requests/ConcatProvider3" title="structure - ConcatProvider3">
+        Concat​Provider3
+    </a>
+</dt>
+<dd>
+    <p>A <code>struct</code> defining a composition of <code>Provider</code>s.</p>
+
+</dd>
+<dt class="structure">
+    <a href="https://sbertix.github.io/ComposableRequest/Requests/ConcatProvider4" title="structure - ConcatProvider4">
+        Concat​Provider4
+    </a>
+</dt>
+<dd>
+    <p>A <code>struct</code> defining a composition of <code>Provider</code>s.</p>
+
+</dd>
+<dt class="structure">
+    <a href="https://sbertix.github.io/ComposableRequest/Requests/ConcatProvider5" title="structure - ConcatProvider5">
+        Concat​Provider5
+    </a>
+</dt>
+<dd>
+    <p>A <code>struct</code> defining a composition of <code>Provider</code>s.</p>
+
+</dd>
+<dt class="structure">
+    <a href="https://sbertix.github.io/ComposableRequest/Requests/LockProvider" title="structure - LockProvider">
+        Lock​Provider
+    </a>
+</dt>
+<dd>
+    <p>A <code>struct</code> defining an authenticator.</p>
+
+</dd>
+<dt class="structure">
+    <a href="https://sbertix.github.io/ComposableRequest/Requests/PagerProvider" title="structure - PagerProvider">
+        Pager​Provider
+    </a>
+</dt>
+<dd>
+    <p>A <code>struct</code> defining an offset provider.</p>
+
+</dd>
+<dt class="structure">
+    <a href="https://sbertix.github.io/ComposableRequest/Requests/PagerProviderInput" title="structure - PagerProviderInput">
+        Pager​Provider​Input
+    </a>
+</dt>
+<dd>
+    <p>A <code>struct</code> defining a pager provider input.</p>
+
+</dd>
+<dt class="structure">
+    <a href="https://sbertix.github.io/ComposableRequest/Requests/SessionProvider" title="structure - SessionProvider">
+        Session​Provider
+    </a>
+</dt>
+<dd>
+    <p>A <code>struct</code> defining a session provider.</p>
+
+</dd>
+<dt class="structure">
+    <a href="https://sbertix.github.io/ComposableRequest/Requests/SessionProviderInput" title="structure - SessionProviderInput">
+        Session​Provider​Input
+    </a>
+</dt>
+<dd>
+    <p>A <code>struct</code> defining a <code>SessionProviderInput</code>.</p>
+
+</dd>
+<dt class="structure">
+    <a href="https://sbertix.github.io/ComposableRequest/Requests/Pager_Iteration" title="structure - Pager.Iteration">
+        Pager.​Iteration
+    </a>
+</dt>
+<dd>
+    <p>A <code>struct</code> defining a valid <code>Publisher</code>
+iteration instance for <code>Pager</code>s.</p>
+
+</dd>
+<dt class="structure">
+    <a href="https://sbertix.github.io/ComposableRequest/Requests/Publishers_Pager" title="structure - Publishers.Pager">
+        Publishers.​Pager
+    </a>
+</dt>
+<dd>
+    <p>A <code>struct</code> defining a <code>Publisher</code> emitting a sequence
+of outputs, until it fails or completes.</p>
+
+</dd>
+<dt class="structure">
+    <a href="https://sbertix.github.io/ComposableRequest/Requests/RankedOffset" title="structure - RankedOffset">
+        Ranked​Offset
+    </a>
+</dt>
+<dd>
+    <p>A <code>struct</code> defining a ranked offset.</p>
+
+</dd>
+<dt class="structure">
+    <a href="https://sbertix.github.io/ComposableRequest/Requests/Request_Response" title="structure - Request.Response">
+        Request.​Response
+    </a>
+</dt>
+<dd>
+    <p>A <code>struct</code> defining the associated response type.</p>
+
+</dd>
+<dt class="structure">
+    <a href="https://sbertix.github.io/ComposableRequest/Requests/Request" title="structure - Request">
+        Request
+    </a>
+</dt>
+<dd>
+    <p>A <code>struct</code> defining a composable <code>URLRequest</code>.</p>
+
+</dd>
+<dt class="structure">
+    <a href="https://sbertix.github.io/ComposableRequest/Requests/Wrapper" title="structure - Wrapper">
+        Wrapper
+    </a>
+</dt>
+<dd>
+    <p>A <code>struct</code> defining a generic and abstract <code>Codable</code> value.</p>
+
+</dd>
+<dt class="structure">
+    <a href="https://sbertix.github.io/ComposableRequest/Requests/AnyStorage" title="structure - AnyStorage">
+        Any​Storage
+    </a>
+</dt>
+<dd>
+    <p>A <code>struct</code> defining a type-erased <code>Storage</code>.</p>
+
+</dd>
+<dt class="structure">
+    <a href="https://sbertix.github.io/ComposableRequest/Requests/TransientStorage" title="structure - TransientStorage">
+        Transient​Storage
+    </a>
+</dt>
+<dd>
+    <p>A <code>struct</code> defining a <code>Storage</code> avoiding caching all together.</p>
+
+</dd>
+<dt class="structure">
+    <a href="https://sbertix.github.io/ComposableRequest/Requests/UserDefaultsStorage" title="structure - UserDefaultsStorage">
+        User​Defaults​Storage
+    </a>
+</dt>
+<dd>
+    <p>A <code>struct</code> defining a <code>Storage</code> caching <code>Item</code>s inside <code>UserDefaults</code>.</p>
+
+</dd>
+<dt class="structure">
+    <a href="https://sbertix.github.io/ComposableRequest/Requests/KeychainStorage" title="structure - KeychainStorage">
+        Keychain​Storage
+    </a>
+</dt>
+<dd>
+    <p>A <code>struct</code> defining a <code>Storage</code> caching <code>Item</code>s <strong>safely</strong> inside the user's <strong>Keychain</strong>.</p>
+
+</dd>
+        </dl>
+    </section>
+    <section id="enumerations">
+        <h2>Enumerations</h2>
+        <dl>
+            <dt class="enumeration">
+    <a href="https://sbertix.github.io/ComposableRequest/Requests/HTTPMethod" title="enumeration - HTTPMethod">
+        HTTPMethod
+    </a>
+</dt>
+<dd>
+    <p>An <code>enum</code> listing all <code>URLRequest</code> allowed <code>httpMethod</code>s.</p>
+
+</dd>
+<dt class="enumeration">
+    <a href="https://sbertix.github.io/ComposableRequest/Requests/Logger_Level_Request" title="enumeration - Logger.Level.Request">
+        Logger.​Level.​Request
+    </a>
+</dt>
+<dd>
+    <p>A <code>module</code>-like <code>enum</code> defining request-based <code>Level</code>s.</p>
+
+</dd>
+<dt class="enumeration">
+    <a href="https://sbertix.github.io/ComposableRequest/Requests/Logger_Level_Response" title="enumeration - Logger.Level.Response">
+        Logger.​Level.​Response
+    </a>
+</dt>
+<dd>
+    <p>A <code>module</code>-like <code>enum</code> defining response-based <code>Level</code>s.</p>
+
+</dd>
+<dt class="enumeration">
+    <a href="https://sbertix.github.io/ComposableRequest/Requests/Instruction" title="enumeration - Instruction">
+        Instruction
+    </a>
+</dt>
+<dd>
+    <p>An <code>enum</code> listing all valid instructions.</p>
+
+</dd>
+<dt class="enumeration">
+    <a href="https://sbertix.github.io/ComposableRequest/Requests/Request_Error" title="enumeration - Request.Error">
+        Request.​Error
+    </a>
+</dt>
+<dd>
+    <p>An <code>enum</code> listing error values.</p>
+
+</dd>
+        </dl>
+    </section>
+    <section id="protocols">
+        <h2>Protocols</h2>
+        <dl>
+            <dt class="protocol">
+    <a href="https://sbertix.github.io/ComposableRequest/Requests/Body" title="protocol - Body">
+        Body
+    </a>
+</dt>
+<dd>
+    <p>A <code>protocol</code> describing an instance providing the body of a <code>URLRequest</code>.</p>
+
+</dd>
+<dt class="protocol">
+    <a href="https://sbertix.github.io/ComposableRequest/Requests/Header" title="protocol - Header">
+        Header
+    </a>
+</dt>
+<dd>
+    <p>A <code>protocol</code> describing an instance providing the header fields of a <code>URLRequest</code>.</p>
+
+</dd>
+<dt class="protocol">
+    <a href="https://sbertix.github.io/ComposableRequest/Requests/Method" title="protocol - Method">
+        Method
+    </a>
+</dt>
+<dd>
+    <p>A <code>protocol</code> describing an instance providing the method of a <code>URLRequest</code>.</p>
+
+</dd>
+<dt class="protocol">
+    <a href="https://sbertix.github.io/ComposableRequest/Requests/Path" title="protocol - Path">
+        Path
+    </a>
+</dt>
+<dd>
+    <p>A <code>protocol</code> describing an instance providing the <code>URL</code> to some resouce in a <code>URLRequest</code>.</p>
+
+</dd>
+<dt class="protocol">
+    <a href="https://sbertix.github.io/ComposableRequest/Requests/Query" title="protocol - Query">
+        Query
+    </a>
+</dt>
+<dd>
+    <p>A <code>protocol</code> describing an instance providing the query items of a <code>URLRequest</code>.</p>
+
+</dd>
+<dt class="protocol">
+    <a href="https://sbertix.github.io/ComposableRequest/Requests/Timeout" title="protocol - Timeout">
+        Timeout
+    </a>
+</dt>
+<dd>
+    <p>A <code>protocol</code> describing an instace providing the timeout interval for a <code>URLRequest</code>.</p>
+
+</dd>
+<dt class="protocol">
+    <a href="https://sbertix.github.io/ComposableRequest/Requests/LockProviderType" title="protocol - LockProviderType">
+        Lock​Provider​Type
+    </a>
+</dt>
+<dd>
+    <p>A <code>protocol</code> defining a specific provider.</p>
+
+</dd>
+<dt class="protocol">
+    <a href="https://sbertix.github.io/ComposableRequest/Requests/ComposableNonNilType" title="protocol - ComposableNonNilType">
+        Composable​Non​Nil​Type
+    </a>
+</dt>
+<dd>
+    <p>A <code>protocol</code> defining a <code>ComposableRequest</code> abstraction for <code>nil</code>-checking <code>Optional</code>s.</p>
+
+</dd>
+<dt class="protocol">
+    <a href="https://sbertix.github.io/ComposableRequest/Requests/ComposableOptionalType" title="protocol - ComposableOptionalType">
+        Composable​Optional​Type
+    </a>
+</dt>
+<dd>
+    <p>A <code>protocol</code> defining a <code>ComposableRequest</code> abtrasction into <code>Optional</code>.</p>
+
+</dd>
+<dt class="protocol">
+    <a href="https://sbertix.github.io/ComposableRequest/Requests/PagerProviderType" title="protocol - PagerProviderType">
+        Pager​Provider​Type
+    </a>
+</dt>
+<dd>
+    <p>A <code>protocol</code> defining a specific provider.</p>
+
+</dd>
+<dt class="protocol">
+    <a href="https://sbertix.github.io/ComposableRequest/Requests/Provider" title="protocol - Provider">
+        Provider
+    </a>
+</dt>
+<dd>
+    <p>A <code>protocol</code> defining a value provider.</p>
+
+</dd>
+<dt class="protocol">
+    <a href="https://sbertix.github.io/ComposableRequest/Requests/SessionProviderType" title="protocol - SessionProviderType">
+        Session​Provider​Type
+    </a>
+</dt>
+<dd>
+    <p>A <code>protocol</code> defining a specific provider.</p>
+
+</dd>
+<dt class="protocol">
+    <a href="https://sbertix.github.io/ComposableRequest/Requests/Instructable" title="protocol - Instructable">
+        Instructable
+    </a>
+</dt>
+<dd>
+    <p>A <code>protocol</code> defining an advanced paginatable instance, declaring its own <code>Pager</code> offset.</p>
+
+</dd>
+<dt class="protocol">
+    <a href="https://sbertix.github.io/ComposableRequest/Requests/Paginatable" title="protocol - Paginatable">
+        Paginatable
+    </a>
+</dt>
+<dd>
+    <p>A <code>protocol</code> defining an instance declaring its own <code>Pager</code> offset.</p>
+
+</dd>
+<dt class="protocol">
+    <a href="https://sbertix.github.io/ComposableRequest/Requests/Ranked" title="protocol - Ranked">
+        Ranked
+    </a>
+</dt>
+<dd>
+    <p>A <code>protocol</code> defining an instance providing a rank token, other than an <code>Offset</code>.</p>
+
+</dd>
+<dt class="protocol">
+    <a href="https://sbertix.github.io/ComposableRequest/Requests/Wrappable" title="protocol - Wrappable">
+        Wrappable
+    </a>
+</dt>
+<dd>
+    <p>A <code>protocol</code> allowing to <code>init</code> <code>Wrapper</code>s.</p>
+
+</dd>
+<dt class="protocol">
+    <a href="https://sbertix.github.io/ComposableRequest/Requests/Wrapped" title="protocol - Wrapped">
+        Wrapped
+    </a>
+</dt>
+<dd>
+    <p>A <code>protocol</code> defining a type initiable through <code>Response</code>.</p>
+
+</dd>
+<dt class="protocol">
+    <a href="https://sbertix.github.io/ComposableRequest/Requests/NonThrowingStorage" title="protocol - NonThrowingStorage">
+        Non​Throwing​Storage
+    </a>
+</dt>
+<dd>
+    <p>A <code>protocol</code> defining an instance capable of caching <code>Storable</code>s.</p>
+
+</dd>
+<dt class="protocol">
+    <a href="https://sbertix.github.io/ComposableRequest/Requests/Storable" title="protocol - Storable">
+        Storable
+    </a>
+</dt>
+<dd>
+    <p>A <code>protocol</code> defining an instance capable of being turned into
+some <code>Data</code>, while being identified by some <code>String</code>.</p>
+
+</dd>
+<dt class="protocol">
+    <a href="https://sbertix.github.io/ComposableRequest/Requests/Storage" title="protocol - Storage">
+        Storage
+    </a>
+</dt>
+<dd>
+    <p>A <code>protocol</code> defining an instance capable of caching <code>Storable</code>s.</p>
+
+</dd>
+<dt class="protocol">
+    <a href="https://sbertix.github.io/ComposableRequest/Requests/ThrowingStorage" title="protocol - ThrowingStorage">
+        Throwing​Storage
+    </a>
+</dt>
+<dd>
+    <p>A <code>protocol</code> defining an instance capable of caching <code>Storable</code>s.</p>
+
+</dd>
+        </dl>
+    </section>
+    <section id="typealiases">
+        <h2>Typealiases</h2>
+        <dl>
+            <dt class="typealias">
+    <a href="https://sbertix.github.io/ComposableRequest/Requests/LockSessionPagerProvider" title="typealias - LockSessionPagerProvider">
+        Lock​Session​Pager​Provider
+    </a>
+</dt>
+<dd>
+    <p>A <code>typealias</code> for a composition of <code>LockProvider</code>,
+<code>SessionProvider</code> and <code>PagerProvider</code>.</p>
+
+</dd>
+<dt class="typealias">
+    <a href="https://sbertix.github.io/ComposableRequest/Requests/LockSessionProvider" title="typealias - LockSessionProvider">
+        Lock​Session​Provider
+    </a>
+</dt>
+<dd>
+    <p>A <code>typealias</code> for a composition of <code>LockProvider</code> and <code>SessionProvider</code>.</p>
+
+</dd>
+<dt class="typealias">
+    <a href="https://sbertix.github.io/ComposableRequest/Requests/SessionPagerProvider" title="typealias - SessionPagerProvider">
+        Session​Pager​Provider
+    </a>
+</dt>
+<dd>
+    <p>A <code>typealias</code> for a composition of <code>SessionProvider</code> and <code>PagerProvider</code>.</p>
+
+</dd>
+<dt class="typealias">
+    <a href="https://sbertix.github.io/ComposableRequest/Requests/Pager" title="typealias - Pager">
+        Pager
+    </a>
+</dt>
+<dd>
+    <p>A <code>typealias</code> for <code>Publishers.Pager</code>.</p>
+
+</dd>
+<dt class="typealias">
+    <a href="https://sbertix.github.io/ComposableRequest/Requests/Keychain" title="typealias - Keychain">
+        Keychain
+    </a>
+</dt>
+<dd>
+    <p>A <code>typealias</code> for <code>KeychainAccess.Keychain</code>.</p>
+
+</dd>
+<dt class="typealias">
+    <a href="https://sbertix.github.io/ComposableRequest/Requests/Accessibility" title="typealias - Accessibility">
+        Accessibility
+    </a>
+</dt>
+<dd>
+    <p>A <code>typealias</code> for <code>KeychainAccess.Accessibility</code>.</p>
+
+</dd>
+<dt class="typealias">
+    <a href="https://sbertix.github.io/ComposableRequest/Requests/AuthenticationPolicy" title="typealias - AuthenticationPolicy">
+        Authentication​Policy
+    </a>
+</dt>
+<dd>
+    <p>A <code>typealias</code> for <code>KeychainAccess.AuthenticationPolicy</code>.</p>
+
+</dd>
+        </dl>
+    </section>
+<section id="extensions">
+    <h2>Extensions</h2>
+    <dl>
+    <dt class="extension">
+    <a href="https://sbertix.github.io/ComposableRequest/Requests/Array">Array</a>
+</dt>
+<dd></dd>
+<dt class="extension">
+    <a href="https://sbertix.github.io/ComposableRequest/Requests/Bool">Bool</a>
+</dt>
+<dd></dd>
+<dt class="extension">
+    <a href="https://sbertix.github.io/ComposableRequest/Requests/CharacterSet">CharacterSet</a>
+</dt>
+<dd></dd>
+<dt class="extension">
+    <a href="https://sbertix.github.io/ComposableRequest/Requests/Data">Data</a>
+</dt>
+<dd></dd>
+<dt class="extension">
+    <a href="https://sbertix.github.io/ComposableRequest/Requests/Dictionary">Dictionary</a>
+</dt>
+<dd></dd>
+<dt class="extension">
+    <a href="https://sbertix.github.io/ComposableRequest/Requests/Double">Double</a>
+</dt>
+<dd></dd>
+<dt class="extension">
+    <a href="https://sbertix.github.io/ComposableRequest/Requests/Float">Float</a>
+</dt>
+<dd></dd>
+<dt class="extension">
+    <a href="https://sbertix.github.io/ComposableRequest/Requests/HTTPCookiePropertyKey">HTTPCookiePropertyKey</a>
+</dt>
+<dd></dd>
+<dt class="extension">
+    <a href="https://sbertix.github.io/ComposableRequest/Requests/Int">Int</a>
+</dt>
+<dd></dd>
+<dt class="extension">
+    <a href="https://sbertix.github.io/ComposableRequest/Requests/NSNull">NSNull</a>
+</dt>
+<dd></dd>
+<dt class="extension">
+    <a href="https://sbertix.github.io/ComposableRequest/Requests/Optional">Optional</a>
+</dt>
+<dd></dd>
+<dt class="extension">
+    <a href="https://sbertix.github.io/ComposableRequest/Requests/Pager">Pager</a>
+</dt>
+<dd></dd>
+<dt class="extension">
+    <a href="https://sbertix.github.io/ComposableRequest/Requests/Publisher">Publisher</a>
+</dt>
+<dd></dd>
+<dt class="extension">
+    <a href="https://sbertix.github.io/ComposableRequest/Requests/Publishers">Publishers</a>
+</dt>
+<dd></dd>
+<dt class="extension">
+    <a href="https://sbertix.github.io/ComposableRequest/Requests/String">String</a>
+</dt>
+<dd></dd>
+    </dl>
+<section>
+        </article>
+    </main>
+
+    <footer>
+        <p>
+    Generated on <time datetime="2021-05-21T09:42:53+0000">May 21, 2021</time> using <a href="https://github.com/SwiftDocOrg/swift-doc">swift-doc</a> <span class="version">1.0.0-beta.6</span>.
+</p>
+    </footer>
+</body>
+</html>
