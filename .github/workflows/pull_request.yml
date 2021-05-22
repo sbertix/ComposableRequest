@@ -37,7 +37,7 @@ jobs:
       # create the changelog.
       - name:           Changelog
         id:             changelog
-        uses:           nblagoev/pull-release-notes-action@v1
+        uses:           nblagoev/pull-release-notes-action@v1.0.2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
