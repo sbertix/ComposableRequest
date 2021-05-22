@@ -16,28 +16,28 @@ public final class Atomic<Value> {
     private var _value: Value
 
     /// The underlying value.
-    var value: Value {
+    public var value: Value {
         queue.sync { self._value }
     }
 
     /// Init.
     ///
     /// - parameter value: A valid `Value`.
-    init(_ value: Value) {
+    public init(_ value: Value) {
         self._value = value
     }
 
     /// Sync the underlying value.
     ///
     /// - parameter transform: A valid transformation.
-    func sync<T>(_ transform: (inout Value) -> T) -> T {
+    public func sync<T>(_ transform: (inout Value) -> T) -> T {
         queue.sync { transform(&self._value) }
     }
 
     /// Mutate the undelrying value.
     ///
     /// - parameter transform: A valid transformation.
-    func mutate(_ transform: (inout Value) -> Void) {
+    public func mutate(_ transform: (inout Value) -> Void) {
         sync(transform)
     }
 }
@@ -46,12 +46,12 @@ public final class Atomic<Value> {
 /// for some value.
 public final class Reference<Value> {
     /// The underlying value.
-    var value: Value
+    public var value: Value
 
     /// Init.
     ///
     /// - parameter value: A valid `Value`.
-    init(_ value: Value) {
+    public init(_ value: Value) {
         self.value = value
     }
 }
