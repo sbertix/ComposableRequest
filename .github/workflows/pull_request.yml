@@ -13,8 +13,8 @@ jobs:
         uses:           actions/checkout@v2
         with:
           token:        ${{ secrets.GITHUB_TOKEN }}
-          repository:   ${{ github.event.pull_request_target.head.repo.full_name }}
-          ref:          ${{ github.event.pull_request_target.head.sha }}
+          repository:   ${{ (github.event.pull_request_target || github.event.pull_request).head.repo.full_name }}
+          ref:          ${{ (github.event.pull_request_target || github.event.pull_request).head.sha }}
       # validate commits.
       - name:           Validate commits
         uses:           KevinDeJong-TomTom/commisery-action@master
@@ -32,18 +32,18 @@ jobs:
         uses:           actions/checkout@v2
         with:
           token:        ${{ secrets.GITHUB_TOKEN }}
-          repository:   ${{ github.event.pull_request_target.head.repo.full_name }}
-          ref:          ${{ github.event.pull_request_target.head.sha }}
+          repository:   ${{ (github.event.pull_request_target || github.event.pull_request).head.repo.full_name }}
+          ref:          ${{ (github.event.pull_request_target || github.event.pull_request).head.sha }}
       # create the changelog.
       - name:           Changelog
         id:             changelog
         uses:           nblagoev/pull-release-notes-action@v1.0.2
+        with:
+          head-ref:     ${{ (github.event.pull_request_target || github.event.pull_request).head.sha }}
+          base-ref:     ${{ (github.event.pull_request_target || github.event.pull_request).base.sha }}
+          repository:   ${{ (github.event.pull_request_target || github.event.pull_request).head.repo.full_name }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          head-ref:     ${{ github.event.pull_request_target.head.sha }}
-          base-ref:     ${{ github.event.pull_request_target.base.sha }}
-          repository:   ${{ github.event.pull_request_target.head.repo.full_name }}
       # update the pull request message body.
       - name:           Update Pull Request Description
         uses:           riskledger/update-pr-description@v2
@@ -61,13 +61,13 @@ jobs:
         uses:           actions/checkout@v2
         with:
           token:        ${{ secrets.GITHUB_TOKEN }}
-          repository:   ${{ github.event.pull_request_target.head.repo.full_name }}
-          ref:          ${{ github.event.pull_request_target.head.sha }}
+          repository:   ${{ (github.event.pull_request_target || github.event.pull_request).head.repo.full_name }}
+          ref:          ${{ (github.event.pull_request_target || github.event.pull_request).head.sha }}
       # only lint on actual code changes.
       - uses:           dorny/paths-filter@v2
         id:             changes
         with:
-          base:         ${{ github.event.pull_request_target.base.sha }}
+          base:         ${{ (github.event.pull_request_target || github.event.pull_request).base.sha }}
           filters:      |
             src:
               - '**/*.swift'
@@ -88,13 +88,13 @@ jobs:
         uses:           actions/checkout@v2
         with:
           token:        ${{ secrets.GITHUB_TOKEN }}
-          repository:   ${{ github.event.pull_request_target.head.repo.full_name }}
-          ref:          ${{ github.event.pull_request_target.head.sha }}
+          repository:   ${{ (github.event.pull_request_target || github.event.pull_request).head.repo.full_name }}
+          ref:          ${{ (github.event.pull_request_target || github.event.pull_request).head.sha }}
       # only build on actual code changes.
       - uses:           dorny/paths-filter@v2
         id:             changes
         with:
-          base:         ${{ github.event.pull_request_target.base.sha }}
+          base:         ${{ (github.event.pull_request_target || github.event.pull_request).base.sha }}
           filters:      |
             src:
               - '**/*.swift'
