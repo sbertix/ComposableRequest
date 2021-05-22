@@ -13,15 +13,19 @@ public struct PagerProviderInput<Offset> {
     public let count: Int
     /// The actual offset.
     public let offset: Offset
+    /// The delay.
+    public let delay: TimeInterval
 
     /// Init.
     ///
     /// - parameters:
     ///     - count: A valid `Int`.
     ///     - offset: A valid `Offset`.
-    public init(count: Int, offset: Offset) {
+    ///     - delay: A valid `TimeInterval`.
+    public init(count: Int, offset: Offset, delay: TimeInterval) {
         self.count = count
         self.offset = offset
+        self.delay = delay
     }
 }
 

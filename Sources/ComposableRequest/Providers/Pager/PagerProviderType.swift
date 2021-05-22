@@ -19,29 +19,34 @@ public extension PagerProviderType {
     /// - parameters:
     ///     - count: A valid `Int`.
     ///     - offset: A valid `Offset`.
+    ///     - delay: A valid `TimeInterval`. Defaults to `0`.
     /// - returns: Some `Content`.
-    func pages(_ count: Int, offset: Offset) -> Output {
-        Self.generate(self, from: .init(count: count, offset: offset))
+    func pages(_ count: Int, offset: Offset, delay: TimeInterval = 0) -> Output {
+        Self.generate(self, from: .init(count: count, offset: offset, delay: delay))
     }
 }
 
 public extension PagerProviderType where Offset == Void {
     /// Authenticate.
     ///
-    /// - parameter count: A valid `Int`.
+    /// - parameters:
+    ///     - count: A valid `Int`.
+    ///     - delay: A valid `TimeInterval`. Defaults to `0`.
     /// - returns: Some `Content`.
-    func pages(_ count: Int) -> Output {
-        self.pages(count, offset: ())
+    func pages(_ count: Int, delay: TimeInterval = 0) -> Output {
+        self.pages(count, offset: (), delay: delay)
     }
 }
 
 public extension PagerProviderType where Offset: ComposableOptionalType {
     /// Authenticate.
     ///
-    /// - parameter count: A valid `Int`.
+    /// - parameters:
+    ///     - count: A valid `Int`.
+    ///     - delay: A valid `TimeInterval`. Defaults to `0`.
     /// - returns: Some `Content`.
-    func pages(_ count: Int) -> Output {
-        self.pages(count, offset: .composableNone)
+    func pages(_ count: Int, delay: TimeInterval = 0) -> Output {
+        self.pages(count, offset: .composableNone, delay: delay)
     }
 }
 
@@ -52,9 +57,10 @@ public extension PagerProviderType where Offset: Ranked {
     ///     - count: A valid `Int`.
     ///     - offset: A valid `Offset`.
     ///     - rank: A valid `Rank`.
+    ///     - delay: A valid `TimeInterval`. Defaults to `0`.
     /// - returns: Some `Content`.
-    func pages(_ count: Int, offset: Offset.Offset, rank: Offset.Rank) -> Output {
-        self.pages(count, offset: .init(offset: offset, rank: rank))
+    func pages(_ count: Int, offset: Offset.Offset, rank: Offset.Rank, delay: TimeInterval = 0) -> Output {
+        self.pages(count, offset: .init(offset: offset, rank: rank), delay: delay)
     }
 }
 
@@ -64,9 +70,10 @@ public extension PagerProviderType where Offset: Ranked, Offset.Offset: Composab
     /// - parameters:
     ///     - count: A valid `Int`.
     ///     - rank: A valid `Rank`.
+    ///     - delay: A valid `TimeInterval`. Defaults to `0`.
     /// - returns: Some `Content`.
-    func pages(_ count: Int, rank: Offset.Rank) -> Output {
-        self.pages(count, offset: .init(offset: .composableNone, rank: rank))
+    func pages(_ count: Int, rank: Offset.Rank, delay: TimeInterval = 0) -> Output {
+        self.pages(count, offset: .init(offset: .composableNone, rank: rank), delay: delay)
     }
 }
 
@@ -76,9 +83,10 @@ public extension PagerProviderType where Offset: Ranked, Offset.Rank: Composable
     /// - parameters:
     ///     - count: A valid `Int`.
     ///     - offset: A valid `Offset`.
+    ///     - delay: A valid `TimeInterval`. Defaults to `0`.
     /// - returns: Some `Content`.
-    func pages(_ count: Int, offset: Offset.Offset) -> Output {
-        self.pages(count, offset: .init(offset: offset, rank: .composableNone))
+    func pages(_ count: Int, offset: Offset.Offset, delay: TimeInterval = 0) -> Output {
+        self.pages(count, offset: .init(offset: offset, rank: .composableNone), delay: delay)
     }
 }
 
@@ -86,9 +94,11 @@ public extension PagerProviderType
 where Offset: Ranked, Offset.Offset: ComposableOptionalType, Offset.Rank: ComposableOptionalType {
     /// Set up pagination.
     ///
-    /// - parameter count: A valid `Int`.
+    /// - parameters:
+    ///     - count: A valid `Int`.
+    ///     - delay: A valid `TimeInterval`. Defaults to `0`.
     /// - returns: Some `Content`.
-    func pages(_ count: Int) -> Output {
-        self.pages(count, offset: .init(offset: .composableNone, rank: .composableNone))
+    func pages(_ count: Int, delay: TimeInterval = 0) -> Output {
+        self.pages(count, offset: .init(offset: .composableNone, rank: .composableNone), delay: delay)
     }
 }
