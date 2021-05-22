@@ -98,8 +98,11 @@ internal final class ObservableTests: XCTestCase {
     /// Test a paginated fetch request.
     func testPagination() {
         let languages = ["en", "it", "de", "fr"]
-        let expectations = languages.map(XCTestExpectation.init) + [XCTestExpectation(description: "completion")]
+        let expectations = [languages.map(XCTestExpectation.init),
+                            [XCTestExpectation(description: "delay"), XCTestExpectation(description: "completion")]]
+            .reduce(into: []) { $0.append(contentsOf: $1) }
         let offset = Reference(0)
+        let delayed = Reference(false)
         // Prepare the provider.
         PagerProvider { pages in
             // Actually paginate futures.
@@ -111,12 +114,13 @@ internal final class ObservableTests: XCTestCase {
                 .iterateFirst(stoppingAt: offset) { .load($0 + 1) }
             }
         }
-        .pages(languages.count, offset: 0)
+        .pages(languages.count, offset: 0, delay: 2)
         .receive(on: RunLoop.main)
         .assertMainThread()
         .sink(
             receiveCompletion: {
                 if case .failure(let error) = $0 { XCTFail(error.localizedDescription) }
+                XCTAssert(delayed.value, "Pagination did not wait.")
                 expectations.last?.fulfill()
             },
             receiveValue: {
@@ -126,6 +130,11 @@ internal final class ObservableTests: XCTestCase {
             }
         )
         .store(in: &bin)
+        // Make sure you delay before it's completed.
+        DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
+            delayed.value = true
+            expectations[4].fulfill()
+        }
         wait(for: expectations, timeout: 30)
     }
 

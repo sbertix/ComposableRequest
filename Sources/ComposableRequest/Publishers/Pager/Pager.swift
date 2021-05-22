@@ -20,6 +20,8 @@ public extension Publishers {
         private let count: Int
         /// The current offset.
         private let offset: Offset
+        /// The delay between calls.
+        private let delay: TimeInterval
         /// The iteration generator.
         private let generator: (_ offset: Offset) -> Iteration
 
@@ -28,12 +30,15 @@ public extension Publishers {
         /// - parameters:
         ///     - count: A valid `Int`. Defaults to `.max`.
         ///     - offset: A valid `Offset`.
+        ///     - delay: A valid `TimeInterval`.
         ///     - generator: A valid generator.
         public init(_ count: Int = .max,
                     offset: Offset,
+                    delay: TimeInterval,
                     generator: @escaping (_ offset: Offset) -> Iteration) {
             self.count = count
             self.offset = offset
+            self.delay = delay
             self.generator = generator
         }
 
@@ -44,7 +49,7 @@ public extension Publishers {
         ///     - generator: A valid generator.
         public init(_ pages: PagerProviderInput<Offset>,
                     generator: @escaping (_ offset: Offset) -> Iteration) {
-            self.init(pages.count, offset: pages.offset, generator: generator)
+            self.init(pages.count, offset: pages.offset, delay: pages.delay, generator: generator)
         }
 
         /// Receive a subscriber.
@@ -73,7 +78,8 @@ public extension Publishers {
                         return current.eraseToAnyPublisher()
                     case .load(let next):
                         return current
-                            .append(Pager(count - 1, offset: next, generator: generator))
+                            .append(Deferred { Pager(count - 1, offset: next, delay: delay, generator: generator) }
+                                        .delay(for: .seconds(count - 1 > 0 ? delay : 0), scheduler: RunLoop.main))
                             .eraseToAnyPublisher()
                     }
                 }
@@ -94,9 +100,10 @@ public extension Pager where Offset == Void {
     ///
     /// - parameters:
     ///     - count: A valid `Int`. Defaults to `.max`.
+    ///     - delay: A valid `TimeInterval`. Defaults to `0`.
     ///     - generator: A valid generator.
-    init(_ count: Int = .max, generator: @escaping () -> Iteration) {
-        self.init(count, offset: ()) { _ in generator() }
+    init(_ count: Int = .max, delay: TimeInterval = 0, generator: @escaping () -> Iteration) {
+        self.init(count, offset: (), delay: delay) { _ in generator() }
     }
 
     /// Init.
@@ -112,9 +119,10 @@ public extension Pager where Offset == Void {
     ///
     /// - parameters:
     ///     - count: A valid `Int`. Defaults to `.max`.
+    ///     - delay: A valid `TimeInterval`. Defaults to `0`.
     ///     - generator: A valid generator.
-    init(_ count: Int = .max, generator: @escaping () -> Stream) {
-        self.init(count, offset: ()) { _ in generator().iterate() }
+    init(_ count: Int = .max, delay: TimeInterval = 0, generator: @escaping () -> Stream) {
+        self.init(count, offset: (), delay: delay) { _ in generator().iterate() }
     }
 
     /// Init.
@@ -132,9 +140,10 @@ public extension Pager where Offset: ComposableOptionalType {
     ///
     /// - parameters:
     ///     - count: A valid `Int`. Defaults to `.max`.
+    ///     - delay: A valid `TimeInterval`. Defaults to `0`.
     ///     - generator: A valid generator.
-    init(_ count: Int = .max, generator: @escaping (_ offset: Offset) -> Iteration) {
-        self.init(count, offset: .composableNone, generator: generator)
+    init(_ count: Int = .max, delay: TimeInterval = 0, generator: @escaping (_ offset: Offset) -> Iteration) {
+        self.init(count, offset: .composableNone, delay: delay, generator: generator)
     }
 }
 
@@ -144,11 +153,13 @@ public extension Pager where Offset: Ranked {
     /// - parameters:
     ///     - count: A valid `Int`. Defaults to `.max`.
     ///     - offset: A valid `Offset`.
+    ///     - delay: A valid `TimeInterval`. Defaults to `0`.
     ///     - generator: A valid generator.
     init(_ count: Int = .max,
          offset: Offset,
+         delay: TimeInterval = 0,
          generator: @escaping (_ offset: Offset.Offset) -> Pager<Offset.Offset, Stream>.Iteration) {
-        self.init(count, offset: offset) { offset -> Iteration in
+        self.init(count, offset: offset, delay: delay) { offset -> Iteration in
             let iteration = generator(offset.offset)
             return .init(stream: iteration.stream) {
                 switch iteration.offset($0) {
@@ -168,6 +179,6 @@ public extension Pager where Offset: Ranked {
     ///     - generator: A valid generator.
     init(_ pages: PagerProviderInput<Offset>,
          generator: @escaping (_ offset: Offset.Offset) -> Pager<Offset.Offset, Stream>.Iteration) {
-        self.init(pages.count, offset: pages.offset, generator: generator)
+        self.init(pages.count, offset: pages.offset, delay: pages.delay, generator: generator)
     }
 }
