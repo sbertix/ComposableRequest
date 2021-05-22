@@ -26,7 +26,7 @@
     <nav>
         <div class="wrapper">
             <h2>On This Page</h2>
-            <ol><li><a href="#nested type aliases">Nested Type Aliases</a><ul><li class="typealias"><a href="#pager.output">Output</a></li><li class="typealias"><a href="#pager.failure">Failure</a></li></ul></li><li><a href="#initializers">Initializers</a><ul><li class="initializer"><a href="#pager.init(_:generator:)">init(_:​generator:​)</a></li><li class="initializer"><a href="#pager.init(_:generator:)">init(_:​generator:​)</a></li><li class="initializer"><a href="#pager.init(_:generator:)">init(_:​generator:​)</a></li><li class="initializer"><a href="#pager.init(_:generator:)">init(_:​generator:​)</a></li><li class="initializer"><a href="#pager.init(_:generator:)">init(_:​generator:​)</a></li><li class="initializer"><a href="#pager.init(_:offset:generator:)">init(_:​offset:​generator:​)</a></li><li class="initializer"><a href="#pager.init(_:generator:)">init(_:​generator:​)</a></li></ul></li></ol>
+            <ol><li><a href="#nested type aliases">Nested Type Aliases</a><ul><li class="typealias"><a href="#pager.output">Output</a></li><li class="typealias"><a href="#pager.failure">Failure</a></li></ul></li><li><a href="#initializers">Initializers</a><ul><li class="initializer"><a href="#pager.init(_:delay:generator:)">init(_:​delay:​generator:​)</a></li><li class="initializer"><a href="#pager.init(_:generator:)">init(_:​generator:​)</a></li><li class="initializer"><a href="#pager.init(_:delay:generator:)">init(_:​delay:​generator:​)</a></li><li class="initializer"><a href="#pager.init(_:generator:)">init(_:​generator:​)</a></li><li class="initializer"><a href="#pager.init(_:delay:generator:)">init(_:​delay:​generator:​)</a></li><li class="initializer"><a href="#pager.init(_:offset:delay:generator:)">init(_:​offset:​delay:​generator:​)</a></li><li class="initializer"><a href="#pager.init(_:generator:)">init(_:​generator:​)</a></li></ul></li></ol>
         </div>
     </nav>
 
@@ -67,12 +67,12 @@
     <section id="initializers">
         <h2>Initializers</h2>
 
-        <div role="article" class="initializer" id="pager.init(_:generator:)">
+        <div role="article" class="initializer" id="pager.init(_:delay:generator:)">
     <h3>
-        <code>init(_:​generator:​)</code>
+        <code>init(_:​delay:​generator:​)</code>
     </h3>
     <div class="declaration">
-<pre class="highlight"><code><span class="keyword">init</span>(<span class="keyword">_</span> <span class="variable">count</span>: <span class="type">Int</span> = .<span class="variable">max</span>, <span class="variable">generator</span>: <span class="attribute">@</span><span class="attribute">escaping</span> () -&gt; <span class="type">Iteration</span>) </code></pre>
+<pre class="highlight"><code><span class="keyword">init</span>(<span class="keyword">_</span> <span class="variable">count</span>: <span class="type">Int</span> = .<span class="variable">max</span>, <span class="variable">delay</span>: <span class="type">TimeInterval</span> = <span class="number literal">0</span>, <span class="variable">generator</span>: <span class="attribute">@</span><span class="attribute">escaping</span> () -&gt; <span class="type">Iteration</span>) </code></pre>
 </div>
 <div class="summary" role="doc-abstract">
     <p>Init.</p>
@@ -93,6 +93,12 @@
     <th>count</th>
     <td><code class="type">Int</code></td>
     <td><p>A valid <code>Int</code>. Defaults to <code>.max</code>.</p>
+</td>
+</tr>
+<tr>
+    <th>delay</th>
+    <td><code class="type">Time​Interval</code></td>
+    <td><p>A valid <code>TimeInterval</code>. Defaults to <code>0</code>.</p>
 </td>
 </tr>
 <tr>
@@ -141,12 +147,12 @@
   </tbody>
 </table>
 </div>
-<div role="article" class="initializer" id="pager.init(_:generator:)">
+<div role="article" class="initializer" id="pager.init(_:delay:generator:)">
     <h3>
-        <code>init(_:​generator:​)</code>
+        <code>init(_:​delay:​generator:​)</code>
     </h3>
     <div class="declaration">
-<pre class="highlight"><code><span class="keyword">init</span>(<span class="keyword">_</span> <span class="variable">count</span>: <span class="type">Int</span> = .<span class="variable">max</span>, <span class="variable">generator</span>: <span class="attribute">@</span><span class="attribute">escaping</span> () -&gt; <span class="type">Stream</span>) </code></pre>
+<pre class="highlight"><code><span class="keyword">init</span>(<span class="keyword">_</span> <span class="variable">count</span>: <span class="type">Int</span> = .<span class="variable">max</span>, <span class="variable">delay</span>: <span class="type">TimeInterval</span> = <span class="number literal">0</span>, <span class="variable">generator</span>: <span class="attribute">@</span><span class="attribute">escaping</span> () -&gt; <span class="type">Stream</span>) </code></pre>
 </div>
 <div class="summary" role="doc-abstract">
     <p>Init.</p>
@@ -167,6 +173,12 @@
     <th>count</th>
     <td><code class="type">Int</code></td>
     <td><p>A valid <code>Int</code>. Defaults to <code>.max</code>.</p>
+</td>
+</tr>
+<tr>
+    <th>delay</th>
+    <td><code class="type">Time​Interval</code></td>
+    <td><p>A valid <code>TimeInterval</code>. Defaults to <code>0</code>.</p>
 </td>
 </tr>
 <tr>
@@ -215,12 +227,12 @@
   </tbody>
 </table>
 </div>
-<div role="article" class="initializer" id="pager.init(_:generator:)">
+<div role="article" class="initializer" id="pager.init(_:delay:generator:)">
     <h3>
-        <code>init(_:​generator:​)</code>
+        <code>init(_:​delay:​generator:​)</code>
     </h3>
     <div class="declaration">
-<pre class="highlight"><code><span class="keyword">init</span>(<span class="keyword">_</span> <span class="variable">count</span>: <span class="type">Int</span> = .<span class="variable">max</span>, <span class="variable">generator</span>: <span class="attribute">@</span><span class="attribute">escaping</span> (<span class="keyword">_</span> <span class="variable">offset</span>: <span class="type">Offset</span>) -&gt; <span class="type">Iteration</span>) </code></pre>
+<pre class="highlight"><code><span class="keyword">init</span>(<span class="keyword">_</span> <span class="variable">count</span>: <span class="type">Int</span> = .<span class="variable">max</span>, <span class="variable">delay</span>: <span class="type">TimeInterval</span> = <span class="number literal">0</span>, <span class="variable">generator</span>: <span class="attribute">@</span><span class="attribute">escaping</span> (<span class="keyword">_</span> <span class="variable">offset</span>: <span class="type">Offset</span>) -&gt; <span class="type">Iteration</span>) </code></pre>
 </div>
 <div class="summary" role="doc-abstract">
     <p>Init.</p>
@@ -244,6 +256,12 @@
 </td>
 </tr>
 <tr>
+    <th>delay</th>
+    <td><code class="type">Time​Interval</code></td>
+    <td><p>A valid <code>TimeInterval</code>. Defaults to <code>0</code>.</p>
+</td>
+</tr>
+<tr>
     <th>generator</th>
     <td><code class="type">@escaping (_ offset:​ Offset) -&gt; Iteration</code></td>
     <td><p>A valid generator.</p>
@@ -252,13 +270,14 @@
   </tbody>
 </table>
 </div>
-<div role="article" class="initializer" id="pager.init(_:offset:generator:)">
+<div role="article" class="initializer" id="pager.init(_:offset:delay:generator:)">
     <h3>
-        <code>init(_:​offset:​generator:​)</code>
+        <code>init(_:​offset:​delay:​generator:​)</code>
     </h3>
     <div class="declaration">
 <pre class="highlight"><code><span class="keyword">init</span>(<span class="keyword">_</span> <span class="variable">count</span>: <span class="type">Int</span> = .<span class="variable">max</span>,
          <span class="variable">offset</span>: <span class="type">Offset</span>,
+         <span class="variable">delay</span>: <span class="type">TimeInterval</span> = <span class="number literal">0</span>,
          <span class="variable">generator</span>: <span class="attribute">@</span><span class="attribute">escaping</span> (<span class="keyword">_</span> <span class="variable">offset</span>: <span class="type">Offset</span>.<span class="type">Offset</span>) -&gt; <span class="type">Pager</span>&lt;<span class="type">Offset</span>.<span class="type">Offset</span>, <span class="type">Stream</span>&gt;.<span class="type">Iteration</span>) </code></pre>
 </div>
 <div class="summary" role="doc-abstract">
@@ -286,6 +305,12 @@
     <th>offset</th>
     <td><code class="type">Offset</code></td>
     <td><p>A valid <code>Offset</code>.</p>
+</td>
+</tr>
+<tr>
+    <th>delay</th>
+    <td><code class="type">Time​Interval</code></td>
+    <td><p>A valid <code>TimeInterval</code>. Defaults to <code>0</code>.</p>
 </td>
 </tr>
 <tr>
@@ -341,7 +366,7 @@
 
     <footer>
         <p>
-    Generated on <time datetime="2021-05-21T11:59:29+0000">May 21, 2021</time> using <a href="https://github.com/SwiftDocOrg/swift-doc">swift-doc</a> <span class="version">1.0.0-beta.6</span>.
+    Generated on <time datetime="2021-05-22T09:47:41+0000">May 22, 2021</time> using <a href="https://github.com/SwiftDocOrg/swift-doc">swift-doc</a> <span class="version">1.0.0-beta.6</span>.
 </p>
     </footer>
 </body>

@@ -26,7 +26,7 @@
     <nav>
         <div class="wrapper">
             <h2>On This Page</h2>
-            <ol><li><a href="#initializers">Initializers</a><ul><li class="initializer"><a href="#pagerproviderinput.init(count:offset:)">init(count:​offset:​)</a></li></ul></li><li><a href="#properties">Properties</a><ul><li class="variable"><a href="#pagerproviderinput.count">count</a></li><li class="variable"><a href="#pagerproviderinput.offset">offset</a></li></ul></li></ol>
+            <ol><li><a href="#initializers">Initializers</a><ul><li class="initializer"><a href="#pagerproviderinput.init(count:offset:delay:)">init(count:​offset:​delay:​)</a></li></ul></li><li><a href="#properties">Properties</a><ul><li class="variable"><a href="#pagerproviderinput.count">count</a></li><li class="variable"><a href="#pagerproviderinput.offset">offset</a></li><li class="variable"><a href="#pagerproviderinput.delay">delay</a></li></ul></li></ol>
         </div>
     </nav>
 
@@ -48,12 +48,12 @@
     <section id="initializers">
         <h2>Initializers</h2>
 
-        <div role="article" class="initializer" id="pagerproviderinput.init(count:offset:)">
+        <div role="article" class="initializer" id="pagerproviderinput.init(count:offset:delay:)">
     <h3>
-        <code>init(count:​offset:​)</code>
+        <code>init(count:​offset:​delay:​)</code>
     </h3>
     <div class="declaration">
-<pre class="highlight"><code><span class="keyword">public</span> <span class="keyword">init</span>(<span class="variable">count</span>: <span class="type">Int</span>, <span class="variable">offset</span>: <span class="type">Offset</span>) </code></pre>
+<pre class="highlight"><code><span class="keyword">public</span> <span class="keyword">init</span>(<span class="variable">count</span>: <span class="type">Int</span>, <span class="variable">offset</span>: <span class="type">Offset</span>, <span class="variable">delay</span>: <span class="type">TimeInterval</span>) </code></pre>
 </div>
 <div class="summary" role="doc-abstract">
     <p>Init.</p>
@@ -80,6 +80,12 @@
     <th>offset</th>
     <td><code class="type">Offset</code></td>
     <td><p>A valid <code>Offset</code>.</p>
+</td>
+</tr>
+<tr>
+    <th>delay</th>
+    <td><code class="type">Time​Interval</code></td>
+    <td><p>A valid <code>TimeInterval</code>.</p>
 </td>
 </tr>
   </tbody>
@@ -113,6 +119,18 @@
 
 </div>
 </div>
+<div role="article" class="variable" id="pagerproviderinput.delay">
+    <h3>
+        <code>delay</code>
+    </h3>
+    <div class="declaration">
+<pre class="highlight"><code><span class="keyword">public</span> <span class="keyword">let</span> <span class="variable">delay</span>: <span class="type">TimeInterval</span></code></pre>
+</div>
+<div class="summary" role="doc-abstract">
+    <p>The delay.</p>
+
+</div>
+</div>
     </section>
 
 
@@ -122,7 +140,7 @@
 
     <footer>
         <p>
-    Generated on <time datetime="2021-05-21T11:59:29+0000">May 21, 2021</time> using <a href="https://github.com/SwiftDocOrg/swift-doc">swift-doc</a> <span class="version">1.0.0-beta.6</span>.
+    Generated on <time datetime="2021-05-22T09:47:41+0000">May 22, 2021</time> using <a href="https://github.com/SwiftDocOrg/swift-doc">swift-doc</a> <span class="version">1.0.0-beta.6</span>.
 </p>
     </footer>
 </body>
