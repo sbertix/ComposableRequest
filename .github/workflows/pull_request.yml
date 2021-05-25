@@ -77,9 +77,9 @@ jobs:
         with:
           args:            --strict
 
-  # build the library.
-  build:
-    name:                  Build
+  # test the library.
+  test:
+    name:                  Test
     needs:                 lint
     runs-on:               macos-latest
 
@@ -98,6 +98,21 @@ jobs:
           filters:         |
             src:
               - '**/*.swift'
-      - name:              Build
+      # test the library.
+      - name:              Test
         if:                steps.changes.outputs.src == 'true'
-        run:               swift build
+        run:               swift test --parallel --enable-test-discovery --enable-code-coverage
+      # check for coverage.
+      - name:              Coverage (Export)
+        if:                steps.changes.outputs.src == 'true'
+        run:               xcrun llvm-cov export -format="lcov" .build/debug/ComposableRequestPackageTests.xctest/Contents/MacOS/ComposableRequestPackageTests -instr-profile .build/debug/codecov/default.profdata > info.lcov
+        continue-on-error: true
+      # upload coverage.
+      - name:              Coverage (Upload)
+        if:                steps.changes.outputs.src == 'true'
+        uses:              codecov/codecov-action@v1.5.0
+        with:
+          override_pr:     ${{ github.event.number }}
+          override_commit: ${{ (github.event.pull_request_target || github.event.pull_request).head.sha }}
+        timeout-minutes:   1
+        continue-on-error: true

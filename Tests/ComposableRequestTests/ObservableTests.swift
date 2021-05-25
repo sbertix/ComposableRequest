@@ -95,6 +95,7 @@ internal final class ObservableTests: XCTestCase {
 
     // MARK: Pagination
 
+    // swiftlint:disable line_length
     /// Test a paginated fetch request.
     func testPagination() {
         let languages = ["en", "it", "de", "fr"]
@@ -107,14 +108,23 @@ internal final class ObservableTests: XCTestCase {
         PagerProvider { pages in
             // Actually paginate futures.
             Pager(pages) { offset in
-                LockProvider {  // Additional test.
-                    Just($0).map { _ in offset }
+                LockProvider<String, LockProvider<Int, LockProvider<Int, LockProvider<Int, LockProvider<Int, AnyPublisher<Int, Never>>>>>> { value, _, _, _, _ in
+                    Just(value).map { _ in offset }.eraseToAnyPublisher()
                 }
                 .unlock(with: languages[offset])
-                .iterateFirst(stoppingAt: offset) { .load($0 + 1) }
+                .unlock(with: 0)
+                .unlock(with: 0)
+                .unlock(with: 0)
+                .unlock(with: 0)
+                .assertBackgroundThread()
+                .iterateFirst(stoppingAt: offset) {
+                    XCTAssert(!Thread.isMainThread)
+                    return .load($0 + 1)
+                }
             }
         }
-        .pages(languages.count, offset: 0, delay: 2)
+        .pages(languages.count, offset: 0, delay: .seconds(2))
+        .subscribe(on: DispatchQueue.global(qos: .userInitiated))
         .receive(on: RunLoop.main)
         .assertMainThread()
         .sink(
@@ -137,6 +147,7 @@ internal final class ObservableTests: XCTestCase {
         }
         wait(for: expectations, timeout: 30)
     }
+    // swiftlint:enable line_length
 
     /// Test a pagination request using a ranked offset.
     func testRankedOffsetPagination() {

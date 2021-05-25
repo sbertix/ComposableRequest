@@ -20,6 +20,7 @@ public struct ConcatProvider<A: Provider, B: Provider>: Provider where A.Output 
     /// Init.
     ///
     /// - parameter generator: A valid generator.
+    @available(*, deprecated, message: "use concat `init` on nested `A` directly (removing on `6.0.0`)")
     public init(_ generator: @escaping (Input) -> Output) {
         self.generator = generator
     }
@@ -27,6 +28,7 @@ public struct ConcatProvider<A: Provider, B: Provider>: Provider where A.Output 
     /// Init.
     ///
     /// - parameter generator: A valid generator.
+    @available(*, deprecated, message: "use concat `init` on nested `A` directly (removing on `6.0.0`)")
     public init(_ generator: @escaping (A.Input, B.Input) -> B.Output) {
         self.generator = { input in .init { generator(input, $0) } }
     }

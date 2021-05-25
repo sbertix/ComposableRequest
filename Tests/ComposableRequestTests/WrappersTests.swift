@@ -47,7 +47,7 @@ internal final class WrappersTests: XCTestCase {
 
     /// Test `Wrapped`.
     func testWrapped() throws {
-        let array = Wrapped(wrapper: [["key": 2]])
+        let array = Wrapped(wrapper: [["key": 2]]).wrapped
         XCTAssert(array[0].dictionary() == ["key": 2])
         XCTAssert(try JSONDecoder().decode(Wrapped.self, from: JSONEncoder().encode(array))[0]
                     .dictionary() == ["key": 2])
@@ -73,6 +73,7 @@ internal final class WrappersTests: XCTestCase {
         XCTAssert(first?["bool"].bool() == true, "Bool is not `Bool`.")
         XCTAssert(first?.dictionary()?["double"]?.double() == 2.3, "`Double` is not `Double`.")
         XCTAssert(first?["url"].url() != nil, "`URL` is not `URL`.")
+        XCTAssert(value.wrapped == value)
         // check literals.
         response = .empty
         XCTAssert(response.description == "<null>")
