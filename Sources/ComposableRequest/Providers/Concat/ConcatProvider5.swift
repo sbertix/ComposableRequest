@@ -25,6 +25,7 @@ where A.Output == B, B.Output == C, C.Output == D, D.Output == E {
     /// Init.
     ///
     /// - parameter generator: A valid generator.
+    @available(*, deprecated, message: "use concat `init` on nested `A` directly (removing on `6.0.0`)")
     public init(_ generator: @escaping (Input) -> Output) {
         self.generator = generator
     }
@@ -32,6 +33,7 @@ where A.Output == B, B.Output == C, C.Output == D, D.Output == E {
     /// Init.
     ///
     /// - parameter generator: A valid generator.
+    @available(*, deprecated, message: "use concat `init` on nested `A` directly (removing on `6.0.0`)")
     public init(_ generator: @escaping (A.Input, B.Input, C.Input, D.Input, E.Input) -> E.Output) {
         self.generator = { input in .init { generator(input, $0, $1, $2, $3) } }
     }

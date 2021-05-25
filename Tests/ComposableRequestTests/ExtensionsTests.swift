@@ -9,12 +9,14 @@
 import XCTest
 
 internal final class ExtensionsTests: XCTestCase {
-    /// Test `String` extensions.
-    func testString() {
-        XCTAssert("camel_cased".camelCased == "camelCased")
-        XCTAssert("snakeCased".snakeCased == "snake_cased")
-        XCTAssert("begin".beginningWithUppercase == "Begin")
-        XCTAssert("BEGIN".beginningWithLowercase == "bEGIN")
+    /// Test `ComposableOptionalType`.
+    func testComposableOptionalType() {
+        XCTAssert(Int?.none.composableIsNone == true)
+        XCTAssert(Int?.some(0).composableIsNone == false)
+        XCTAssert(Int?.none.composableFlatMap { $0 + 1 }.composableIsNone == true)
+        XCTAssert(Int?.some(0).composableFlatMap { $0 + 1 } == 1)
+        XCTAssert(Int?.some(0).composableOptional == 0)
+        XCTAssert(Int?.composableNone.composableIsNone)
     }
 
     /// Test `HTTPCookie` extensions..
@@ -29,5 +31,13 @@ internal final class ExtensionsTests: XCTestCase {
         let decoded = try JSONDecoder().decode(CodableHTTPCookie.self,
                                                from: JSONEncoder().encode(cookie))
         XCTAssert(decoded == cookie)
+    }
+
+    /// Test `String` extensions.
+    func testString() {
+        XCTAssert("camel_cased".camelCased == "camelCased")
+        XCTAssert("snakeCased".snakeCased == "snake_cased")
+        XCTAssert("begin".beginningWithUppercase == "Begin")
+        XCTAssert("BEGIN".beginningWithLowercase == "bEGIN")
     }
 }
