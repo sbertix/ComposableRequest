@@ -48,7 +48,7 @@ jobs:
       # test the library.
       - name:                Test
         if:                  steps.changes.outputs.src == 'true'
-        run:                 swift test --parallel --enable-test-discovery --enable-code-coverage
+        run:                 swift test --enable-test-discovery --enable-code-coverage
       # check for coverage.
       - name:                Coverage (Export)
         if:                  steps.changes.outputs.src == 'true'
