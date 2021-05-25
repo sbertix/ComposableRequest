@@ -33,6 +33,13 @@ internal final class ExtensionsTests: XCTestCase {
         XCTAssert(decoded == cookie)
     }
 
+    /// Test reference.
+    func testReference() {
+        let atomic: Atomic<Int> = .init(1)
+        atomic.mutate { $0 = 2 }
+        XCTAssertEqual(atomic.value, 2)
+    }
+
     /// Test `String` extensions.
     func testString() {
         XCTAssert("camel_cased".camelCased == "camelCased")

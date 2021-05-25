@@ -1,5 +1,5 @@
 //
-//  DeprecationsTests.swift
+//  ConcatProviderTests.swift
 //  ComposableRequestTests
 //
 //  Created by Stefano Bertagno on 25/05/21.
@@ -11,9 +11,7 @@ import XCTest
 @testable import ComposableRequest
 
 /// A `class` defining a series of tests on deprecated definitions.
-internal final class DeprecationsTests: XCTestCase {
-    // MARK: Removing starting with `6.0.0`
-
+internal final class ConcatProviderTests: XCTestCase {
     // swiftlint:disable line_length
     /// Test concat providers.
     func testConcatProviders() {
