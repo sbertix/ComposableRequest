@@ -14,18 +14,28 @@ public struct PagerProviderInput<Offset> {
     /// The actual offset.
     public let offset: Offset
     /// The delay.
-    public let delay: TimeInterval
+    public let delay: (_ offset: Offset) -> Delay
 
     /// Init.
     ///
     /// - parameters:
     ///     - count: A valid `Int`.
     ///     - offset: A valid `Offset`.
-    ///     - delay: A valid `TimeInterval`.
-    public init(count: Int, offset: Offset, delay: TimeInterval) {
+    ///     - delay: A valid `Delay` generator.
+    public init(count: Int, offset: Offset, delay: @escaping (_ offset: Offset) -> Delay) {
         self.count = count
         self.offset = offset
         self.delay = delay
+    }
+
+    /// Init.
+    ///
+    /// - parameters:
+    ///     - count: A valid `Int`.
+    ///     - offset: A valid `Offset`.
+    ///     - delay: A valid `Delay`.
+    public init(count: Int, offset: Offset, delay: Delay) {
+        self.init(count: count, offset: offset) { _ in delay }
     }
 }
 
