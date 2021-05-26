@@ -45,6 +45,20 @@ public extension Publishers {
         /// Init.
         ///
         /// - parameters:
+        ///     - count: A valid `Int`. Defaults to `.max`.
+        ///     - offset: A valid `Offset`.
+        ///     - delay: A valid `Delay`.
+        ///     - generator: A valid generator.
+        public init(_ count: Int = .max,
+                    offset: Offset,
+                    delay: Delay,
+                    generator: @escaping (_ offset: Offset) -> Iteration) {
+            self.init(count, offset: offset, delay: { _ in delay }, generator: generator)
+        }
+
+        /// Init.
+        ///
+        /// - parameters:
         ///     - pages: A valid `PagesProviderInput`.
         ///     - generator: A valid generator.
         public init(_ pages: PagerProviderInput<Offset>,
@@ -77,10 +91,19 @@ public extension Publishers {
                     case .stop:
                         return current.eraseToAnyPublisher()
                     case .load(let next):
-                        return current
-                            .append(Deferred { Pager(count - 1, offset: next, delay: delay, generator: generator) }
-                                        .delay(for: count - 1 > 0 ? delay(next) : .zero, scheduler: RunLoop.main))
-                            .eraseToAnyPublisher()
+                        switch count - 1 > 0 ? delay(next) : .zero {
+                        case ...0:
+                            return current
+                                .append(Deferred { Pager(count - 1, offset: next, delay: delay, generator: generator) })
+                                .eraseToAnyPublisher()
+                        case let delay:
+                            return current
+                                .append(
+                                    Deferred { Pager(count - 1, offset: next, delay: self.delay, generator: generator) }
+                                        .delay(for: delay, scheduler: RunLoop.main)
+                                )
+                                .eraseToAnyPublisher()
+                        }
                     }
                 }
                 .subscribe(subscriber)
