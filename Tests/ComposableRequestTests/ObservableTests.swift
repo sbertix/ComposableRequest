@@ -95,59 +95,39 @@ internal final class ObservableTests: XCTestCase {
 
     // MARK: Pagination
 
-    // swiftlint:disable line_length
     /// Test a paginated fetch request.
     func testPagination() {
-        let languages = ["en", "it", "de", "fr"]
-        let expectations = [languages.map(XCTestExpectation.init),
-                            [XCTestExpectation(description: "delay"), XCTestExpectation(description: "completion")]]
-            .reduce(into: []) { $0.append(contentsOf: $1) }
-        let offset = Reference(0)
-        let delayed = Reference(false)
-        // Prepare the provider.
-        PagerProvider { pages in
-            // Actually paginate futures.
-            Pager(pages) { offset in
-                LockProvider<String, LockProvider<Int, LockProvider<Int, LockProvider<Int, LockProvider<Int, AnyPublisher<Int, Never>>>>>> { value, _, _, _, _ in
-                    Just(value).map { _ in offset }.eraseToAnyPublisher()
+        // swiftlint:disable line_length
+        typealias Lock = LockProvider<Int, LockProvider<Void, LockProvider<Void, LockProvider<Void, LockProvider<Void, Just<Int>>>>>>
+        // swiftlint:enable line_length
+
+        let date = Date()
+        let expectations = ((0...4).map(String.init) + ["completion"]).map(XCTestExpectation.init)
+        PagerProvider {
+            Pager($0) { offset in
+                Lock { value, _, _, _, _ in
+                    Just(value)
                 }
-                .unlock(with: languages[offset])
-                .unlock(with: 0)
-                .unlock(with: 0)
-                .unlock(with: 0)
-                .unlock(with: 0)
-                .assertBackgroundThread()
-                .iterateFirst(stoppingAt: offset) {
-                    XCTAssert(!Thread.isMainThread)
-                    return .load($0 + 1)
-                }
+                .unlock(with: offset)
+                .unlock()
+                .unlock()
+                .unlock()
+                .unlock()
+                .iterateFirst { .load($0 + 1) }
             }
         }
-        .pages(languages.count, offset: 0, delay: .seconds(2))
-        .subscribe(on: DispatchQueue.global(qos: .userInitiated))
-        .receive(on: RunLoop.main)
-        .assertMainThread()
-        .sink(
-            receiveCompletion: {
-                if case .failure(let error) = $0 { XCTFail(error.localizedDescription) }
-                XCTAssert(delayed.value, "Pagination did not wait.")
-                expectations.last?.fulfill()
-            },
-            receiveValue: {
-                XCTAssert(offset.value == $0)
-                offset.value = $0 + 1
-                expectations[$0].fulfill()
-            }
-        )
+        .pages(5, offset: 0, delay: .seconds(1))
+        .sink {
+            if case .failure(let error) = $0 { XCTFail(error.localizedDescription) }
+            expectations.last?.fulfill()
+        } receiveValue: {
+            expectations[$0].fulfill()
+        }
         .store(in: &bin)
-        // Make sure you delay before it's completed.
-        DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
-            delayed.value = true
-            expectations[4].fulfill()
-        }
-        wait(for: expectations, timeout: 30)
+
+        wait(for: expectations, timeout: 10)
+        XCTAssertLessThan(date.timeIntervalSinceNow, -4)
     }
-    // swiftlint:enable line_length
 
     /// Test a pagination request using a ranked offset.
     func testRankedOffsetPagination() {
@@ -159,55 +139,19 @@ internal final class ObservableTests: XCTestCase {
             Pager(pages) { Just(pages.rank[$0]).iterateFirst { .load($0 + 1) } }
         }
         .pages(values.count, offset: 0, rank: values)
-        .sink(
-            receiveCompletion: {
-                if case .failure(let error) = $0 { XCTFail(error.localizedDescription) }
-                expectations.last?.fulfill()
-            },
-            receiveValue: { value in
-                offset.sync {
-                    XCTAssert(value == $0)
-                    expectations[value].fulfill()
-                    $0 = value + 1
-                }
-            }
-        )
-        .store(in: &bin)
-        wait(for: expectations, timeout: 30)
-    }
-
-    /// Test a remote paginated fetch request.
-    func testRemotePagination() {
-        let languages = ["en", "it", "de", "fr"]
-        let expectations = languages.map(XCTestExpectation.init) + [XCTestExpectation(description: "completion")]
-        let offset = Reference(0)
-        // Prepare the provider.
-        LockSessionPagerProvider { url, session, pages in    // Additional tests.
-            // Actually paginate futures.
-            Pager(pages) { offset in
-                Request(url)
-                    .query(appending: languages[offset], forKey: "l")
-                    .publish(with: session)
-                    .map { _ in offset }
-                    .iterateLast { .load(($0 ?? -1) + 1) }
+        .sink {
+            if case .failure(let error) = $0 { XCTFail(error.localizedDescription) }
+            expectations.last?.fulfill()
+        }
+        receiveValue: { value in
+            offset.sync {
+                XCTAssert(value == $0)
+                expectations[value].fulfill()
+                $0 = value + 1
             }
         }
-        .unlock(with: url)
-        .session(.shared)
-        .pages(languages.count, offset: 0)
-        .sink(
-            receiveCompletion: {
-                if case .failure(let error) = $0 { XCTFail(error.localizedDescription) }
-                expectations.last?.fulfill()
-            },
-            receiveValue: {
-                XCTAssert(offset.value == $0)
-                offset.value = $0 + 1
-                expectations[$0].fulfill()
-            }
-        )
         .store(in: &bin)
-        wait(for: expectations, timeout: 30 * TimeInterval(languages.count))
+        wait(for: expectations, timeout: 30)
     }
 
     // MARK: Cancellation
@@ -229,29 +173,5 @@ internal final class ObservableTests: XCTestCase {
             expectations.first?.fulfill()
         }
         wait(for: expectations, timeout: 5)
-    }
-
-    /// Test paginated cancellation.
-    func testPaginatedCancellation() {
-        let expectations = ["output", "completion"].map(XCTestExpectation.init)
-        expectations[0].assertForOverFulfill = true
-        expectations[0].expectedFulfillmentCount = 1
-        Pager(3) {
-            Request(url)
-                .publish(session: .shared)
-                .map(\.response)
-        }
-        .sink(
-            receiveCompletion: { _ in
-                XCTFail("This should not complete")
-            },
-            receiveValue: { _ in
-                expectations.first?.fulfill()
-                self.bin.removeAll()
-            }
-        )
-        .store(in: &bin)
-        DispatchQueue.main.asyncAfter(deadline: .now() + 25) { expectations.last?.fulfill() }
-        wait(for: expectations, timeout: 30)
     }
 }

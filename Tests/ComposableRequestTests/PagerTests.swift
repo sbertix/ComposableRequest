@@ -75,4 +75,70 @@ internal class PagerTests: XCTestCase {
         }
         XCTAssertEqual(provider.pages(1, delay: .seconds(2)), 3)
     }
+
+    /// Test iterations.
+    func testIterations() {
+        /// Compare equality.
+        ///
+        /// - parameters:
+        ///     - instruction: A valid `Instruction`.
+        ///     - value: Some value.
+        func compare<T: Equatable>(_ instruction: Instruction<T>, _ value: T) {
+            switch instruction {
+            case .stop:
+                XCTFail("Iteration stopped.")
+            case .load(let next):
+                XCTAssertEqual(next, value)
+            }
+        }
+
+        /// Compare to stop.
+        ///
+        /// - parameter instruction: A valid `Instruction`.
+        func compare<T>(stop instruction: Instruction<T>) {
+            switch instruction {
+            case .stop:
+                break
+            case .load:
+                XCTFail("Iteration should stop.")
+            }
+        }
+
+        compare(Just(1).iterate { .load($0.reduce(into: 0) { $0 += $1 }+1) }.offset([0]), 1)
+        compare(stop: Just(1).iterate { $0 == 1 } with: { .load(($0.first ?? -1) + 1) }.offset([0]))
+        compare(stop: Just(1).iterate(stoppingAt: 1) { .load(($0.first ?? -1) + 1) }.offset([0]))
+        compare(Just(1).iterateFirst { .load(($0 ?? -1) + 1) }.offset([0]), 1)
+        compare(stop: Just(1).iterateFirst { $0 == 1 } with: { .load(($0 ?? -1) + 1) }.offset([0]))
+        compare(stop: Just(1).iterateFirst(stoppingAt: 1) { .load(($0 ?? -1) + 1) }.offset([0]))
+        compare(Just(1).iterateLast { .load(($0 ?? -1) + 1) }.offset([0]), 1)
+        compare(stop: Just(1).iterateLast { $0 == 1 } with: { .load(($0 ?? -1) + 1) }.offset([0]))
+        compare(stop: Just(1).iterateLast(stoppingAt: 1) { .load(($0 ?? -1) + 1) }.offset([0]))
+        compare(stop: Just(()).iterate { _ in false }.offset([()]))
+
+        compare(Just(1).iterateFirst { .load($0 + 1) }.offset([0]), 1)
+        compare(stop: Just(1).iterateFirst { $0 == 1 } with: { .load($0 + 1) }.offset([0]))
+        compare(stop: Just(1).iterateFirst(stoppingAt: 1) { .load($0 + 1) }.offset([0]))
+        compare(Just(1).iterateLast { .load($0 + 1) }.offset([0]), 1)
+        compare(stop: Just(1).iterateLast { $0 == 1 } with: { .load($0 + 1) }.offset([0]))
+        compare(stop: Just(1).iterateLast(stoppingAt: 1) { .load($0 + 1) }.offset([0]))
+
+        compare(Just(Page(offset: 1)).iterateFirst().offset([Page(offset: 0)]), 0)
+        compare(stop: Just(Page(offset: 1)).iterateFirst { $0 == 0 }.offset([Page(offset: 0)]))
+        compare(Just(Page(offset: 1)).iterateLast().offset([Page(offset: 0)]), 0)
+        compare(stop: Just(Page(offset: 1)).iterateFirst { $0 == 0 }.offset([Page(offset: 0)]))
+
+        compare(stop: Just(Page(offset: 1)).iterateFirst(stoppingAt: 0).offset([Page(offset: 0)]))
+        compare(stop: Just(Page(offset: 1)).iterateLast(stoppingAt: 0).offset([Page(offset: 0)]))
+    }
+}
+
+fileprivate extension PagerTests {
+    /// A `struct` defining a custom `Paginatable`.
+    struct Page: Paginatable {
+        let offset: Offset
+    }
+}
+
+fileprivate extension PagerTests.Page {
+    typealias Offset = Int?
 }

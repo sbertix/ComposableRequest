@@ -19,3 +19,12 @@ public extension LockProviderType {
         Self.generate(self, from: key)
     }
 }
+
+public extension LockProviderType where Input == Void {
+    /// Unlock.
+    ///
+    /// - returns: Some `Content`.
+    func unlock() -> Output {
+        Self.generate(self, from: ())
+    }
+}
