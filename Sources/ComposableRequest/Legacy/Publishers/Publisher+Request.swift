@@ -14,7 +14,7 @@ public extension Request {
     /// - returns: Some `Publisher`.
     func publish(with input: SessionProviderInput) -> AnyPublisher<Request.Response, Swift.Error> {
         // Proceed for valid requests only.
-        guard let request = self.request() else {
+        guard let request = Request.request(from: self) else {
             return Fail(error: Error.invalidRequest(self)).eraseToAnyPublisher()
         }
         // Return the actual stream.

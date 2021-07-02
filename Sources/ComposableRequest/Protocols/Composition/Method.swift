@@ -34,17 +34,11 @@ public enum HTTPMethod: String, Hashable {
 /// A `protocol` describing an instance providing the method of a `URLRequest`.
 public protocol Method {
     /// The underlying request method.
-    var method: HTTPMethod { get set }
-}
+    var method: HTTPMethod { get }
 
-public extension Method {
     /// Copy `self` and replace its `method`.
     ///
-    /// - parameter mody: A valid `Method`.
-    /// - returns: A copy of `self`.
-    func method(_ method: HTTPMethod) -> Self {
-        var copy = self
-        copy.method = method
-        return copy
-    }
+    /// - parameter mody: A valid `HTTPMethod`.
+    /// - returns: A valid `Self`.
+    func method(_ method: HTTPMethod) -> Self
 }

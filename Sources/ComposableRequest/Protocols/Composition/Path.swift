@@ -7,32 +7,36 @@
 
 import Foundation
 
-/// A `protocol` describing an instance providing the `URL` to some resouce in a `URLRequest`.
 @dynamicMemberLookup
+/// A `protocol` describing an instance providing the `URL` to some resouce in a `URLRequest`.
 public protocol Path {
     /// The underlying request url components.
-    var components: URLComponents? { get set }
+    var components: URLComponents? { get }
+
+    /// Copy `self` and replace its `components`.
+    ///
+    /// - parameter components: An optional `URLComponents`.
+    /// - returns: A valid `Self`.
+    func components(_ components: URLComponents?) -> Self
 }
 
 public extension Path {
-    /// Append `component`, to `url`.
+    /// Append `component` to `url`.
     ///
     /// - parameter component: A valid `String`.
-    /// - returns: A copy of `self`.
+    /// - returns: A valid `Self`.
     func path(appending component: String) -> Self {
-        var copy = self
-        var components = copy.components
+        var components = self.components
             .flatMap { $0.url }
             .flatMap { URLComponents(url: $0.appendingPathComponent(component), resolvingAgainstBaseURL: false) }
-        components?.queryItems = copy.components?.queryItems
-        copy.components = components
-        return copy
+        components?.queryItems = self.components?.queryItems
+        return self.components(components)
     }
 
-    /// Append `component`, to `url`.
+    /// Append `component` to `url`.
     ///
     /// - parameter component: A valid `String`.
-    /// - returns: A copy of `self`.
+    /// - returns: A valid `Self`.
     subscript(dynamicMember component: String) -> Self {
         path(appending: component)
     }
