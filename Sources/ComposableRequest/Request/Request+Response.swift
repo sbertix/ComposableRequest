@@ -16,13 +16,3 @@ public extension Request {
         public let response: URLResponse
     }
 }
-
-public extension Request {
-    /// An `enum` listing error values.
-    enum Error: Swift.Error {
-        /// Invalid request.
-        case invalidRequest(Request)
-        /// Cancelled request.
-        case cancelled
-    }
-}

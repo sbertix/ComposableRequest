@@ -7,8 +7,8 @@
 
 import Foundation
 
-@dynamicMemberLookup
 /// A `protocol` describing an instance providing the `URL` to some resouce in a `URLRequest`.
+@dynamicMemberLookup
 public protocol Path {
     /// The underlying request url components.
     var components: URLComponents? { get }
