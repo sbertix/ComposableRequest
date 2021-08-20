@@ -14,9 +14,9 @@
 
 **ComposableRequest** is a networking layer based on a declarative interface, written in (modern) **Swift**.
 
-It abstracts away `URLSession` implementation, in order to provide concise and powerful endpoint representations, thanks to the power of **Combine** `Publisher`s.
+It abstracts away `URLSession` implementation (or your preferred custom networking library), in order to provide concise and powerful endpoint representations, supporting, out-of-the-box, completion handlers, **Combine** `Publisher`s and _structured concurrencty_ (`async`/`await`) with a single definition. 
 
-It comes with `Storage` (inside of **ComposableStorage**), a way of caching `Storable` items, and related concrete implementations (e.g. `UserDefaultsStorage`, `KeychainStorage` – for which you're gonna need to add **ComposableStorageCrypto**, depending on [**Swiftchain**](https://github.com/sbertix/Swiftchain), together with the ability to provide the final user of your API wrapper to inject code through `Provider`s.
+It comes with `Storage` (inside of **Storage**), a way of caching `Storable` items, and related concrete implementations (e.g. `UserDefaultsStorage`, `KeychainStorage` – for which you're gonna need to add **StorageCrypto**, depending on [**KeychainAccess**](https://github.com/kishikawakatsumi/KeychainAccess), together with the ability to provide the final user of your API wrapper to inject code through `Provider`s.
 
 ## Status
 ![push](https://github.com/sbertix/ComposableRequest/workflows/push/badge.svg)
@@ -40,7 +40,7 @@ Just remember to refer to our [guidelines](CONTRIBUTING.md) and [Code of Conduct
 1. Select `File`/`Swift Packages`/`Add Package Dependency…` from the menu.
 1. Paste `https://github.com/sbertix/ComposableRequest.git`.
 1. Follow the steps.
-1. Add **ComposableStorage** together with **ComposableRequest** for the full experience.
+1. Add **Storage** together with **Requests** for the full experience.
 
 > Why not CocoaPods, or Carthage, or ~blank~?
 
@@ -50,13 +50,17 @@ Furthermore, with the integration of the **Swift Package Manager** in **Xcode 11
 <details><summary><strong>Targets</strong></summary>
     <p>
 
-- **ComposableRequest**, an HTTP client originally integrated in **Swiftagram**, the core library.
-- **ComposableStorage**, depending on [**KeychainAccess**](https://github.com/kishikawakatsumi/KeychainAccess), can be imported together with **ComposableRequest** to extend its functionality.     
+- **Requests**, an HTTP client originally integrated in **Swiftagram**, the core library.
+- **Storage**
+- **StorageCrypto**, depending on [**KeychainAccess**](https://github.com/kishikawakatsumi/KeychainAccess), can be imported together with **Storage** to extend its functionality.     
     </p>
 </details>
 
+<!-- WIP 
+
 ## Usage
-Check out [**Swiftagram**](https://github.com/sbertix/Swiftagram) or visit the (_auto-generated_) documentation for [**ComposableRequest**](https://sbertix.github.io/ComposableRequest/Requests/), [**ComposableStorage**](https://sbertix.github.io/ComposableRequest/Storage/) and [**ComposableStorageCrypto**](https://sbertix.github.io/ComposableRequest/StorageCrypto/) to learn about use cases.  
+
+Check out [**Swiftagram**](https://github.com/sbertix/Swiftagram) or visit the (_auto-generated_) documentation for [**Requests**](https://sbertix.github.io/ComposableRequest/Requests/), [**Storage**](https://sbertix.github.io/ComposableRequest/Storage/) and [**StorageCrypto**](https://sbertix.github.io/ComposableRequest/StorageCrypto/) to learn about use cases.  
 
 ### Endpoint
 
@@ -157,3 +161,4 @@ The library comes with several concrete implementations.
 - `TransientStorage` should be used when no caching is necessary, and it's what `Authenticator`s default to when no `Storage` is provided.  
 - `UserDefaultsStorage` allows for faster, out-of-the-box, testing, although it's not recommended for production as private cookies are not encrypted.  
 - `KeychainStorage`, requiring you to add **ComposableStorageCrypto**, (**preferred**) stores them safely in the user's keychain.  
+-->

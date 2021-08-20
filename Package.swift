@@ -14,22 +14,24 @@ let package = Package(
                 .watchOS("6.0")],
     // Exposed libraries.
     products: [.library(name: "Requests",
-                        targets: ["ComposableRequest"]),
+                        targets: ["Requests"]),
                .library(name: "Storage",
-                        targets: ["ComposableStorage"]),
+                        targets: ["Storage"]),
                .library(name: "StorageCrypto",
-                        targets: ["ComposableStorageCrypto"])],
+                        targets: ["StorageCrypto"])],
     // Package dependencies.
     dependencies: [.package(url: "https://github.com/kishikawakatsumi/KeychainAccess",
                             .upToNextMinor(from: "4.2.2"))],
     // All targets.
-    targets: [.target(name: "ComposableRequest"),
-              .target(name: "ComposableStorage",
+    targets: [.target(name: "Core"),
+              .target(name: "Requests",
+                      dependencies: ["Core"]),
+              .target(name: "Storage",
                       dependencies: []),
-              .target(name: "ComposableStorageCrypto",
-                      dependencies: ["ComposableStorage", "KeychainAccess"]),
+              .target(name: "StorageCrypto",
+                      dependencies: ["Storage", "KeychainAccess"]),
               .testTarget(name: "ComposableRequestTests",
-                          dependencies: ["ComposableRequest", "ComposableStorage", "ComposableStorageCrypto"])]
+                          dependencies: ["Requests", "Storage", "StorageCrypto"])]
 )
 
 if ProcessInfo.processInfo.environment["TARGETING_WATCHOS"] == "true" {

@@ -24,7 +24,7 @@ public protocol ComposableOptionalType: ComposableNonNilType {
     var composableOptional: Wrapped? { get }
 }
 
-extension ComposableOptionalType {
+public extension ComposableOptionalType {
     /// Flat map the current value.
     ///
     /// - parameter transformer: A valid mapper.

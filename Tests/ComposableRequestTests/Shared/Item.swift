@@ -7,8 +7,8 @@
 
 import Foundation
 
-import ComposableRequest
-import ComposableStorage
+import Requests
+import Storage
 
 /// A `struct` defining a `Storable`.
 internal struct Item: Equatable, Codable, Storable {

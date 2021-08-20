@@ -14,5 +14,15 @@ public extension Request {
         public let data: Data
         /// An optional `URLResponse`.
         public let response: URLResponse
+
+        /// Init.
+        ///
+        /// - parameters:
+        ///     - data: Some valid `Data`.
+        ///     - response: A valid `URLResponse`.
+        public init(data: Data, response: URLResponse) {
+            self.data = data
+            self.response = response
+        }
     }
 }

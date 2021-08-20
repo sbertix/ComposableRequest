@@ -11,7 +11,7 @@ import Combine
 import Foundation
 import XCTest
 
-@testable import ComposableRequest
+@testable import Requests
 
 internal final class RequestTests: XCTestCase {
     #if canImport(Combine)
@@ -31,7 +31,6 @@ internal final class RequestTests: XCTestCase {
     func testAsyncRequest() async throws {
         let response = try await Request.endpoint()
             .prepare(with: .async(session: .shared))
-            .value
         XCTAssertEqual(response, 2)
     }
     // swiftlint:enable empty_xctest_method
@@ -44,7 +43,6 @@ internal final class RequestTests: XCTestCase {
         let expectation = XCTestExpectation()
         Request.endpoint()
             .prepare(with: URLSessionCombineRequester(session: .shared))
-            .publisher
             .sink(receiveCompletion: {
                 if case .failure(let error) = $0 { XCTFail(error.localizedDescription) }
                 expectation.fulfill()
@@ -73,7 +71,14 @@ internal final class RequestTests: XCTestCase {
 
 fileprivate extension Request {
     /// The endpoint alias.
-    typealias Endpoint<R: Requester> = R.Output.Map<Data>.FlatMap<Wrapper>.Map<Bool>.Switch<R.Output.Map<Int>>
+    typealias Endpoint<R: Requester> = R.Output
+        .Map<Data>
+        .FlatMap<Wrapper>
+        .Map<String>
+        .FlatMap<Data>
+        .FlatMap<String>
+        .Map<Bool>
+        .Switch<R.Output.Map<Int>>
 
     /// Prepare a random endpoint.
     ///
@@ -84,7 +89,10 @@ fileprivate extension Request {
                 .prepare(with: requester)
                 .map(\.data)
                 .decode()
-                .map { $0["string"].string(converting: true) == "A random string." }
+                .map { $0["string"].string(converting: true) ?? "" }
+                .encode(encoder: JSONEncoder())
+                .decode(type: String.self, decoder: JSONDecoder())
+                .map { $0 == "A random string." }
                 .switch { _ in
                     Request("https://google.com")
                         .prepare(with: requester)

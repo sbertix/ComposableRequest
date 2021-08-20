@@ -12,7 +12,7 @@ public protocol RequesterProvider: Provider where Output: Receivable {
     /// Update the requester.
     ///
     /// - parameter input: A valid `Input`.
-    /// - returns: Some `Content`.
+    /// - returns: Some `Output`.
     func prepare(with requester: Input) -> Output
 }
 
@@ -20,7 +20,7 @@ public extension RequesterProvider {
     /// Update the requester.
     ///
     /// - parameter input: A valid `Input`.
-    /// - returns: Some `Content`.
+    /// - returns: Some `Output`.
     func prepare(with requester: Input) -> Output {
         Self.generate(self, from: requester)
     }
@@ -28,7 +28,7 @@ public extension RequesterProvider {
 
 public extension Providers {
     /// A `struct` defining a requester provider.
-    struct Requester<Input: ComposableRequest.Requester, Output: Receivable>: RequesterProvider {
+    struct Requester<Input: Requests.Requester, Output: Receivable>: RequesterProvider {
         /// The output generator.
         private let generator: (Input) -> Output
 

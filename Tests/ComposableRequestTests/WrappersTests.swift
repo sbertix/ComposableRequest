@@ -12,12 +12,12 @@ import XCTest
 import CoreGraphics
 #endif
 
-@testable import ComposableRequest
+@testable import Requests
 
 /// A `class` defining all models test cases.
 internal final class WrappersTests: XCTestCase {
     /// A `struct` defining a custom `Wrapped`.
-    private struct Wrapped: ComposableRequest.Wrapped {
+    private struct Wrapped: Requests.Wrapped {
         /// The underlying wrapper.
         var wrapper: () -> Wrapper
 

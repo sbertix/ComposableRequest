@@ -14,9 +14,9 @@ public enum Providers { }
 public extension Providers {
     /// A `typealias` for a composition of `Providers.Lock`,
     /// `Providers.Offset` and `Providers.Requester`.
-    typealias LockOffsetRequester<I1, I2, I3: ComposableRequest.Requester, O: Receivable> = Lock<I1, Offset<I2, Requester<I3, O>>>
+    typealias LockOffsetRequester<I1, I2, I3: Requests.Requester, O: Receivable> = Lock<I1, Offset<I2, Requester<I3, O>>>
 
     /// A `typealias` for a composition of `Providers.Lock` and `Providers.Requester`.
-    typealias LockRequester<I, I2: ComposableRequest.Requester, O: Receivable> = Lock<I, Requester<I2, O>>
+    typealias LockRequester<I, I2: Requests.Requester, O: Receivable> = Lock<I, Requester<I2, O>>
 }
 // swiftlint:enable line_length

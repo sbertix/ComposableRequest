@@ -54,8 +54,16 @@ extension URLSessionAsyncRequester: Requester {
     public static func prepare(_ request: Request, with requester: Self) -> Output {
         .init(priority: requester.input.priority) { () throws -> Request.Response in
             guard let request = Request.request(from: request) else { throw Request.Error.invalidRequest(request) }
-            let response = try await requester.input.session.data(for: request)
-            return .init(data: response.0, response: response.1)
+            requester.input.logger?.log(request)
+            do {
+                let result = try await requester.input.session.data(for: request)
+                let response = Request.Response(data: result.0, response: result.1)
+                requester.input.logger?.log(.success(response))
+                return response
+            } catch {
+                requester.input.logger?.log(.failure(error))
+                throw error
+            }
         }
     }
 }

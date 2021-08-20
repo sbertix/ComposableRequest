@@ -16,6 +16,19 @@ public protocol URLSessionCombineReceivable: Receivable {
     var publisher: AnyPublisher<Success, Error> { get }
 }
 
+// MARK: Provider
+
+@available(iOS 13, macOS 10.15, tvOS 13, watchOS 6, *)
+public extension RequesterProvider where Output: URLSessionCombineReceivable {
+    /// Update the requester.
+    ///
+    /// - parameter input: A valid `Input`.
+    /// - returns: Some `Output.Success` publisher.
+    func prepare(with requester: Input) -> AnyPublisher<Output.Success, Error> {
+        prepare(with: requester).publisher
+    }
+}
+
 // MARK: Receivables
 
 @available(iOS 13, macOS 10.15, tvOS 13, watchOS 6, *)

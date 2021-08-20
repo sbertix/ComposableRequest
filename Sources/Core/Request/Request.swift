@@ -23,7 +23,7 @@ public struct Request {
     /// Init.
     ///
     /// - parameter request: A concreate instance of `URLRequestRepresentable`.
-    init<R: URLRequestRepresentable>(_ request: R) {
+    public init<R: URLRequestRepresentable>(_ request: R) {
         let request = R.request(from: request)
         self.components = request?.url.flatMap { URLComponents(url: $0, resolvingAgainstBaseURL: false) }
         self.method = request?.httpMethod.flatMap(HTTPMethod.init) ?? .default
@@ -40,11 +40,11 @@ public struct Request {
     ///     - header: A valid `String` dictionary. Defaults to an empty one.
     ///     - body: Some optional `Data`. Defaults to `nil`.
     ///     - timeout: A valid `TimeInterval`. Defaults to `15`.
-    init<C: URLComponentsRepresentable>(_ components: C,
-                                        method: HTTPMethod = .default,
-                                        header: [String: String] = [:],
-                                        body: Data? = nil,
-                                        timeout: TimeInterval = 15) {
+    public init<C: URLComponentsRepresentable>(_ components: C,
+                                               method: HTTPMethod = .default,
+                                               header: [String: String] = [:],
+                                               body: Data? = nil,
+                                               timeout: TimeInterval = 15) {
         self.components = C.components(from: components)
         self.method = method
         self.header = header
@@ -61,12 +61,12 @@ public struct Request {
     ///     - header: A valid `String` dictionary. Defaults to an empty one.
     ///     - body: Some optional `Data`. Defaults to `nil`.
     ///     - timeout: A valid `TimeInterval`. Defaults to `15`.
-    init<U: URLRepresentable>(_ url: U,
-                              query: [String: String] = [:],
-                              method: HTTPMethod = .default,
-                              header: [String: String] = [:],
-                              body: Data? = nil,
-                              timeout: TimeInterval = 15) {
+    public init<U: URLRepresentable>(_ url: U,
+                                     query: [String: String] = [:],
+                                     method: HTTPMethod = .default,
+                                     header: [String: String] = [:],
+                                     body: Data? = nil,
+                                     timeout: TimeInterval = 15) {
         self.components = U.url(from: url).flatMap {
             var components = URLComponents(url: $0, resolvingAgainstBaseURL: false)
             components?.queryItems = query.isEmpty

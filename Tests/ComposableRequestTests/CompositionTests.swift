@@ -7,7 +7,7 @@
 
 import XCTest
 
-@testable import ComposableRequest
+@testable import Requests
 
 /// A `class` defining tests for composition `protocol`s.
 internal final class CompositionTests: XCTestCase {
@@ -77,13 +77,13 @@ internal final class CompositionTests: XCTestCase {
         XCTAssert(HTTPMethod.default.rawValue.isEmpty)
 
         /// The actual test.
-        func test(_ item: ComposableRequest.Method) {
+        func test(_ item: Requests.Method) {
             XCTAssert(item.method(.connect).method == .connect)
         }
 
         let request = Request("https://google.com")
         test(request)
-        test(request as ComposableRequest.Method)
+        test(request as Requests.Method)
     }
 
     /// Test `Path`.

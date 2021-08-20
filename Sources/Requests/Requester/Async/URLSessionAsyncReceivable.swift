@@ -34,6 +34,20 @@ public extension URLSessionAsyncReceivable {
     }
 }
 
+// MARK: Provider
+
+@available(iOS 15, macOS 12, watchOS 8, tvOS 15, *)
+public extension RequesterProvider where Output: URLSessionAsyncReceivable {
+    /// Update the requester.
+    ///
+    /// - parameter input: A valid `Input`.
+    /// - returns: Some `Output.Success`.
+    /// - throws: Some `Error`.
+    func prepare(with requester: Input) async throws -> Output.Success {
+        try await prepare(with: requester).value
+    }
+}
+
 // MARK: Receivables
 
 @available(iOS 15, macOS 12, watchOS 8, tvOS 15, *)

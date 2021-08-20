@@ -5,8 +5,9 @@
 //  Created by Stefano Bertagno on 06/05/2020.
 //
 
-@testable import ComposableRequest
 import XCTest
+
+@testable import Requests
 
 internal final class ExtensionsTests: XCTestCase {
     /// Test `ComposableOptionalType`.
