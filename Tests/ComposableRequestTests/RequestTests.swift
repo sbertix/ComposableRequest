@@ -45,12 +45,12 @@ internal final class RequestTests: XCTestCase {
         Request.endpoint()
             .prepare(with: URLSessionCombineRequester(session: .shared))
             .publisher
-            .sink {
+            .sink(receiveCompletion: {
                 if case .failure(let error) = $0 { XCTFail(error.localizedDescription) }
                 expectation.fulfill()
-            } receiveValue: {
+            }, receiveValue: {
                 XCTAssertEqual($0, 2)
-            }
+            })
             .store(in: &bin)
         wait(for: [expectation], timeout: 5)
     }
@@ -61,21 +61,24 @@ internal final class RequestTests: XCTestCase {
         let expectation = XCTestExpectation()
         Request.endpoint()
             .prepare(with: URLSessionCompletionRequester(session: .shared))
-            .onSuccess {
+            .onSuccess({
                 XCTAssertEqual($0, 2); expectation.fulfill()
-            } onFailure: {
+            }, onFailure: {
                 XCTFail($0.localizedDescription)
-            }
+            })
             .resume()
         wait(for: [expectation], timeout: 5)
     }
 }
 
 fileprivate extension Request {
+    /// The endpoint alias.
+    typealias Endpoint<R: Requester> = R.Output.Map<Data>.FlatMap<Wrapper>.Map<Bool>.Switch<R.Output.Map<Int>>
+
     /// Prepare a random endpoint.
     ///
     /// - returns: Some `Receivable`.
-    static func endpoint<R: Requester>() -> Providers.Requester<R, R.Output.Map<Data>.FlatMap<Wrapper>.Map<Bool>.Switch<R.Output.Map<Int>>> {
+    static func endpoint<R: Requester>() -> Providers.Requester<R, Endpoint<R>> {
         .init { requester in
             Request("https://gist.githubusercontent.com/sbertix/8959f2534f815ee3f6018965c6c5f9e2/raw/ce697fafd1b34ad90cccd9a919a9b0b48574e1ac/Test.json")
                 .prepare(with: requester)

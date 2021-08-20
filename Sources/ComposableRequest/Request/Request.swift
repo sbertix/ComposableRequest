@@ -25,7 +25,7 @@ public struct Request {
     /// - parameter request: A concreate instance of `URLRequestRepresentable`.
     init<R: URLRequestRepresentable>(_ request: R) {
         let request = R.request(from: request)
-        self.components = request?.url.flatMap { .init(url: $0, resolvingAgainstBaseURL: false) }
+        self.components = request?.url.flatMap { URLComponents(url: $0, resolvingAgainstBaseURL: false) }
         self.method = request?.httpMethod.flatMap(HTTPMethod.init) ?? .default
         self.header = request?.allHTTPHeaderFields ?? [:]
         self.body = request?.httpBody

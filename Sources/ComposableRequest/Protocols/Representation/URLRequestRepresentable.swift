@@ -24,7 +24,7 @@ public extension URLRequestRepresentable {
     /// - parameter convertible: A valid `Self`.
     /// - returns: An optional `URLComponents`.
     static func components(from convertible: Self) -> URLComponents? {
-        request(from: convertible)?.url.flatMap { .init(url: $0, resolvingAgainstBaseURL: false) }
+        request(from: convertible)?.url.flatMap { URLComponents(url: $0, resolvingAgainstBaseURL: false) }
     }
 
     /// Compose an optional `URL`.

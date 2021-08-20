@@ -5,6 +5,9 @@
 //  Created by Stefano Bertagno on 19/08/21.
 //
 
+#if canImport(Combine)
+import Combine
+#endif
 import Foundation
 
 /// A `protocol` defining an instance returned by a `Requester`.
@@ -14,15 +17,18 @@ public protocol Receivable {
 }
 
 public extension Receivable {
+    #if canImport(Combine)
     /// Decode the underlying data.
     ///
     /// - parameters:
     ///     - type: A concrete implementation of `TopLevelDecoder`.
     ///     - decoder: A valid `Decoder`.
     /// - returns: Some `Receivable`.
+    @available(iOS 13, macOS 10.15, tvOS 13, watchOS 6, *)
     func decode<O: Decodable, D: TopLevelDecoder>(type: O.Type, decoder: D) -> Receivables.FlatMap<Self, O> where D.Input == Success {
         tryMap { try decoder.decode(type, from: $0) }
     }
+    #endif
 
     /// Flat map the current success.
     ///
@@ -89,6 +95,8 @@ public extension Receivable where Success == Data {
     }
 }
 
+#if canImport(Combine)
+@available(iOS 13, macOS 10.15, tvOS 13, watchOS 6, *)
 public extension Receivable where Success: Encodable {
     /// Encode the underlying value.
     ///
@@ -98,3 +106,4 @@ public extension Receivable where Success: Encodable {
         tryMap(encoder.encode)
     }
 }
+#endif

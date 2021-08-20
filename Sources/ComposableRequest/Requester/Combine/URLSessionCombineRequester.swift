@@ -51,12 +51,12 @@ extension URLSessionCombineRequester: Requester {
     ///     - requester: A valid `Self`.
     /// - returns: A valid `Output`.
     /// - note: This is implemented as a `static` function to hide its definition. Rely on `request.prepare(with:)` instead.
-    public static func prepare(_ request: Request, with requester: Self) -> Output {
-        .init(publisher: Just(request)
+    public static func prepare(_ endpoint: Request, with requester: Self) -> Output {
+        .init(publisher: Just(endpoint)
                 .setFailureType(to: Error.self)
                 .tryMap { request throws -> URLRequest in
                     guard let request = Request.request(from: request) else {
-                        throw Request.Error.invalidRequest(request)
+                        throw Request.Error.invalidRequest(endpoint)
                     }
                     return request
                 }

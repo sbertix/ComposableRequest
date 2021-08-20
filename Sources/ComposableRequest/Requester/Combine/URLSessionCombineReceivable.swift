@@ -22,7 +22,7 @@ public protocol URLSessionCombineReceivable: Receivable {
 extension Receivables.FlatMap: URLSessionCombineReceivable where Parent: URLSessionCombineReceivable {
     /// The underlying publisher.
     public var publisher: AnyPublisher<Success, Error> {
-        parent.publisher.tryMap { try mapper($0).get() }.eraseToAnyPublisher()
+        parent.publisher.tryMap { try self.mapper($0).get() }.eraseToAnyPublisher()
     }
 }
 
@@ -30,7 +30,7 @@ extension Receivables.FlatMap: URLSessionCombineReceivable where Parent: URLSess
 extension Receivables.FlatMapError: URLSessionCombineReceivable where Parent: URLSessionCombineReceivable {
     /// The underlying publisher.
     public var publisher: AnyPublisher<Success, Error> {
-        parent.publisher.catch { error in Future { $0(mapper(error)) } }.eraseToAnyPublisher()
+        parent.publisher.catch { error in Future { $0(self.mapper(error)) } }.eraseToAnyPublisher()
     }
 }
 
@@ -46,7 +46,7 @@ extension Receivables.Map: URLSessionCombineReceivable where Parent: URLSessionC
 extension Receivables.MapError: URLSessionCombineReceivable where Parent: URLSessionCombineReceivable {
     /// The underlying publisher.
     public var publisher: AnyPublisher<Parent.Success, Error> {
-        parent.publisher.catch { Fail(error: mapper($0)) }.eraseToAnyPublisher()
+        parent.publisher.catch { Fail(error: self.mapper($0)) }.eraseToAnyPublisher()
     }
 }
 
@@ -63,7 +63,7 @@ extension Receivables.Switch: URLSessionCombineReceivable
 where Parent: URLSessionCombineReceivable, Child: URLSessionCombineReceivable {
     /// The underlying publisher.
     public var publisher: AnyPublisher<Success, Error> {
-        parent.publisher.flatMap { generator($0).publisher }.eraseToAnyPublisher()
+        parent.publisher.flatMap { self.generator($0).publisher }.eraseToAnyPublisher()
     }
 }
 #endif

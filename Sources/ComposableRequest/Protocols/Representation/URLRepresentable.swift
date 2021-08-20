@@ -24,7 +24,7 @@ extension String: URLRepresentable {
     /// - parameter convertible: A valid `Self`.
     /// - returns: An optional `URL`.
     public static func url(from convertible: Self) -> URL? {
-        .init(string: convertible)
+        URL(string: convertible)
     }
 }
 

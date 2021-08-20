@@ -57,7 +57,7 @@ extension Receivables.FlatMap: URLSessionCompletionReceivable where Parent: URLS
         parent.handler.completion = {
             switch $0 {
             case .success(let success):
-                delegate.completion?(mapper(success))
+                delegate.completion?(self.mapper(success))
             case .failure(let failure):
                 delegate.completion?(.failure(failure))
             }
@@ -83,7 +83,7 @@ extension Receivables.FlatMapError: URLSessionCompletionReceivable where Parent:
             case .success(let success):
                 delegate.completion?(.success(success))
             case .failure(let failure):
-                delegate.completion?(mapper(failure))
+                delegate.completion?(self.mapper(failure))
             }
         }
         return delegate
@@ -105,7 +105,7 @@ extension Receivables.Map: URLSessionCompletionReceivable where Parent: URLSessi
         parent.handler.completion = {
             switch $0 {
             case .success(let success):
-                delegate.completion?(.success(mapper(success)))
+                delegate.completion?(.success(self.mapper(success)))
             case .failure(let failure):
                 delegate.completion?(.failure(failure))
             }
@@ -131,7 +131,7 @@ extension Receivables.MapError: URLSessionCompletionReceivable where Parent: URL
             case .success(let success):
                 delegate.completion?(.success(success))
             case .failure(let failure):
-                delegate.completion?(.failure(mapper(failure)))
+                delegate.completion?(.failure(self.mapper(failure)))
             }
         }
         return delegate
@@ -174,7 +174,7 @@ where Parent: URLSessionCompletionReceivable, Child: URLSessionCompletionReceiva
         parent.handler.completion = {
             switch $0 {
             case .success(let success):
-                generator(success).onResult { delegate.completion?($0) }.resume()
+                self.generator(success).onResult { delegate.completion?($0) }.resume()
             case .failure(let failure):
                 delegate.completion?(.failure(failure))
             }
