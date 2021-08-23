@@ -7,21 +7,17 @@
 
 #if canImport(Combine)
 import Combine
-#endif
 import Foundation
 import XCTest
 
 @testable import Requests
 
+@available(iOS 13, macOS 10.15, tvOS 13, watchOS 6, *)
 internal final class RequestTests: XCTestCase {
-    #if canImport(Combine)
     private var bin: Set<AnyCancellable>!
-    #endif
 
     override func setUp() {
-        #if canImport(Combine)
         bin = []
-        #endif
     }
 
     #if swift(>=5.5)
@@ -66,8 +62,6 @@ internal final class RequestTests: XCTestCase {
     // swiftlint:enable empty_xctest_method
     #endif
 
-    #if canImport(Combine)
-    @available(iOS 13, macOS 10.15, tvOS 13, watchOS 6, *)
     /// Test combine.
     func testCombineRequest() {
         let expectation = XCTestExpectation()
@@ -83,7 +77,6 @@ internal final class RequestTests: XCTestCase {
         wait(for: [expectation], timeout: 5)
     }
 
-    @available(iOS 13, macOS 10.15, tvOS 13, watchOS 6, *)
     /// Test combine.
     func testCombineConditionalRequest() {
         let expectations = [XCTestExpectation(description: "true"),
@@ -109,7 +102,6 @@ internal final class RequestTests: XCTestCase {
         wait(for: expectations, timeout: 10)
     }
 
-    @available(iOS 13, macOS 10.15, tvOS 13, watchOS 6, *)
     /// Test combine.
     func testCombinePaginatedRequest() {
         let count = 5
@@ -127,7 +119,6 @@ internal final class RequestTests: XCTestCase {
         wait(for: expectations, timeout: 5 * TimeInterval(count))
     }
 
-    @available(iOS 13, macOS 10.15, tvOS 13, watchOS 6, *)
     /// Test combine.
     func testCombineRequestedRequest() {
         let expectation = XCTestExpectation()
@@ -142,7 +133,6 @@ internal final class RequestTests: XCTestCase {
             .store(in: &bin)
         wait(for: [expectation], timeout: 5)
     }
-    #endif
 
     /// Test completion.
     func testCompletionRequest() {
@@ -239,6 +229,7 @@ fileprivate extension Request {
     /// Prepare a random endpoint.
     ///
     /// - returns: Some `Receivable`.
+    @available(iOS 13, macOS 10.15, tvOS 13, watchOS 6, *)
     static func endpoint<R: Requester>() -> Providers.Requester<R, Endpoint<R>> {
         .init { requester in
             Request("https://gist.githubusercontent.com/sbertix/8959f2534f815ee3f6018965c6c5f9e2/raw/ce697fafd1b34ad90cccd9a919a9b0b48574e1ac/Test.json")
@@ -298,6 +289,7 @@ fileprivate extension Request {
     /// Prepare a type-erased endpoint.
     ///
     /// - returns: Some `Receivable`.
+    @available(iOS 13, macOS 10.15, tvOS 13, watchOS 6, *)
     static func requestedEndpoint<R: Requester>() -> Providers.Requester<R, R.Requested<Int>> {
         .init {
             endpoint()
@@ -306,3 +298,4 @@ fileprivate extension Request {
         }
     }
 }
+#endif

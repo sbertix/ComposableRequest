@@ -136,7 +136,11 @@ where Parent: URLSessionCompletionReceivable, Child: URLSessionCompletionReceiva
         response.handler.completion = {
             switch $0 {
             case .success(let success):
-                self.generator(success).onResult { handler.completion?($0) }.resume()
+                do {
+                    try self.generator(success).onResult { handler.completion?($0) }.resume()
+                } catch {
+                    handler.completion?(.failure(error))
+                }
             case .failure(let failure):
                 handler.completion?(.failure(failure))
             }

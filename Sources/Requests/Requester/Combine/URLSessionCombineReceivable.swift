@@ -152,7 +152,13 @@ extension Receivables.Switch: URLSessionCombineReceivable, URLSessionCombineMock
 where Parent: URLSessionCombineReceivable, Child: URLSessionCombineReceivable {
     /// The underlying response.
     public var response: URLSessionCombineRequester.Response<Success> {
-        .init(publisher: parent.publisher.flatMap { self.generator($0).publisher })
+        .init(publisher: parent.publisher.flatMap { publisher -> AnyPublisher<Success, Error> in
+            do {
+                return try self.generator(publisher).publisher.eraseToAnyPublisher()
+            } catch {
+                return Fail(error: error).eraseToAnyPublisher()
+            }
+        })
     }
 }
 #endif

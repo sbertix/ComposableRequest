@@ -81,7 +81,7 @@ public extension Receivable {
     ///
     /// - parameter generator: A valid child generator.
     /// - returns: Some `Receivable`.
-    func `switch`<C: Receivable>(to generator: @escaping (Success) -> C) -> Receivables.Switch<Self, C> {
+    func `switch`<C: Receivable>(to generator: @escaping (Success) throws -> C) -> Receivables.Switch<Self, C> {
         .init(parent: self, generator: generator)
     }
 

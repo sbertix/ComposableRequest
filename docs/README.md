@@ -56,8 +56,6 @@ Furthermore, with the integration of the **Swift Package Manager** in **Xcode 11
     </p>
 </details>
 
-<!-- WIP 
-
 ## Usage
 
 Check out [**Swiftagram**](https://github.com/sbertix/Swiftagram) or visit the (_auto-generated_) documentation for [**Requests**](https://sbertix.github.io/ComposableRequest/Requests/), [**Storage**](https://sbertix.github.io/ComposableRequest/Storage/) and [**StorageCrypto**](https://sbertix.github.io/ComposableRequest/StorageCrypto/) to learn about use cases.  
@@ -67,60 +65,58 @@ Check out [**Swiftagram**](https://github.com/sbertix/Swiftagram) or visit the (
 As an implementation example, we can display some code related to the Instagram endpoint tasked with deleting a post.
 
 ```swift
-/// A `module`-like `enum`.
-public enum MediaEndpoint {
+public extension Request {
+    /// An enum listing an error.
+    enum DeleteError: Swift.Error { case invalid }
+    
     /// Delete one of your own posts, matching `identifier`.
     /// Checkout https://github.com/sbertix/Swiftagram for more info.
     ///
     /// - parameter identifier: String
     /// - returns: A locked `AnyObservable`, waiting for authentication `HTTPCookie`s.
-    public func delete(_ identifier: String) -> LockSessionProvider<[HTTPCookie], AnyPublisher<Bool, Error>> {
+    func delete<R: Requester>(_ identifier: String) -> Providers.LockRequester<[HTTPCookie], R, R.Requested<Bool>> {
         // Wait for user defined values.
-        LockSessionProvider { cookies, session in
-            // Defer it so it only resumes when observed.
-            Deferred {
-                // Fetch first info about the post to learn if it's a video or picture
-                // as they have slightly different endpoints for deletion.
-                Request("https://i.instagram.com/api/v1/media")
-                    .path(appending: identifier)
-                    .info   // Equal to `.path(appending: "info")`.
-                    // Wait for the user to `inject` an array of `HTTPCookie`s.
-                    // You should implement your own `model` to abstract away
-                    // authentication cookies, but as this is just an example
-                    // we leave it to you.
-                    .header(appending: HTTPCookie.requestHeaderFields(with: cookies))
-                    // Create the `Publisher`.
-                    .publish(with: session)
-                    // Check it returned a valid media.
-                    .map(\.data)
-                    // Decode it inside a `Wrapper`, allowing to interrogate JSON
-                    // representations of object without knowing them in advance.
-                    // (It's literally the missing `AnyCodable`).
-                    .wrap()
-                    // Prepare the new request.
-                    .flatMap { wrapper -> AnyPublisher<Bool, Error> in
-                        guard let type = wrapper["items"][0].mediaType.int(),
-                              [1, 2, 8].contains(type) else {
-                            return Just(false).setFailureType(to: Failure.self).eraseToAnyPublisher()
-                        }
-                        // Actually delete it now that we have all data.
-                        return Request("https://i.instagram.com/api/v1/media")
-                            .path(appending: identifier)
-                            .path(appending: "delete/")
-                            .query(appending: type == 2 ? "VIDEO" : "PHOTO", forKey: "media_type")
-                            // This will be applied exactly as before, but you can add whaterver
-                            // you need to it, as it will only affect this `Request`.
-                            .header(appending: HTTPCookie.requestHeaderFields(with: cookies))
-                            // Create the `Publisher`.
-                            .publish(with: session)
-                            .map(\.data)
-                            .wrap()
-                            .map { $0.status == "ok" }
+        .init { cookies, requester in
+            // Fetch first info about the post to learn if it's a video or picture
+            // as they have slightly different endpoints for deletion.
+            Request("https://i.instagram.com/api/v1/media")
+                .path(appending: identifier)
+                .info   // Equal to `.path(appending: "info")`.
+                // Wait for the user to `inject` an array of `HTTPCookie`s.
+                // You should implement your own `model` to abstract away
+                // authentication cookies, but as this is just an example
+                // we leave it to you.
+                .header(appending: HTTPCookie.requestHeaderFields(with: cookies))
+                // Prepare for the actual request.
+                .prepare(with: requester)
+                // Check it returned a valid media.
+                .map(\.data)
+                // Decode it inside a `Wrapper`, allowing to interrogate JSON
+                // representations of object without knowing them in advance.
+                // (It's literally the missing `AnyCodable`).
+                .decode()
+                // Switch to a new request.
+                .switch { wrapper throws -> R.Requested<Bool> in
+                    guard let type = wrapper["items"][0].mediaType.int(),
+                          [1, 2, 8].contains(type) else {
+                        throw DeleteError.invalid
                     }
-            }
-            // Make sure it's observed from the main thread.
-            .receive(on: .main)
-            .eraseToAnyPublisher()
+                    // Actually delete it now that we have all data.
+                    return Request("https://i.instagram.com/api/v1/media")
+                        .path(appending: identifier)
+                        .path(appending: "delete/")
+                        .query(appending: type == 2 ? "VIDEO" : "PHOTO", forKey: "media_type")
+                        // This will be applied exactly as before, but you can add whaterver
+                        // you need to it, as it will only affect this `Request`.
+                        .header(appending: HTTPCookie.requestHeaderFields(with: cookies))
+                        // Create the `Publisher`.
+                        .prepare(with: requester)
+                        .map(\.data)
+                        .decode()
+                        .map { $0.status == "ok" }
+                        .requested(by: requester)
+                }
+                .requested(by: requester)
         }
     }
 }
@@ -140,19 +136,35 @@ let cookies: [HTTPCookie] = /* an array of HTTPCookies */
 /// A *retained* collection of `AnyCancellable`s.
 var bin: Set<AnyCancellable> = []
 
-/// Delete it.
-MediaEndpoint.delete(identifier)
+/// Delete it using completion handlers.
+Request.delete(identifier)
     .unlock(with: cookies)
-    .session(.shared)
-    .sink(receiveCompletion: { _ in }, receiveValue: { print($0) })
+    .prepare(with: URLSessionCompletionRequester(session: .shared))
+    .onSuccess { _ in } onFailure: { _ in }
+    .resume()
+    
+[…]
+
+/// Delete it using **Combine**.
+Request.delete(identifier)
+    .unlock(with: cookies)
+    .prepare(with: URLSessionCombineRequester(session: .shared))    
+    .sink { _ in } receiveValue: { print($0) }
     .store(in: &bin)
+
+[…]
+
+/// Delete it using _async/await_.
+let result = try await Request.delete(identifier)
+    .unlock(with: cookies)
+    .prepare(with: .async(session: .shared))
 ```
 
 ### Resume and cancel requests
 
 > What about cancelling the request, or starting it a later date?
 
-As **ComposableRequest** is based on the **Combine** runtime, you can simply `cancel` the `Cancellable` returned on `sink`, or emptying the "dispose bag"-like `Set` you've stored it in.
+Concrete implementation of `Receivable` might implement suspension and cancellation through their underlying types (like `URLSessionDataTask` or `Cancellable`).  
 
 ### Caching
 Caching of `Storable`s is provided through conformance to the `Storage` protocol, specifically by implementing either `ThrowingStorage` or `NonThrowingStorage`.  

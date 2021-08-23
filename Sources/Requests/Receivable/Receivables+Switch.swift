@@ -13,7 +13,7 @@ public extension Receivables {
         /// The parent.
         public let parent: Parent
         /// The child generator.
-        public let generator: (Parent.Success) -> Child
+        public let generator: (Parent.Success) throws -> Child
 
         /// Init.
         ///
@@ -21,7 +21,7 @@ public extension Receivables {
         ///     - parent: A valid `Parent`.
         ///     - generator: A valid child generator.
         /// - note: Prefer `parent.switch(generator)` instead.
-        public init(parent: Parent, generator: @escaping (Parent.Success) -> Child) {
+        public init(parent: Parent, generator: @escaping (Parent.Success) throws -> Child) {
             self.parent = parent
             self.generator = generator
         }
