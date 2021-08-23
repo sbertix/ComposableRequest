@@ -55,6 +55,14 @@ internal final class RequestTests: XCTestCase {
             .prepare(with: .async(session: .shared))
         XCTAssertEqual(response, 0)
     }
+
+    @available(iOS 15, macOS 12, watchOS 8, tvOS 15, *)
+    /// Test requested structured concurrency.
+    func testAsyncRequestedRequest() async throws {
+        let response = try await Request.requestedEndpoint()
+            .prepare(with: .async(session: .shared))
+        XCTAssertEqual(response, 2)
+    }
     // swiftlint:enable empty_xctest_method
     #endif
 
@@ -78,7 +86,6 @@ internal final class RequestTests: XCTestCase {
     @available(iOS 13, macOS 10.15, tvOS 13, watchOS 6, *)
     /// Test combine.
     func testCombineConditionalRequest() {
-        let count = 5
         let expectations = [XCTestExpectation(description: "true"),
                             XCTestExpectation(description: "false")]
         Request.endpoint(true)
@@ -99,7 +106,7 @@ internal final class RequestTests: XCTestCase {
                 expectations.last?.fulfill()
             })
             .store(in: &bin)
-        wait(for: expectations, timeout: 5 * TimeInterval(count))
+        wait(for: expectations, timeout: 10)
     }
 
     @available(iOS 13, macOS 10.15, tvOS 13, watchOS 6, *)
@@ -118,6 +125,22 @@ internal final class RequestTests: XCTestCase {
             })
             .store(in: &bin)
         wait(for: expectations, timeout: 5 * TimeInterval(count))
+    }
+
+    @available(iOS 13, macOS 10.15, tvOS 13, watchOS 6, *)
+    /// Test combine.
+    func testCombineRequestedRequest() {
+        let expectation = XCTestExpectation()
+        Request.requestedEndpoint()
+            .prepare(with: URLSessionCombineRequester(session: .shared))
+            .sink(receiveCompletion: {
+                if case .failure(let error) = $0 { XCTFail(error.localizedDescription) }
+                expectation.fulfill()
+            }, receiveValue: {
+                XCTAssertEqual($0, 2)
+            })
+            .store(in: &bin)
+        wait(for: [expectation], timeout: 5)
     }
     #endif
 
@@ -168,6 +191,20 @@ internal final class RequestTests: XCTestCase {
             .prepare(with: URLSessionCompletionRequester(session: .shared))
             .onSuccess({
                 XCTAssertEqual($0, 0); expectation.fulfill()
+            }, onFailure: {
+                XCTFail($0.localizedDescription)
+            })
+            .resume()
+        wait(for: [expectation], timeout: 5)
+    }
+
+    /// Test requested completion.
+    func testRequestedCompletionRequest() {
+        let expectation = XCTestExpectation()
+        Request.requestedEndpoint()
+            .prepare(with: URLSessionCompletionRequester(session: .shared))
+            .onSuccess({
+                XCTAssertEqual($0, 2); expectation.fulfill()
             }, onFailure: {
                 XCTFail($0.localizedDescription)
             })
@@ -255,6 +292,17 @@ fileprivate extension Request {
                         .prepare(with: requester)
                         .map { _ in 0 }
                   })
+        }
+    }
+
+    /// Prepare a type-erased endpoint.
+    ///
+    /// - returns: Some `Receivable`.
+    static func requestedEndpoint<R: Requester>() -> Providers.Requester<R, R.Requested<Int>> {
+        .init {
+            endpoint()
+                .prepare(with: $0)
+                .requested(by: $0)
         }
     }
 }

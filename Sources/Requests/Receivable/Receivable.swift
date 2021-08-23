@@ -69,6 +69,14 @@ public extension Receivable {
         .init(parent: self)
     }
 
+    /// Type-erase the current receivable.
+    ///
+    /// - parameter requester: A concrete implementation of `Requester`.
+    /// - returns: Some `Receivable`.
+    func requested<R: Requester>(by requester: R) -> Receivables.Requested<R, Success> {
+        .init(reference: self)
+    }
+
     /// Switch to a new receivable.
     ///
     /// - parameter generator: A valid child generator.

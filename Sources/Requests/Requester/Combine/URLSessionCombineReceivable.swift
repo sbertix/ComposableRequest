@@ -9,15 +9,31 @@
 import Combine
 import Foundation
 
+/// A `protocol` defining a mock `URLSessionCombineReceivable`.
+@available(iOS 13, macOS 10.15, tvOS 13, watchOS 6, *)
+public protocol URLSessionCombineMockReceivable {
+    // swiftlint:disable identifier_name
+    /// The underlying mock response.
+    var _mockResponse: Any { get }
+    // swiftlint:enable identifier_name
+}
+
 @available(iOS 13, macOS 10.15, tvOS 13, watchOS 6, *)
 /// A `protocol` defining a generic combine receivable.
-public protocol URLSessionCombineReceivable: Receivable {
+public protocol URLSessionCombineReceivable: Receivable, URLSessionCombineMockReceivable {
     /// The underlying response.
     var response: URLSessionCombineRequester.Response<Success> { get }
 }
 
 @available(iOS 13, macOS 10.15, tvOS 13, watchOS 6, *)
 public extension URLSessionCombineReceivable {
+    // swiftlint:disable identifier_name
+    /// The underlying mock response.
+    var _mockResponse: Any {
+        response
+    }
+    // swiftlint:enable identifier_name
+
     /// The underlying publisher.
     var publisher: AnyPublisher<Success, Error> {
         response.publisher
@@ -40,7 +56,8 @@ public extension RequesterProvider where Output: URLSessionCombineReceivable {
 // MARK: Receivables
 
 @available(iOS 13, macOS 10.15, tvOS 13, watchOS 6, *)
-extension Receivables.FlatMap: URLSessionCombineReceivable where Parent: URLSessionCombineReceivable {
+extension Receivables.FlatMap: URLSessionCombineReceivable, URLSessionCombineMockReceivable
+where Parent: URLSessionCombineReceivable {
     /// The underlying response.
     public var response: URLSessionCombineRequester.Response<Success> {
         .init(publisher: parent.publisher.tryMap { try self.mapper($0).get() })
@@ -48,7 +65,8 @@ extension Receivables.FlatMap: URLSessionCombineReceivable where Parent: URLSess
 }
 
 @available(iOS 13, macOS 10.15, tvOS 13, watchOS 6, *)
-extension Receivables.FlatMapError: URLSessionCombineReceivable where Parent: URLSessionCombineReceivable {
+extension Receivables.FlatMapError: URLSessionCombineReceivable, URLSessionCombineMockReceivable
+where Parent: URLSessionCombineReceivable {
     /// The underlying response.
     public var response: URLSessionCombineRequester.Response<Success> {
         .init(publisher: parent.publisher.catch { error in Future { $0(self.mapper(error)) } })
@@ -56,7 +74,7 @@ extension Receivables.FlatMapError: URLSessionCombineReceivable where Parent: UR
 }
 
 @available(iOS 13, macOS 10.15, tvOS 13, watchOS 6, *)
-extension Receivables.If: URLSessionCombineReceivable
+extension Receivables.If: URLSessionCombineReceivable, URLSessionCombineMockReceivable
 where O1: URLSessionCombineReceivable, O2: URLSessionCombineReceivable {
     /// The underlying response.
     public var response: URLSessionCombineRequester.Response<Success> {
@@ -65,7 +83,8 @@ where O1: URLSessionCombineReceivable, O2: URLSessionCombineReceivable {
 }
 
 @available(iOS 13, macOS 10.15, tvOS 13, watchOS 6, *)
-extension Receivables.Map: URLSessionCombineReceivable where Parent: URLSessionCombineReceivable {
+extension Receivables.Map: URLSessionCombineReceivable, URLSessionCombineMockReceivable
+where Parent: URLSessionCombineReceivable {
     /// The underlying response.
     public var response: URLSessionCombineRequester.Response<Success> {
         .init(publisher: parent.publisher.map(mapper))
@@ -73,7 +92,8 @@ extension Receivables.Map: URLSessionCombineReceivable where Parent: URLSessionC
 }
 
 @available(iOS 13, macOS 10.15, tvOS 13, watchOS 6, *)
-extension Receivables.MapError: URLSessionCombineReceivable where Parent: URLSessionCombineReceivable {
+extension Receivables.MapError: URLSessionCombineReceivable, URLSessionCombineMockReceivable
+where Parent: URLSessionCombineReceivable {
     /// The underlying response.
     public var response: URLSessionCombineRequester.Response<Success> {
         .init(publisher: parent.publisher.catch { Fail(error: self.mapper($0)) })
@@ -81,7 +101,8 @@ extension Receivables.MapError: URLSessionCombineReceivable where Parent: URLSes
 }
 
 @available(iOS 13, macOS 10.15, tvOS 13, watchOS 6, *)
-extension Receivables.Pager: URLSessionCombineReceivable where Child: URLSessionCombineReceivable {
+extension Receivables.Pager: URLSessionCombineReceivable, URLSessionCombineMockReceivable
+where Child: URLSessionCombineReceivable {
     /// The underlying response.
     public var response: URLSessionCombineRequester.Response<Success> {
         .init(publisher: generator(offset)
@@ -107,7 +128,8 @@ extension Receivables.Pager: URLSessionCombineReceivable where Child: URLSession
 }
 
 @available(iOS 13, macOS 10.15, tvOS 13, watchOS 6, *)
-extension Receivables.Print: URLSessionCombineReceivable where Parent: URLSessionCombineReceivable {
+extension Receivables.Print: URLSessionCombineReceivable, URLSessionCombineMockReceivable
+where Parent: URLSessionCombineReceivable {
     /// The underlying response.
     public var response: URLSessionCombineRequester.Response<Success> {
         .init(publisher: parent.publisher.print())
@@ -115,7 +137,18 @@ extension Receivables.Print: URLSessionCombineReceivable where Parent: URLSessio
 }
 
 @available(iOS 13, macOS 10.15, tvOS 13, watchOS 6, *)
-extension Receivables.Switch: URLSessionCombineReceivable
+extension Receivables.Requested: URLSessionCombineReceivable, URLSessionCombineMockReceivable
+where Requester.Output: URLSessionCombineReceivable {
+    /// The underlying response.
+    public var response: URLSessionCombineRequester.Response<Success> {
+        // swiftlint:disable force_cast
+        (reference as! URLSessionCombineMockReceivable)._mockResponse as! URLSessionCombineRequester.Response<Success>
+        // swiftlint:enable force_cast
+    }
+}
+
+@available(iOS 13, macOS 10.15, tvOS 13, watchOS 6, *)
+extension Receivables.Switch: URLSessionCombineReceivable, URLSessionCombineMockReceivable
 where Parent: URLSessionCombineReceivable, Child: URLSessionCombineReceivable {
     /// The underlying response.
     public var response: URLSessionCombineRequester.Response<Success> {
