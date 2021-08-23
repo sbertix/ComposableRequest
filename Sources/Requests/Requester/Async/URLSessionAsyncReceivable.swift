@@ -11,8 +11,8 @@ import Foundation
 @available(iOS 15, macOS 12, watchOS 8, tvOS 15, *)
 /// A `protocol` defining a generic async receivable.
 public protocol URLSessionAsyncReceivable: Receivable {
-    /// The underlying task.
-    var task: Task<Success, Error> { get }
+    /// The underlying response.
+    var response: URLSessionAsyncRequester.Response<Success> { get }
 }
 
 // swiftlint:disable implicit_getter
@@ -20,17 +20,17 @@ public protocol URLSessionAsyncReceivable: Receivable {
 public extension URLSessionAsyncReceivable {
     /// Access the underlying value.
     var value: Success {
-        get async throws { try await task.value }
+        get async throws { try await response.task.value }
     }
 
     /// Access the underlying result.
     var result: Result<Success, Error> {
-        get async { await task.result }
+        get async { await response.task.result }
     }
 
     /// Cancel.
     func cancel() {
-        task.cancel()
+        response.task.cancel()
     }
 }
 
@@ -52,74 +52,67 @@ public extension RequesterProvider where Output: URLSessionAsyncReceivable {
 
 @available(iOS 15, macOS 12, watchOS 8, tvOS 15, *)
 extension Receivables.FlatMap: URLSessionAsyncReceivable where Parent: URLSessionAsyncReceivable {
-    /// The underlying task.
-    public var task: Task<Success, Error> {
-        .init { try await mapper(parent.task.value).get() }
+    /// The underlying response.
+    public var response: URLSessionAsyncRequester.Response<Success> {
+        parent.response.chain(mapper)
     }
 }
 
 @available(iOS 15, macOS 12, watchOS 8, tvOS 15, *)
 extension Receivables.FlatMapError: URLSessionAsyncReceivable where Parent: URLSessionAsyncReceivable {
-    /// The underlying task.
-    public var task: Task<Success, Error> {
-        .init {
-            switch await parent.task.result {
-            case .success(let success): return success
-            case .failure(let failure): return try mapper(failure).get()
-            }
-        }
+    /// The underlying response.
+    public var response: URLSessionAsyncRequester.Response<Success> {
+        parent.response.chain(mapper)
+    }
+}
+
+@available(iOS 15, macOS 12, watchOS 8, tvOS 15, *)
+extension Receivables.If: URLSessionAsyncReceivable where O1: URLSessionAsyncReceivable, O2: URLSessionAsyncReceivable {
+    /// The underlying response.
+    public var response: URLSessionAsyncRequester.Response<Success> {
+        condition ? trueGenerator().response : falseGenerator().response
     }
 }
 
 @available(iOS 15, macOS 12, watchOS 8, tvOS 15, *)
 extension Receivables.Map: URLSessionAsyncReceivable where Parent: URLSessionAsyncReceivable {
-    /// The underlying task.
-    public var task: Task<Success, Error> {
-        .init { try await mapper(parent.task.value) }
+    /// The underlying response.
+    public var response: URLSessionAsyncRequester.Response<Success> {
+        parent.response.chain { .success(self.mapper($0)) }
     }
 }
 
 @available(iOS 15, macOS 12, watchOS 8, tvOS 15, *)
 extension Receivables.MapError: URLSessionAsyncReceivable where Parent: URLSessionAsyncReceivable {
-    /// The underlying task.
-    public var task: Task<Success, Error> {
-        .init {
-            switch await parent.task.result {
-            case .success(let success): return success
-            case .failure(let failure): throw mapper(failure)
-            }
-        }
+    /// The underlying response.
+    public var response: URLSessionAsyncRequester.Response<Success> {
+        parent.response.chain { .failure(self.mapper($0)) }
+    }
+}
+
+@available(iOS 15, macOS 12, watchOS 8, tvOS 15, *)
+extension Receivables.Pager: URLSessionAsyncReceivable where Child: URLSessionAsyncReceivable {
+    /// The underlying response.
+    public var response: URLSessionAsyncRequester.Response<Success> {
+        precondition(count == 1, "`URLSessionAsyncReceivable` can only produce one result")
+        return generator(offset).response
     }
 }
 
 @available(iOS 15, macOS 12, watchOS 8, tvOS 15, *)
 extension Receivables.Print: URLSessionAsyncReceivable where Parent: URLSessionAsyncReceivable {
-    /// The underlying task.
-    public var task: Task<Success, Error> {
-        .init {
-            do {
-                let success = try await parent.task.value
-                Swift.print("success: \(success)")
-                return success
-            } catch {
-                Swift.print("failure: \(error)")
-                throw error
-            }
-        }
+    /// The underlying response.
+    public var response: URLSessionAsyncRequester.Response<Success> {
+        parent.response.chain { (result: Result<Success, Error>) in Swift.print(result); return result }
     }
 }
 
 @available(iOS 15, macOS 12, watchOS 8, tvOS 15, *)
 extension Receivables.Switch: URLSessionAsyncReceivable
 where Parent: URLSessionAsyncReceivable, Child: URLSessionAsyncReceivable {
-    /// The underlying task.
-    public var task: Task<Success, Error> {
-        .init {
-            switch await parent.task.result {
-            case .success(let success): return try await generator(success).value
-            case .failure(let failure): throw failure
-            }
-        }
+    /// The underlying response.
+    public var response: URLSessionAsyncRequester.Response<Success> {
+        parent.response.chain { await generator($0).result }
     }
 }
 // swiftlint:enable implicit_getter

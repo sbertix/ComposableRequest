@@ -8,27 +8,39 @@
 import Foundation
 
 /// A `protocol` defining a provider offset type.
-public protocol OffsetProvider: Provider {
+public protocol OffsetProvider: Provider where Input: PagerInput {
     /// Start at a given offset.
     ///
-    /// - parameter offset: A valid `Input`.
+    /// - parameter offset: A valid `Input.Offset`.
     /// - returns: Some `Content`.
-    func offset(_ offset: Input) -> Output
+    func offset(_ offset: Input.Offset) -> Output
 }
 
 public extension OffsetProvider {
     /// Start at a given offset.
     ///
-    /// - parameter offset: A valid `Input`.
+    /// - parameter offset: A valid `Input.Offset`.
     /// - returns: Some `Content`.
-    func offset(_ offset: Input) -> Output {
-        Self.generate(self, from: offset)
+    func offset(_ offset: Input.Offset) -> Output {
+        Self.generate(self, from: .init(offset: offset, count: 1))
+    }
+}
+
+public extension OffsetProvider where Output: Paginatable {
+    /// Start at a given offset and paginate from there.
+    ///
+    /// - parameters:
+    ///     - offset: A valid `Input.Offset`.
+    ///     - pages: A valid `Int`.
+    /// - returns: Some `Content`.
+    func offset(_ offset: Input.Offset, pages: Int) -> Output {
+        Self.generate(self, from: .init(offset: offset, count: pages))
     }
 }
 
 public extension Providers {
     /// A `struct` defining a page offseter.
-    struct Offset<Input, Output>: OffsetProvider {
+    struct Offset<Input: PagerInput, Output>: OffsetProvider {
         /// The output generator.
         private let generator: (Input) -> Output
 

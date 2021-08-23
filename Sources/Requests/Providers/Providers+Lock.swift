@@ -35,7 +35,7 @@ public extension LockProvider where Input == Void {
     }
 }
 
-public extension LockProvider where Output: OffsetProvider, Output.Input: ComposableOptionalType {
+public extension LockProvider where Output: OffsetProvider, Output.Input.Offset: ComposableOptionalType {
     /// Unlock.
     ///
     /// - parameter key: A valid `Input`.
@@ -45,7 +45,7 @@ public extension LockProvider where Output: OffsetProvider, Output.Input: Compos
     }
 }
 
-public extension LockProvider where Output: OffsetProvider, Output.Input == Void {
+public extension LockProvider where Output: OffsetProvider, Output.Input.Offset == Void {
     /// Unlock.
     ///
     /// - parameter key: A valid `Input`.
@@ -55,7 +55,7 @@ public extension LockProvider where Output: OffsetProvider, Output.Input == Void
     }
 }
 
-public extension LockProvider where Output: OffsetProvider, Input == Void, Output.Input: ComposableOptionalType {
+public extension LockProvider where Output: OffsetProvider, Input == Void, Output.Input.Offset: ComposableOptionalType {
     /// Unlock.
     ///
     /// - returns: Some `Content`.
@@ -64,7 +64,7 @@ public extension LockProvider where Output: OffsetProvider, Input == Void, Outpu
     }
 }
 
-public extension LockProvider where Output: OffsetProvider, Input == Void, Output.Input == Void {
+public extension LockProvider where Output: OffsetProvider, Input == Void, Output.Input.Offset == Void {
     /// Unlock.
     ///
     /// - returns: Some `Content`.
@@ -98,3 +98,5 @@ public extension Providers {
         }
     }
 }
+
+extension Providers.Lock: Paginatable where Output: Paginatable { }

@@ -27,11 +27,33 @@ internal final class RequestTests: XCTestCase {
     #if swift(>=5.5)
     // swiftlint:disable empty_xctest_method
     @available(iOS 15, macOS 12, watchOS 8, tvOS 15, *)
-    /// Test structured concurrencty.
+    /// Test structured concurrency.
     func testAsyncRequest() async throws {
         let response = try await Request.endpoint()
-            .prepare(with: .async(session: .shared))
+        .prepare(with: .async(session: .shared))
         XCTAssertEqual(response, 2)
+    }
+
+    @available(iOS 15, macOS 12, watchOS 8, tvOS 15, *)
+    /// Test structured concurrency.
+    func testAsyncConditionalRequest() async throws {
+        let trueResponse = try await Request.endpoint(true)
+            .prepare(with: .async(session: .shared))
+        XCTAssertEqual(trueResponse, 1)
+        let falseResponse = try await Request.endpoint(false)
+            .prepare(with: .async(session: .shared))
+        XCTAssertEqual(falseResponse, 0)
+    }
+
+    @available(iOS 15, macOS 12, watchOS 8, tvOS 15, *)
+    /// Test paginated structured concurrency.
+    ///
+    /// - note: `URLSessionAsyncRequester` can only paginate once.
+    func testAsyncPaginatedRequest() async throws {
+        let response = try await Request.endpoint()
+            .offset(0)
+            .prepare(with: .async(session: .shared))
+        XCTAssertEqual(response, 0)
     }
     // swiftlint:enable empty_xctest_method
     #endif
@@ -52,6 +74,51 @@ internal final class RequestTests: XCTestCase {
             .store(in: &bin)
         wait(for: [expectation], timeout: 5)
     }
+
+    @available(iOS 13, macOS 10.15, tvOS 13, watchOS 6, *)
+    /// Test combine.
+    func testCombineConditionalRequest() {
+        let count = 5
+        let expectations = [XCTestExpectation(description: "true"),
+                            XCTestExpectation(description: "false")]
+        Request.endpoint(true)
+            .prepare(with: URLSessionCombineRequester(session: .shared))
+            .sink(receiveCompletion: {
+                if case .failure(let error) = $0 { XCTFail(error.localizedDescription) }
+            }, receiveValue: {
+                XCTAssertEqual($0, 1)
+                expectations.first?.fulfill()
+            })
+            .store(in: &bin)
+        Request.endpoint(false)
+            .prepare(with: URLSessionCombineRequester(session: .shared))
+            .sink(receiveCompletion: {
+                if case .failure(let error) = $0 { XCTFail(error.localizedDescription) }
+            }, receiveValue: {
+                XCTAssertEqual($0, 0)
+                expectations.last?.fulfill()
+            })
+            .store(in: &bin)
+        wait(for: expectations, timeout: 5 * TimeInterval(count))
+    }
+
+    @available(iOS 13, macOS 10.15, tvOS 13, watchOS 6, *)
+    /// Test combine.
+    func testCombinePaginatedRequest() {
+        let count = 5
+        let expectations = (0...5).map { _ in XCTestExpectation() }
+        Request.endpoint()
+            .offset(0, pages: count)
+            .prepare(with: URLSessionCombineRequester(session: .shared))
+            .sink(receiveCompletion: {
+                if case .failure(let error) = $0 { XCTFail(error.localizedDescription) }
+                expectations.last?.fulfill()
+            }, receiveValue: {
+                expectations[$0].fulfill()
+            })
+            .store(in: &bin)
+        wait(for: expectations, timeout: 5 * TimeInterval(count))
+    }
     #endif
 
     /// Test completion.
@@ -61,6 +128,46 @@ internal final class RequestTests: XCTestCase {
             .prepare(with: URLSessionCompletionRequester(session: .shared))
             .onSuccess({
                 XCTAssertEqual($0, 2); expectation.fulfill()
+            }, onFailure: {
+                XCTFail($0.localizedDescription)
+            })
+            .resume()
+        wait(for: [expectation], timeout: 5)
+    }
+
+    /// Test conditional completion.
+    func testConditionalCompletionRequest() {
+        let expectations = [XCTestExpectation(description: "true"),
+                            XCTestExpectation(description: "false")]
+        Request.endpoint(true)
+            .prepare(with: URLSessionCompletionRequester(session: .shared))
+            .onSuccess({
+                XCTAssertEqual($0, 1); expectations.first?.fulfill()
+            }, onFailure: {
+                XCTFail($0.localizedDescription)
+            })
+            .resume()
+        Request.endpoint(false)
+            .prepare(with: URLSessionCompletionRequester(session: .shared))
+            .onSuccess({
+                XCTAssertEqual($0, 0); expectations.last?.fulfill()
+            }, onFailure: {
+                XCTFail($0.localizedDescription)
+            })
+            .resume()
+        wait(for: expectations, timeout: 10)
+    }
+
+    /// Test paginated completion.
+    ///
+    /// - note: `URLSessionCompletionRequester` can only paginate once.
+    func testPaginatedCompletionRequest() {
+        let expectation = XCTestExpectation()
+        Request.endpoint()
+            .offset(0)
+            .prepare(with: URLSessionCompletionRequester(session: .shared))
+            .onSuccess({
+                XCTAssertEqual($0, 0); expectation.fulfill()
             }, onFailure: {
                 XCTFail($0.localizedDescription)
             })
@@ -80,6 +187,18 @@ fileprivate extension Request {
         .Map<Bool>
         .Switch<R.Output.Map<Int>>
 
+    /// The paginated endpoint.
+    typealias PaginatedEndpoint<R: Requester> = R.Output
+        .Map<Int>
+        .Map<Int>
+        .Pager<Int>
+
+    /// The conditional endpoint.
+    typealias ConditionalEndpoint<R: Requester> = Receivables.If<
+        R.Output.Map<Int>,
+        R.Output.Map<Int>
+    >
+
     /// Prepare a random endpoint.
     ///
     /// - returns: Some `Receivable`.
@@ -98,6 +217,44 @@ fileprivate extension Request {
                         .prepare(with: requester)
                         .map { _ in 2 }
                 }
+        }
+    }
+
+    /// Prepare a random paginated endpoint.
+    ///
+    /// - returns: Some `Receivable`.
+    static func endpoint<R: Requester>() -> Providers.PageRequester<Int, R, PaginatedEndpoint<R>> {
+        .init { page, requester in
+            .init(page,
+                  generator: { offset in
+                    Request("https://google.com?q=\(offset)")
+                        .prepare(with: requester)
+                        .map(\.data.count)
+                        .map { _ in offset }
+                  },
+                  nextOffset: {
+                    .offset($0 + 1)
+                  })
+        }
+    }
+
+    /// Prepare a random conditional endpoint.
+    ///
+    /// - parameter condition: A valid `Bool`.
+    /// - returns: Some `Receivable`.
+    static func endpoint<R: Requester>(_ condition: Bool) -> Providers.Requester<R, ConditionalEndpoint<R>> {
+        .init { requester in
+            .init(condition,
+                  onTrue: {
+                    Request("https://google.com")
+                        .prepare(with: requester)
+                        .map { _ in 1 }
+                  },
+                  onFalse: {
+                    Request("https://google.com")
+                        .prepare(with: requester)
+                        .map { _ in 0 }
+                  })
         }
     }
 }

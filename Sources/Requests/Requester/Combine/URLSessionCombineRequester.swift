@@ -40,7 +40,7 @@ public struct URLSessionCombineRequester {
 }
 
 @available(iOS 13, macOS 10.15, tvOS 13, watchOS 6, *)
-extension URLSessionCombineRequester: Requester {
+extension URLSessionCombineRequester: Requester, Paginatable {
     /// The associated output type.
     public typealias Output = Response<Request.Response>
 
@@ -69,10 +69,10 @@ extension URLSessionCombineRequester: Requester {
                         .handleEvents(receiveSubscription: { _ in requester.input.logger?.log(request) },
                                       receiveOutput: { requester.input.logger?.log(.success($0)) },
                                       receiveCompletion: {
-                            if case .failure(let error) = $0 {
-                                requester.input.logger?.log(.failure(error))
-                            }
-                        })
+                                        if case .failure(let error) = $0 {
+                                            requester.input.logger?.log(.failure(error))
+                                        }
+                                      })
                 })
     }
 }

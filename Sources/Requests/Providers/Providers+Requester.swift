@@ -51,3 +51,5 @@ public extension Providers {
         }
     }
 }
+
+extension Providers.Requester: Paginatable where Input: Paginatable { }

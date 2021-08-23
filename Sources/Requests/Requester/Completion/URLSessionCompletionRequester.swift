@@ -48,7 +48,7 @@ extension URLSessionCompletionRequester: Requester {
     /// - note: This is implemented as a `static` function to hide its definition. Rely on `request.prepare(with:)` instead.
     public static func prepare(_ endpoint: Request, with requester: Self) -> Output {
         guard let request = Request.request(from: endpoint) else {
-            return .init(request: endpoint, task: nil, delegate: .init())
+            return .init(invalidRequest: endpoint)
         }
         let delegate = Output.Handler()
         requester.input.logger?.log(request)
@@ -62,7 +62,7 @@ extension URLSessionCompletionRequester: Requester {
                 delegate?.completion?(result)
             }
         }
-        return .init(request: endpoint, task: task, delegate: delegate)
+        return .init(task: task, handler: delegate)
     }
 }
 

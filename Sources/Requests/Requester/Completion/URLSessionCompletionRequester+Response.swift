@@ -10,27 +10,40 @@ import Foundation
 public extension URLSessionCompletionRequester {
     /// A `struct` defining the output for a `URLSessionCompletionRequester`.
     struct Response<Success>: URLSessionCompletionReceivable {
-        /// The underlying request.
-        private let request: Request
-
-        /// The underlying task.
-        ///
-        /// Task is only ever `nil`, when the request was invalid.
-        public let task: URLSessionDataTask?
-
+        /// The underlying value.
+        public let value: URLSessionCompletionValue
         /// The delegate.
         public var handler: Handler
+
+        /// The underlying response.
+        public var response: URLSessionCompletionRequester.Response<Success> {
+            self
+        }
 
         /// Init.
         ///
         /// - parameters:
-        ///     - request: A valid `Request`.
-        ///     - task: An optional `URLSessionDataTask`.
-        ///     - delegate: A valid `Delegate`.
-        init(request: Request, task: URLSessionDataTask?, delegate: Handler) {
-            self.request = request
-            self.task = task
-            self.handler = delegate
+        ///     - value: A valid `URLSessionCompletionValue`.
+        ///     - handler: A valid `Handler`.
+        public init(value: URLSessionCompletionValue, handler: Handler) {
+            self.value = value
+            self.handler = handler
+        }
+
+        /// Init.
+        ///
+        /// - parameter request: A valid `Request`.
+        public init(invalidRequest request: Request) {
+            self.init(value: .invalidRequest(request), handler: .init())
+        }
+
+        /// Init.
+        ///
+        /// - parameters:
+        ///     - task: A valid `URLSessionDataTask`.
+        ///     - handler: A valid `Handler`.
+        public init(task: URLSessionDataTask, handler: Handler) {
+            self.init(value: .task(task), handler: handler)
         }
 
         @discardableResult
@@ -38,20 +51,48 @@ public extension URLSessionCompletionRequester {
         ///
         /// - returns: An optional `URLSessionDataTask`.
         public func resume() -> URLSessionDataTask? {
-            guard let task = task else {
+            switch value {
+            case .invalidRequest(let request):
                 // If there's no task you should still
                 // notify it to the user.
                 handler.completion?(.failure(Request.Error.invalidRequest(request)))
                 return nil
+            case .task(let task):
+                task.resume()
+                return task
             }
-            task.resume()
-            return task
+        }
+
+        /// Flat map the current task.
+        ///
+        /// - parameter mapper: A valid mapper.
+        /// - returns: Some `URLSessionCompletionReceivable`.
+        func chain<S>(_ mapper: @escaping (Result<Success, Error>) -> Result<S, Error>) -> URLSessionCompletionRequester.Response<S> {
+            let handler = URLSessionCompletionRequester.Response<S>.Handler()
+            self.handler.completion = { handler.completion?(mapper($0)) }
+            return .init(value: value, handler: handler)
+        }
+
+        /// Flat map the current task.
+        ///
+        /// - parameter mapper: A valid mapper.
+        /// - returns: Some `URLSessionCompletionReceivable`.
+        func chain<S>(_ mapper: @escaping (Success) -> Result<S, Error>) -> URLSessionCompletionRequester.Response<S> {
+            chain { (result: Result<Success, Error>) in result.flatMap(mapper) }
+        }
+
+        /// Flat map the current task.
+        ///
+        /// - parameter mapper: A valid mapper.
+        /// - returns: Some `URLSessionCompletionReceivable`.
+        func chain(_ mapper: @escaping (Error) -> Result<Success, Error>) -> URLSessionCompletionRequester.Response<Success> {
+            chain { (result: Result<Success, Error>) in result.flatMapError(mapper) }
         }
     }
 }
 
 public extension URLSessionCompletionRequester.Response {
-    /// A `class` defining a data task delegate.
+    /// A `class` defining a data task handler.
     final class Handler {
         /// The underlying completion.
         public var completion: ((Result<Success, Error>) -> Void)?

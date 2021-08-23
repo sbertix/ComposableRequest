@@ -16,11 +16,16 @@ public extension URLSessionCombineRequester {
         /// The underlying publisher.
         public let publisher: AnyPublisher<Success, Error>
 
+        /// The underlying response.
+        public var response: URLSessionCombineRequester.Response<Success> {
+            self
+        }
+
         /// Init.
         ///
         /// - parameter publisher: Some `Publisher`.
         /// - note: This cannot be constructed directly.
-        init<P: Publisher>(publisher: P) where P.Output == Success {
+        public init<P: Publisher>(publisher: P) where P.Output == Success {
             self.publisher = publisher.catch { Fail(error: $0 as Error) }.eraseToAnyPublisher()
         }
     }
