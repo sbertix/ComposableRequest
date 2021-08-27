@@ -7,11 +7,11 @@
 
 import XCTest
 
-@testable import ComposableStorage
-@testable import ComposableStorageCrypto
-
-import ComposableRequest
 import KeychainAccess
+import Requests
+
+@testable import Storage
+@testable import StorageCrypto
 
 /// A static item.
 private let item = Item.default
