@@ -1,4 +1,4 @@
-name:                  test
+name:                      test
 
 on:
   repository_dispatch:
@@ -7,27 +7,45 @@ on:
 
 jobs:
   test:
-    name:              Test
-    runs-on:           macos-latest
+    name:                  Test
+    runs-on:               macos-latest
+
+    strategy:
+      fail-fast:           false
+      matrix:
+        destination:
+          - platform=macOS
+          - platform=iOS Simulator,OS=12.4,name=iPhone Xs
+          - platform=iOS Simulator,OS=13.0,name=iPhone 11
+          - platform=iOS Simulator,OS=13.5,name=iPhone 11
+          - platform=iOS Simulator,OS=14.0,name=iPhone 12
+          - platform=iOS Simulator,OS=14.4,name=iPhone 12
+          - platform=tvOS Simulator,OS=12.4,name=Apple TV 4K
+          - platform=tvOS Simulator,OS=13.0,name=Apple TV 4K
+          - platform=tvOS Simulator,OS=14.0,name=Apple TV 4K
+          - platform=tvOS Simulator,OS=14.4,name=Apple TV 4K
+          - platform=watchOS Simulator,OS=5.3,name=Apple Watch Series 4 - 44mm
+          - platform=watchOS Simulator,OS=6.1,name=Apple Watch Series 5 - 44mm
+          - platform=watchOS Simulator,OS=7.2,name=Apple Watch Series 6 - 44mm
+        swift:
+          - '5.2.0'
+          - '5'
 
     steps:
-    # checkout the current PR of `ComposableRequest`.
-    - name:            Checkout
-      uses:            actions/checkout@v2
-      with:
-          token:       ${{ secrets.GITHUB_TOKEN }}
-          repository:  ${{ github.event.client_payload.pull_request.head.repo.full_name }}
-          ref:         ${{ github.event.client_payload.pull_request.head.sha }}
-    # filter updates.
-    - uses:            dorny/paths-filter@v2
-      id:              changes
-      with:
-        base:          ${{ github.event.client_payload.pull_request.base.sha }}
-        ref:           ${{ github.event.client_payload.pull_request.head.sha }}
-        filters:       |
-          src:
-            - '**/*.swift'
-    # run all tests.
-    - name:            Test
-      if:              steps.changes.outputs.src == 'true'
-      run:             swift test --parallel --enable-test-discovery
+      # update swift version.
+      - name:              Swift ${{ matrix.swift }}
+        uses:              fwal/setup-swift@v1
+        with:
+          swift-version:   ${{ matrix.swift }}
+      # run test/build.
+      - name:              Build ${{ matrix.destination }}
+        run:               xcodebuild build-for-testing -scheme ComposableRequest-Package -destination ${{ matrix.destination }} | xcpretty
+      - name:              Test ${{ matrix.destination }}
+        if:                ${{ !contains(matrix.destination, 'watchOS') }}
+        run:               xcodebuild test-without-building -scheme ComposableRequestTests -enableCodeCoverage YES -destination ${{ matrix.destination }} | xcpretty
+      # upload coverage.
+      - name:              Coverage (Upload)
+        if:                ${{ !contains(matrix.destination, 'watchOS') }}
+        uses:              codecov/codecov-action@v1.5.2
+        timeout-minutes:   1
+        continue-on-error: true
