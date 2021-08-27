@@ -15,6 +15,5 @@ jobs:
         uses:            peter-evans/slash-command-dispatch@v2
         with:
           token:         ${{ secrets.CHATOPS_PAT }}
-          dispatch_type: workflow
           commands:      |
             test

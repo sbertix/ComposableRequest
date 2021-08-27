@@ -28,43 +28,10 @@ jobs:
         with:
           args:              --strict
 
-  # test the library.
-  test:
-    name:                    Test
-    needs:                   lint
-    runs-on:                 macos-latest
-
-    steps:
-      - name:                Checkout
-        uses:                actions/checkout@v2
-      # only build on actual code changes.
-      - uses:                dorny/paths-filter@v2
-        id:                  changes
-        with:
-          base:              ${{ github.event.push.before }}
-          filters:           |
-            src:
-              - '**/*.swift'
-      # test the library.
-      - name:                Test
-        if:                  steps.changes.outputs.src == 'true'
-        run:                 swift test --enable-test-discovery --enable-code-coverage
-      # check for coverage.
-      - name:                Coverage (Export)
-        if:                  steps.changes.outputs.src == 'true'
-        run:                 xcrun llvm-cov export -format="lcov" .build/debug/ComposableRequestPackageTests.xctest/Contents/MacOS/ComposableRequestPackageTests -instr-profile .build/debug/codecov/default.profdata > info.lcov
-        continue-on-error:   true
-      # upload coverage.
-      - name:                Coverage (Upload)
-        if:                  steps.changes.outputs.src == 'true'
-        uses:                codecov/codecov-action@v1.5.2
-        timeout-minutes:     1
-        continue-on-error:   true
-
   # release a new version.
   release:
     name:                    Release
-    needs:                   test
+    needs:                   lint
     runs-on:                 ubuntu-latest
 
     steps:
