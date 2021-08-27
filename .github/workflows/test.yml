@@ -46,6 +46,6 @@ jobs:
       # upload coverage.
       - name:              Coverage (Upload)
         if:                ${{ !contains(matrix.destination, 'watchOS') }}
-        uses:              codecov/codecov-action@v1.5.2
+        uses:              codecov/codecov-action@v2.0.3
         timeout-minutes:   1
         continue-on-error: true
