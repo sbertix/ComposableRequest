@@ -146,7 +146,13 @@ extension Receivables.Switch: URLSessionAsyncReceivable, URLSessionAsyncMockRece
 where Parent: URLSessionAsyncReceivable, Child: URLSessionAsyncReceivable {
     /// The underlying response.
     public var response: URLSessionAsyncRequester.Response<Success> {
-        parent.response.chain { await generator($0).result }
+        parent.response.chain { (result: Parent.Success) in
+            do {
+                return try await generator(result).result
+            } catch {
+                return .failure(error)
+            }
+        }
     }
 }
 // swiftlint:enable implicit_getter
