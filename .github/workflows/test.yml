@@ -46,6 +46,13 @@ jobs:
           - '5'
 
     steps:
+      # checkout the current PR of `ComposableRequest`.
+      - name:              Checkout
+        uses:              actions/checkout@v2
+        with:
+            token:         ${{ secrets.GITHUB_TOKEN }}
+            repository:    ${{ github.event.client_payload.pull_request.head.repo.full_name }}
+            ref:           ${{ github.event.client_payload.pull_request.head.sha }}
       # update swift version.
       - name:              Swift (${{ matrix.swift }})
         uses:              fwal/setup-swift@v1
