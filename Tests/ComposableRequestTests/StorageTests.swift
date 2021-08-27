@@ -10,8 +10,8 @@ import XCTest
 import KeychainAccess
 import Requests
 
-@testable import Storage
-@testable import StorageCrypto
+@testable import EncryptedStorages
+@testable import Storages
 
 /// A static item.
 private let item = Item.default

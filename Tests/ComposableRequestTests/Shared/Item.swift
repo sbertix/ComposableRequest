@@ -8,7 +8,7 @@
 import Foundation
 
 import Requests
-import Storage
+import Storages
 
 /// A `struct` defining a `Storable`.
 internal struct Item: Equatable, Codable, Storable {
