@@ -85,6 +85,21 @@ where Parent: URLSessionAsyncReceivable {
 }
 
 @available(iOS 15, macOS 12, watchOS 8, tvOS 15, *)
+extension Receivables.Future: URLSessionAsyncReceivable, URLSessionAsyncMockReceivable
+where Requester.Output: URLSessionAsyncReceivable {
+    // swiftlint:disable empty_parentheses_with_trailing_closure
+    /// The underlying response.
+    public var response: URLSessionAsyncRequester.Response<Success> {
+        .init(priority: nil) {
+            try await withCheckedContinuation { resolve in
+                self.completion() { resolve.resume(returning: $0) }
+            }.get()
+        }
+    }
+    // swiftlint:enable empty_parentheses_with_trailing_closure
+}
+
+@available(iOS 15, macOS 12, watchOS 8, tvOS 15, *)
 extension Receivables.If: URLSessionAsyncReceivable, URLSessionAsyncMockReceivable
 where O1: URLSessionAsyncReceivable, O2: URLSessionAsyncReceivable {
     /// The underlying response.

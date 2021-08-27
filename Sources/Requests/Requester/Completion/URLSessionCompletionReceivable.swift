@@ -79,6 +79,16 @@ where Parent: URLSessionCompletionReceivable {
     }
 }
 
+extension Receivables.Future: URLSessionCompletionReceivable, URLSessionCompletionMockReceivable
+where Requester.Output: URLSessionCompletionReceivable {
+    /// The response.
+    public var response: URLSessionCompletionRequester.Response<Success> {
+        let promise = Promise<Success, Error>()
+        completion { promise.resolve(result: $0) }
+        return .init(future: promise.future)
+    }
+}
+
 extension Receivables.If: URLSessionCompletionReceivable, URLSessionCompletionMockReceivable
 where O1: URLSessionCompletionReceivable, O2: URLSessionCompletionReceivable {
     /// The response.
@@ -107,7 +117,7 @@ extension Receivables.Once: URLSessionCompletionReceivable, URLSessionCompletion
 where Requester.Output: URLSessionCompletionReceivable {
     /// The response.
     public var response: URLSessionCompletionRequester.Response<Success> {
-        .init(task: nil, future: .init(result: result))
+        .init(future: .init(result: result))
     }
 }
 

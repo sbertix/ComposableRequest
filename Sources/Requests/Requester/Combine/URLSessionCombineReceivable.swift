@@ -74,6 +74,15 @@ where Parent: URLSessionCombineReceivable {
 }
 
 @available(iOS 13, macOS 10.15, tvOS 13, watchOS 6, *)
+extension Receivables.Future: URLSessionCombineReceivable, URLSessionCombineMockReceivable
+where Requester: URLSessionCombineReceivable {
+    /// The underlying response.
+    public var response: URLSessionCombineRequester.Response<Success> {
+        .init(publisher: Future { resolve in self.completion { resolve($0) } })
+    }
+}
+
+@available(iOS 13, macOS 10.15, tvOS 13, watchOS 6, *)
 extension Receivables.If: URLSessionCombineReceivable, URLSessionCombineMockReceivable
 where O1: URLSessionCombineReceivable, O2: URLSessionCombineReceivable {
     /// The underlying response.
