@@ -112,6 +112,15 @@ where Parent: URLSessionAsyncReceivable {
 }
 
 @available(iOS 15, macOS 12, watchOS 8, tvOS 15, *)
+extension Receivables.Once: URLSessionAsyncReceivable, URLSessionAsyncMockReceivable
+where Requester.Output: URLSessionAsyncReceivable {
+    /// The underlying response.
+    public var response: URLSessionAsyncRequester.Response<Success> {
+        .init(priority: nil) { try self.result.get() }
+    }
+}
+
+@available(iOS 15, macOS 12, watchOS 8, tvOS 15, *)
 extension Receivables.Pager: URLSessionAsyncReceivable, URLSessionAsyncMockReceivable
 where Child: URLSessionAsyncReceivable {
     /// The underlying response.

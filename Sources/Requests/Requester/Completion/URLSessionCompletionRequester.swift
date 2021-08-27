@@ -7,6 +7,8 @@
 
 import Foundation
 
+import Future
+
 /// A `struct` defining a concrete implementation of `Requester`
 /// through _completion handlers_.
 public struct URLSessionCompletionRequester {
@@ -48,21 +50,20 @@ extension URLSessionCompletionRequester: Requester {
     /// - note: This is implemented as a `static` function to hide its definition. Rely on `request.prepare(with:)` instead.
     public static func prepare(_ endpoint: Request, with requester: Self) -> Output {
         guard let request = Request.request(from: endpoint) else {
-            return .init(invalidRequest: endpoint)
+            return .init(future: .init(error: Request.Error.invalidRequest(endpoint)))
         }
-        let delegate = Output.Handler()
-        requester.input.logger?.log(request)
-        let task = requester.input.session.dataTask(with: request) { [weak delegate] data, response, error in
+        let promise = Promise<Request.Response, Error>()
+        let task = requester.input.session.dataTask(with: request) { data, response, error in
             if let error = error {
                 requester.input.logger?.log(.failure(error))
-                delegate?.completion?(.failure(error))
+                promise.fail(error: error)
             } else if let data = data, let response = response {
                 let result = Result<Request.Response, Error>.success(.init(data: data, response: response))
                 requester.input.logger?.log(result)
-                delegate?.completion?(result)
+                promise.resolve(result: result)
             }
         }
-        return .init(task: task, handler: delegate)
+        return .init(task: task, future: promise.future)
     }
 }
 

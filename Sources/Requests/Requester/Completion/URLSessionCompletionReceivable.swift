@@ -7,6 +7,8 @@
 
 import Foundation
 
+import Future
+
 /// A `protocol` defining a mock `URLSessionCompletionReceivable`.
 public protocol URLSessionCompletionMockReceivable {
     // swiftlint:disable identifier_name
@@ -35,7 +37,9 @@ public extension URLSessionCompletionReceivable {
     /// - returns: `self`.
     func onResult(_ handler: @escaping (Result<Success, Error>) -> Void) -> URLSessionCompletionRequester.Response<Success> {
         let response = self.response
-        response.handler.completion = handler
+        response.future.on(success: { handler(.success($0)) },
+                           failure: { handler(.failure($0)) },
+                           completion: nil)
         return response
     }
 
@@ -99,6 +103,14 @@ where Parent: URLSessionCompletionReceivable {
     }
 }
 
+extension Receivables.Once: URLSessionCompletionReceivable, URLSessionCompletionMockReceivable
+where Requester.Output: URLSessionCompletionReceivable {
+    /// The response.
+    public var response: URLSessionCompletionRequester.Response<Success> {
+        .init(task: nil, future: .init(result: result))
+    }
+}
+
 extension Receivables.Pager: URLSessionCompletionReceivable, URLSessionCompletionMockReceivable
 where Child: URLSessionCompletionReceivable {
     /// The underlying response.
@@ -131,20 +143,20 @@ extension Receivables.Switch: URLSessionCompletionReceivable, URLSessionCompleti
 where Parent: URLSessionCompletionReceivable, Child: URLSessionCompletionReceivable {
     /// The undelrying response.
     public var response: URLSessionCompletionRequester.Response<Success> {
-        let handler = URLSessionCompletionRequester.Response<Success>.Handler()
+        let promise = Promise<Success, Error>()
         let response = parent.response
-        response.handler.completion = {
-            switch $0 {
-            case .success(let success):
+        response.future.on(
+            success: {
                 do {
-                    try self.generator(success).onResult { handler.completion?($0) }.resume()
+                    try self.generator($0).onResult { promise.resolve(result: $0) }.resume()
                 } catch {
-                    handler.completion?(.failure(error))
+                    promise.fail(error: error)
                 }
-            case .failure(let failure):
-                handler.completion?(.failure(failure))
+            },
+            failure: {
+                promise.fail(error: $0)
             }
-        }
-        return .init(value: response.value, handler: handler)
+        )
+        return .init(task: response.task, future: promise.future)
     }
 }

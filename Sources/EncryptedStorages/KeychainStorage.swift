@@ -8,8 +8,8 @@
 import Foundation
 
 import KeychainAccess
-import protocol Storage.Storable
-import protocol Storage.ThrowingStorage
+import protocol Storages.Storable
+import protocol Storages.ThrowingStorage
 
 /// A `typealias` for `KeychainAccess.Keychain`.
 ///

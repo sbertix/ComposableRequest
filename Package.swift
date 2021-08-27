@@ -15,23 +15,25 @@ let package = Package(
     // Exposed libraries.
     products: [.library(name: "Requests",
                         targets: ["Requests"]),
-               .library(name: "Storage",
-                        targets: ["Storage"]),
-               .library(name: "StorageCrypto",
-                        targets: ["StorageCrypto"])],
+               .library(name: "Storages",
+                        targets: ["Storages"]),
+               .library(name: "EncryptedStorages",
+                        targets: ["EncryptedStorages"])],
     // Package dependencies.
     dependencies: [.package(url: "https://github.com/kishikawakatsumi/KeychainAccess",
-                            .upToNextMinor(from: "4.2.2"))],
+                            .upToNextMinor(from: "4.2.2")),
+                   .package(url: "https://github.com/kean/Future",
+                            .upToNextMinor(from: "1.4.0"))],
     // All targets.
     targets: [.target(name: "Core"),
               .target(name: "Requests",
-                      dependencies: ["Core"]),
-              .target(name: "Storage",
+                      dependencies: ["Core", "Future"]),
+              .target(name: "Storages",
                       dependencies: []),
-              .target(name: "StorageCrypto",
-                      dependencies: ["Storage", "KeychainAccess"]),
+              .target(name: "EncryptedStorages",
+                      dependencies: ["Storages", "KeychainAccess"]),
               .testTarget(name: "ComposableRequestTests",
-                          dependencies: ["Requests", "Storage", "StorageCrypto"])]
+                          dependencies: ["Requests", "Storages", "EncryptedStorages"])]
 )
 
 if ProcessInfo.processInfo.environment["TARGETING_WATCHOS"] == "true" {
