@@ -53,10 +53,10 @@ jobs:
           swift-version:   ${{ matrix.swift }}
       # run test/build.
       - name:              Build (${{ matrix.destination }})
-        run:               xcodebuild build-for-testing -derivedDataPath .build/ -scheme ComposableRequest-Package -destination ${{ matrix.destination }} | xcpretty
+        run:               xcodebuild build-for-testing -derivedDataPath .build/ -scheme ComposableRequest-Package -destination '${{ matrix.destination }}' | xcpretty
       - name:              Test (${{ matrix.destination }})
         if:                ${{ !contains(matrix.destination, 'watchOS') }}
-        run:               xcodebuild test-without-building -derivedDataPath .build/ -scheme ComposableRequestTests -enableCodeCoverage YES -destination ${{ matrix.destination }} | xcpretty
+        run:               xcodebuild test-without-building -derivedDataPath .build/ -scheme ComposableRequestTests -enableCodeCoverage YES -destination '${{ matrix.destination }}' | xcpretty
       # upload coverage.
       - name:              Coverage (Upload)
         if:                ${{ !contains(matrix.destination, 'watchOS') }}
