@@ -103,6 +103,14 @@ where Parent: URLSessionCompletionReceivable {
     }
 }
 
+extension Receivables.Once: URLSessionCompletionReceivable, URLSessionCompletionMockReceivable
+where Requester.Output: URLSessionCompletionReceivable {
+    /// The response.
+    public var response: URLSessionCompletionRequester.Response<Success> {
+        .init(task: nil, future: .init(result: result))
+    }
+}
+
 extension Receivables.Pager: URLSessionCompletionReceivable, URLSessionCompletionMockReceivable
 where Child: URLSessionCompletionReceivable {
     /// The underlying response.

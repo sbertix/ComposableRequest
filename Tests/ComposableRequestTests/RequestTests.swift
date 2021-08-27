@@ -204,16 +204,6 @@ internal final class RequestTests: XCTestCase {
 }
 
 fileprivate extension Request {
-    /// The endpoint alias.
-    typealias Endpoint<R: Requester> = R.Output
-        .Map<Data>
-        .FlatMap<Wrapper>
-        .Map<String>
-        .FlatMap<Data>
-        .FlatMap<String>
-        .Map<Bool>
-        .Switch<R.Output.Map<Int>>
-
     /// The paginated endpoint.
     typealias PaginatedEndpoint<R: Requester> = R.Output
         .Map<Int>
@@ -230,7 +220,7 @@ fileprivate extension Request {
     ///
     /// - returns: Some `Receivable`.
     @available(iOS 13, macOS 10.15, tvOS 13, watchOS 6, *)
-    static func endpoint<R: Requester>() -> Providers.Requester<R, Endpoint<R>> {
+    static func endpoint<R: Requester>() -> Providers.Requester<R, R.Requested<Int>> {
         .init { requester in
             Request("https://gist.githubusercontent.com/sbertix/8959f2534f815ee3f6018965c6c5f9e2/raw/ce697fafd1b34ad90cccd9a919a9b0b48574e1ac/Test.json")
                 .prepare(with: requester)
@@ -243,8 +233,12 @@ fileprivate extension Request {
                 .switch { _ in
                     Request("https://google.com")
                         .prepare(with: requester)
-                        .map { _ in 2 }
+                        .map { _ in 1 }
                 }
+                .switch {
+                    Receivables.Once(output: $0 + 1, with: requester)
+                }
+                .requested(by: requester)
         }
     }
 

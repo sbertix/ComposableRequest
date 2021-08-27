@@ -101,6 +101,20 @@ where Parent: URLSessionCombineReceivable {
 }
 
 @available(iOS 13, macOS 10.15, tvOS 13, watchOS 6, *)
+extension Receivables.Once: URLSessionCombineReceivable, URLSessionCombineMockReceivable
+where Requester.Output: URLSessionCombineReceivable {
+    /// The underlying response.
+    public var response: URLSessionCombineRequester.Response<Success> {
+        switch result {
+        case .success(let output):
+            return .init(publisher: Just(output).setFailureType(to: Error.self))
+        case .failure(let error):
+            return .init(publisher: Fail(error: error))
+        }
+    }
+}
+
+@available(iOS 13, macOS 10.15, tvOS 13, watchOS 6, *)
 extension Receivables.Pager: URLSessionCombineReceivable, URLSessionCombineMockReceivable
 where Child: URLSessionCombineReceivable {
     /// The underlying response.
