@@ -1,6 +1,4 @@
 .DS_Store
-.swiftpm/
-.swiftpm/*
 *.xcodeproj
 !Followers.xcodeproj
 /.build

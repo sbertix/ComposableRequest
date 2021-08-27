@@ -7,60 +7,38 @@
 
 import Foundation
 
+import Future
+
 public extension URLSessionCompletionRequester {
     /// A `struct` defining the output for a `URLSessionCompletionRequester`.
     struct Response<Success>: URLSessionCompletionReceivable {
-        /// The underlying value.
-        public let value: URLSessionCompletionValue
-        /// The delegate.
-        public var handler: Handler
+        /// The underlying data task.
+        public weak var task: URLSessionDataTask?
+        /// The underlying future.
+        public let future: Future<Success, Error>
 
         /// The underlying response.
         public var response: URLSessionCompletionRequester.Response<Success> {
             self
         }
 
-        /// Init.
-        ///
-        /// - parameters:
-        ///     - value: A valid `URLSessionCompletionValue`.
-        ///     - handler: A valid `Handler`.
-        public init(value: URLSessionCompletionValue, handler: Handler) {
-            self.value = value
-            self.handler = handler
-        }
-
-        /// Init.
-        ///
-        /// - parameter request: A valid `Request`.
-        public init(invalidRequest request: Request) {
-            self.init(value: .invalidRequest(request), handler: .init())
-        }
-
-        /// Init.
-        ///
-        /// - parameters:
-        ///     - task: A valid `URLSessionDataTask`.
-        ///     - handler: A valid `Handler`.
-        public init(task: URLSessionDataTask, handler: Handler) {
-            self.init(value: .task(task), handler: handler)
-        }
-
-        @discardableResult
-        /// Resume.
+        /// Resume the underlying task, if it exists.
         ///
         /// - returns: An optional `URLSessionDataTask`.
+        @discardableResult
         public func resume() -> URLSessionDataTask? {
-            switch value {
-            case .invalidRequest(let request):
-                // If there's no task you should still
-                // notify it to the user.
-                handler.completion?(.failure(Request.Error.invalidRequest(request)))
-                return nil
-            case .task(let task):
-                task.resume()
-                return task
-            }
+            task?.resume()
+            return task
+        }
+
+        /// Init.
+        ///
+        /// - parameters:
+        ///     - task: An optional `URLSessionDataTask`. Defaults to `nil`.
+        ///     - future: A valid `Future`.
+        public init(task: URLSessionDataTask? = nil, future: Future<Success, Error>) {
+            self.task = task
+            self.future = future
         }
 
         /// Flat map the current task.
@@ -68,9 +46,7 @@ public extension URLSessionCompletionRequester {
         /// - parameter mapper: A valid mapper.
         /// - returns: Some `URLSessionCompletionReceivable`.
         func chain<S>(_ mapper: @escaping (Result<Success, Error>) -> Result<S, Error>) -> URLSessionCompletionRequester.Response<S> {
-            let handler = URLSessionCompletionRequester.Response<S>.Handler()
-            self.handler.completion = { handler.completion?(mapper($0)) }
-            return .init(value: value, handler: handler)
+            .init(task: task, future: future.materialize().flatMap { .init(result: mapper($0)) })
         }
 
         /// Flat map the current task.
@@ -78,7 +54,7 @@ public extension URLSessionCompletionRequester {
         /// - parameter mapper: A valid mapper.
         /// - returns: Some `URLSessionCompletionReceivable`.
         func chain<S>(_ mapper: @escaping (Success) -> Result<S, Error>) -> URLSessionCompletionRequester.Response<S> {
-            chain { (result: Result<Success, Error>) in result.flatMap(mapper) }
+            .init(task: task, future: future.flatMap { .init(result: mapper($0)) })
         }
 
         /// Flat map the current task.
@@ -86,24 +62,7 @@ public extension URLSessionCompletionRequester {
         /// - parameter mapper: A valid mapper.
         /// - returns: Some `URLSessionCompletionReceivable`.
         func chain(_ mapper: @escaping (Error) -> Result<Success, Error>) -> URLSessionCompletionRequester.Response<Success> {
-            chain { (result: Result<Success, Error>) in result.flatMapError(mapper) }
-        }
-    }
-}
-
-public extension URLSessionCompletionRequester.Response {
-    /// A `class` defining a data task handler.
-    final class Handler {
-        /// The underlying completion.
-        public var completion: ((Result<Success, Error>) -> Void)?
-
-        /// Init.
-        ///
-        /// - parameters:
-        ///     - transformer: A valid mapper.
-        ///     - completion: An optional completion handler. Defaults to `nil`.
-        public init(completion: ((Result<Success, Error>) -> Void)? = nil) {
-            self.completion = completion
+            .init(task: task, future: future.flatMapError { .init(result: mapper($0)) })
         }
     }
 }

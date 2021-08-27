@@ -21,11 +21,13 @@ let package = Package(
                         targets: ["EncryptedStorages"])],
     // Package dependencies.
     dependencies: [.package(url: "https://github.com/kishikawakatsumi/KeychainAccess",
-                            .upToNextMinor(from: "4.2.2"))],
+                            .upToNextMinor(from: "4.2.2")),
+                   .package(url: "https://github.com/kean/Future",
+                            .upToNextMinor(from: "1.4.0"))],
     // All targets.
     targets: [.target(name: "Core"),
               .target(name: "Requests",
-                      dependencies: ["Core"]),
+                      dependencies: ["Core", "Future"]),
               .target(name: "Storages",
                       dependencies: []),
               .target(name: "EncryptedStorages",
