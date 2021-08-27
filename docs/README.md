@@ -5,10 +5,10 @@
 [![Swift](https://img.shields.io/badge/Swift-5.2-%23DE5C43?style=flat&logo=swift)](https://swift.org)
 [![codecov](https://codecov.io/gh/sbertix/ComposableRequest/branch/main/graph/badge.svg)](https://codecov.io/gh/sbertix/ComposableRequest)
 <br />
-![iOS](https://img.shields.io/badge/iOS-13.0-8CFF96)
-![macOS](https://img.shields.io/badge/macOS-10.15-8CFF96)
-![tvOS](https://img.shields.io/badge/tvOS-13.0-8CFF96)
-![watchOS](https://img.shields.io/badge/watchOS-6.0-8CFF96)
+![iOS](https://img.shields.io/badge/iOS-12.0-8CFF96)
+![macOS](https://img.shields.io/badge/macOS-10.14-8CFF96)
+![tvOS](https://img.shields.io/badge/tvOS-12.0-8CFF96)
+![watchOS](https://img.shields.io/badge/watchOS-5.0-8CFF96)
 
 <br />
 
