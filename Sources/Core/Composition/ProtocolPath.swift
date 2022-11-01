@@ -9,7 +9,7 @@ import Foundation
 
 /// A `protocol` describing an instance providing the `URL` to some resouce in a `URLRequest`.
 @dynamicMemberLookup
-public protocol Path {
+public protocol ProtocolPath {
     /// The underlying request url components.
     var components: URLComponents? { get }
 
@@ -20,7 +20,7 @@ public protocol Path {
     func components(_ components: URLComponents?) -> Self
 }
 
-public extension Path {
+public extension ProtocolPath {
     /// Append `component` to `url`.
     ///
     /// - parameter component: A valid `String`.

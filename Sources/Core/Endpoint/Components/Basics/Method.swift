@@ -1,13 +1,16 @@
 //
 //  Method.swift
-//  ComposableRequest
+//  Core
 //
-//  Created by Stefano Bertagno on 05/05/2020.
+//  Created by Stefano Bertagno on 01/11/22.
 //
 
 import Foundation
 
 /// An `enum` listing all `URLRequest` allowed `httpMethod`s.
+/// Defaults to `.default`.
+///
+/// - note: Children do not inherit values from their parents if they're non-`nil`.
 public enum HTTPMethod: String, Hashable {
     /// `GET` when no `body` is set, `POST` otherwise.
     case `default` = ""
@@ -31,14 +34,16 @@ public enum HTTPMethod: String, Hashable {
     case patch = "PATCH"
 }
 
-/// A `protocol` describing an instance providing the method of a `URLRequest`.
-public protocol Method {
-    /// The underlying request method.
-    var method: HTTPMethod { get }
-
-    /// Copy `self` and replace its `method`.
+/// A `struct` defining the request
+/// HTTP method for a given endpoint.
+public struct Method: EndpointComponent {
+    @_spi(ComposableRequest) public static let key: EndpointComponentKey = .method
+    @_spi(ComposableRequest) public var value: HTTPMethod
+    
+    /// Init.
     ///
-    /// - parameter mody: A valid `HTTPMethod`.
-    /// - returns: A valid `Self`.
-    func method(_ method: HTTPMethod) -> Self
+    /// - parameter method: The request HTTP method for a given endpoint.
+    public init(_ method: HTTPMethod) {
+        self.value = method
+    }
 }

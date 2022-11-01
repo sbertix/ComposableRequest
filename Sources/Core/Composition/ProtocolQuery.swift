@@ -12,9 +12,9 @@ import Foundation
 /// - note:
 ///     When dealing with `String` dictionaries, instead of `URLQueryItem`s, all
 ///     keys are expected to be **unique**, repeated values will be overwritten.
-public protocol Query: Path { }
+public protocol ProtocolQuery: ProtocolPath { }
 
-public extension Query {
+public extension ProtocolQuery {
     /// Copy `self` and replace its `query`.
     ///
     /// - parameter query: A valid `URLQueryItem` collection.

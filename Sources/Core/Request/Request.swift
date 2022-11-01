@@ -100,7 +100,7 @@ extension Request: URLRequestRepresentable {
     }
 }
 
-extension Request: Body, Header, Method, Query, Timeout {
+extension Request: ProtocolBody, ProtocolHeader, ProtocolMethod, ProtocolQuery, ProtocolTimeout {
     /// Copy `self` and replace its `body`.
     ///
     /// - parameter body: Some optional `Data`.

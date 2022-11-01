@@ -8,7 +8,7 @@
 import Foundation
 
 /// A `protocol` describing an instace providing the timeout interval for a `URLRequest`.
-public protocol Timeout {
+public protocol ProtocolTimeout {
     /// The underlying timeout interval.
     var timeout: TimeInterval { get }
 

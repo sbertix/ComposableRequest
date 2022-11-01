@@ -8,7 +8,7 @@
 import Foundation
 
 /// A `protocol` describing an instance providing the body of a `URLRequest`.
-public protocol Body {
+public protocol ProtocolBody {
     /// The current body.
     var body: Data? { get }
 
@@ -19,7 +19,7 @@ public protocol Body {
     func body(_ body: Data?) -> Self
 }
 
-public extension Body {
+public extension ProtocolBody {
     /// Copy `self` and replace its `body` with a JSON representation of a `Wrappable` element.
     ///
     /// - parameter body: A concrete instance of `Wrappable`.

@@ -14,7 +14,7 @@ internal final class CompositionTests: XCTestCase {
     /// Test `Body`.
     func testBody() throws {
         /// The actual test.
-        func test(_ item: Body) {
+        func test(_ item: ProtocolBody) {
             // Replacing.
             XCTAssert("test".data(using: .utf8).flatMap(item.body)?.body?.isEmpty == false)
             XCTAssert(try item.body([3]).body.flatMap(Wrapper.decode)?.array()?.first?.int() == 3)
@@ -34,13 +34,13 @@ internal final class CompositionTests: XCTestCase {
 
         let request = Request("https://google.com")
         test(request)
-        test(request as Body)
+        test(request as ProtocolBody)
     }
 
     /// Test `Header`.
     func testHeader() {
         /// The actual test.
-        func test(_ item: Header) {
+        func test(_ item: ProtocolHeader) {
             // Replacing.
             XCTAssert(item.header(["key": "value"]).header["key"] == "value")
             XCTAssert(item.header(["key": nil]).header["key"] == nil)
@@ -60,7 +60,7 @@ internal final class CompositionTests: XCTestCase {
 
         let request = Request("https://google.com")
         test(request)
-        test(request as Header)
+        test(request as ProtocolHeader)
     }
 
     /// Test `Method`.
@@ -77,31 +77,31 @@ internal final class CompositionTests: XCTestCase {
         XCTAssert(HTTPMethod.default.rawValue.isEmpty)
 
         /// The actual test.
-        func test(_ item: Requests.Method) {
+        func test(_ item: Requests.ProtocolMethod) {
             XCTAssert(item.method(.connect).method == .connect)
         }
 
         let request = Request("https://google.com")
         test(request)
-        test(request as Requests.Method)
+        test(request as Requests.ProtocolMethod)
     }
 
     /// Test `Path`.
     func testPath() {
         /// The actual test.
-        func test(_ item: Path) {
+        func test(_ item: ProtocolPath) {
             XCTAssert(item.path(appending: "test").components?.url?.lastPathComponent == "test")
         }
 
         let request = Request("https://google.com")
         test(request)
-        test(request as Path)
+        test(request as ProtocolPath)
     }
 
     /// Test `Query`.
     func testQuery() {
         /// The actual test.
-        func test(_ item: Query) {
+        func test(_ item: ProtocolQuery) {
             // Replacing.
             XCTAssert(item.query([URLQueryItem(name: "key", value: "value")])
                         .components?
@@ -147,18 +147,18 @@ internal final class CompositionTests: XCTestCase {
 
         let request = Request("https://google.com")
         test(request)
-        test(request as Query)
+        test(request as ProtocolQuery)
     }
 
     /// Test `Timeout`.
     func testTimeout() {
         /// The actual test.
-        func test(_ item: Timeout) {
+        func test(_ item: ProtocolTimeout) {
             XCTAssert(item.timeout(after: 5).timeout == 5)
         }
 
         let request = Request("https://google.com")
         test(request)
-        test(request as Timeout)
+        test(request as ProtocolTimeout)
     }
 }

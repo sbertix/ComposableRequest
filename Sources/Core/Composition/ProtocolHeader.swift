@@ -8,7 +8,7 @@
 import Foundation
 
 /// A `protocol` describing an instance providing the header fields of a `URLRequest`.
-public protocol Header {
+public protocol ProtocolHeader {
     /// The current header fields.
     var header: [String: String] { get }
 
@@ -19,7 +19,7 @@ public protocol Header {
     func header(_ header: [String: String]) -> Self
 }
 
-public extension Header {
+public extension ProtocolHeader {
     /// Copy `self` and replace its `header`.
     ///
     /// - parameter header: An optional `String` dictionary.

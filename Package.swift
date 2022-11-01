@@ -1,14 +1,12 @@
-// swift-tools-version:5.2
+// swift-tools-version:5.7
 
 import Foundation
 import PackageDescription
 
-// MARK: Definitions
-
 let package = Package(
     name: "ComposableRequest",
     // Supported versions.
-    platforms: [.iOS("12.0"),
+    platforms: [.iOS("13.0"),
                 .macOS("10.14"),
                 .tvOS("12.0"),
                 .watchOS("5.0")],
