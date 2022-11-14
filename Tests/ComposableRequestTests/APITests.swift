@@ -5,81 +5,271 @@
 //  Created by Stefano Bertagno on 01/11/22.
 //
 
+import Combine
 import Foundation
 import XCTest
 
-@testable import Core
-
-enum Keys: String, EndpointKey {
-    case reference
-}
-
-enum OtherKeys: String, EndpointKey {
-    typealias Input = String
-    case inherit
-}
+@_spi(ComposableRequest) @_spi(Private) @testable import Requests
 
 /// A `class` defining tests for composition `protocol`s.
 final class APItests: XCTestCase {
+    /// The cancellable set used to test combine publishers.
+    private var bin: Set<AnyCancellable> = []
+
+    // MARK: Builder
+
     func testBuilder() {
-        let group = EndpointGroup {
+        // Prepare the components.
+        @ComponentsBuilder var components: Components {
             Method(.post)
-            Path("path")
-            Query("this should be replaced", forKey: "key")
-            Headers("this should be replaced", forKey: "key")
+            Path("https://google.com")
+            Query("value", forKey: "key")
+            Headers("value", forKey: "key")
             Body(.init())
             Service(.background)
             Cellular(false)
             Timeout(15)
             Constrained(false)
             Expensive(false)
-            
-            Endpoint(Keys.reference) {
-                Method(.connect)
-                Path("final")
-                Query("value", forKey: "key")
-                Headers("value", forKey: "key")
-                Body(nil)
-                Service(.default)
-                Cellular(true)
-                Timeout(60)
-                Constrained(true)
-                Expensive(true)
-            }
-            
-            EndpointGroup {
-                Path("middle")
-                Endpoint(OtherKeys.inherit) {
-                    Path("final")
-                    Query($0, forKey: "key")
-                    Headers($0, forKey: "key")
-                }
-            }
         }
-        
-        let resolvedReference = group.components(for: Keys.reference)!
-        let resolvedInherit = group.components(for: OtherKeys.inherit, with: "value")!
-        
-        XCTAssertEqual(resolvedReference.components[.method]?.value as? HTTPMethod, .connect)
-        XCTAssertEqual(resolvedReference.components[.path]?.value as? String, "path/final")
-        XCTAssertEqual(resolvedReference.components[.query]?.value as? [String: String], ["key": "value"])
-        XCTAssertEqual(resolvedReference.components[.headers]?.value as? [String: String], ["key": "value"])
-        XCTAssertEqual(resolvedReference.components[.body]?.value as? Data?, nil)
-        XCTAssertEqual(resolvedReference.components[.service]?.value as? URLRequest.NetworkServiceType, .default)
-        XCTAssertEqual(resolvedReference.components[.cellular]?.value as? Bool, true)
-        XCTAssertEqual(resolvedReference.components[.timeout]?.value as? TimeInterval, 60)
-        XCTAssertEqual(resolvedReference.components[.constrained]?.value as? Bool, true)
-        XCTAssertEqual(resolvedReference.components[.expensive]?.value as? Bool, true)
+        // Test the request.
+        let request = components.request!
+        XCTAssertEqual(request.httpMethod, "POST")
+        XCTAssertEqual(request.url?.absoluteString, "https://google.com?key=value")
+        XCTAssertEqual(request.allHTTPHeaderFields, ["key": "value"])
+        XCTAssertEqual(request.httpBody, .init())
+        XCTAssertEqual(request.networkServiceType, .background)
+        XCTAssertEqual(request.allowsCellularAccess, false)
+        XCTAssertEqual(request.timeoutInterval, 15)
+        XCTAssertEqual(request.allowsConstrainedNetworkAccess, false)
+        XCTAssertEqual(request.allowsExpensiveNetworkAccess, false)
+    }
 
-        XCTAssertEqual(resolvedInherit.components[.method]?.value as? HTTPMethod, .post)
-        XCTAssertEqual(resolvedInherit.components[.path]?.value as? String, "path/middle/final")
-        XCTAssertEqual(resolvedInherit.components[.query]?.value as? [String: String], ["key": "value"])
-        XCTAssertEqual(resolvedInherit.components[.headers]?.value as? [String: String], ["key": "value"])
-        XCTAssertEqual(resolvedInherit.components[.body]?.value as? Data?, .init())
-        XCTAssertEqual(resolvedInherit.components[.service]?.value as? URLRequest.NetworkServiceType, .background)
-        XCTAssertEqual(resolvedInherit.components[.cellular]?.value as? Bool, false)
-        XCTAssertEqual(resolvedInherit.components[.timeout]?.value as? TimeInterval, 15)
-        XCTAssertEqual(resolvedInherit.components[.constrained]?.value as? Bool, false)
-        XCTAssertEqual(resolvedInherit.components[.expensive]?.value as? Bool, false)
+    // MARK: Single
+
+    func testAsync() async throws {
+        // Prepare the endpoint.
+        let reference: Single<Void, Int> = .init {
+            Path("https://gist.githubusercontent.com/sbertix/18271e0e549cac1f6a0d4276bf369c6e/raw/1da47924f034d21f87797edbe836abbe7c73dfd5/one.json")
+        } response: {
+            try JSONDecoder().decode(AnyDecodable.self, from: $0).value.int!
+        }
+        // Test single reference.
+        let response = try await reference.resolve(with: .shared)
+        XCTAssertEqual(response, 1)
+        // Test targettable reference.
+        var count: Int = 0
+        for try await response in reference._resolve(with: (), .shared) {
+            XCTAssertEqual(response, 1)
+            count += 1
+        }
+        XCTAssertEqual(count, 1)
+    }
+
+    func testCombine() {
+        // Prepare the endpoint.
+        let reference: Single<Void, Int> = .init {
+            Path("https://gist.githubusercontent.com/sbertix/18271e0e549cac1f6a0d4276bf369c6e/raw/1da47924f034d21f87797edbe836abbe7c73dfd5/one.json")
+        } response: {
+            try JSONDecoder().decode(AnyDecodable.self, from: $0).value.int!
+        }
+        // Test single reference.
+        let expectation: XCTestExpectation = .init()
+        expectation.assertForOverFulfill = true
+        let responses: NSMutableSet = .init(set: [1])
+        reference.resolve(with: .shared)
+            .replaceError(with: 0)
+            .sink { responses.remove($0); expectation.fulfill() }
+            .store(in: &bin)
+        wait(for: [expectation], timeout: 15)
+        XCTAssertEqual(responses.count, 0)
+        // Test targettable reference.
+        let targettableExpectation: XCTestExpectation = .init()
+        targettableExpectation.assertForOverFulfill = true
+        responses.setSet([1])
+        reference._resolve(with: (), .shared)
+            .replaceError(with: 0)
+            .sink { responses.remove($0); targettableExpectation.fulfill() }
+            .store(in: &bin)
+        wait(for: [targettableExpectation], timeout: 15)
+        XCTAssertEqual(responses.count, 0)
+    }
+
+    // MARK: Loop
+
+    func testAsyncStream() async throws {
+        // Prepare the endpoint.
+        let reference: Loop<String, AnyDecodable> = .init {
+            Path($0)
+        } response: {
+            try JSONDecoder().decode(AnyDecodable.self, from: $0)
+        } page: {
+            $0.next.string
+        }
+        let path = "https://gist.githubusercontent.com/sbertix/18271e0e549cac1f6a0d4276bf369c6e/raw/1da47924f034d21f87797edbe836abbe7c73dfd5/one.json"
+        // Test stream reference.
+        var count: Int = 0
+        var responses: Set<Int> = [1, 2]
+        for try await response in reference.resolve(with: path, .shared) {
+            count += 1
+            guard let value = response.value.int else { continue }
+            responses.remove(value)
+        }
+        XCTAssertEqual(count, 2)
+        XCTAssertTrue(responses.isEmpty)
+        // Test targettable reference.
+        count = 0
+        responses = [1, 2]
+        for try await response in reference._resolve(with: path, .shared) {
+            count += 1
+            guard let value = response.value.int else { continue }
+            responses.remove(value)
+        }
+        XCTAssertEqual(count, 2)
+        XCTAssertTrue(responses.isEmpty)
+    }
+
+    func testCombineStream() {
+        // Prepare the endpoint.
+        let reference: Loop<String, AnyDecodable> = .init {
+            Path($0)
+        } response: {
+            try JSONDecoder().decode(AnyDecodable.self, from: $0)
+        } page: {
+            $0.next.string
+        }
+        let path = "https://gist.githubusercontent.com/sbertix/18271e0e549cac1f6a0d4276bf369c6e/raw/1da47924f034d21f87797edbe836abbe7c73dfd5/one.json"
+        // Test stream reference.
+        let expectation: XCTestExpectation = .init()
+        expectation.assertForOverFulfill = true
+        expectation.expectedFulfillmentCount = 2
+        let responses: NSMutableSet = .init(set: [1, 2])
+        reference.resolve(with: path, .shared)
+            .compactMap { $0.value.int }
+            .replaceError(with: 0)
+            .sink { responses.remove($0); expectation.fulfill() }
+            .store(in: &bin)
+        wait(for: [expectation], timeout: 15)
+        XCTAssertEqual(responses.count, 0)
+        // Test targettable reference.
+        let targettableExpectation: XCTestExpectation = .init()
+        targettableExpectation.assertForOverFulfill = true
+        targettableExpectation.expectedFulfillmentCount = 2
+        responses.setSet([1, 2])
+        reference._resolve(with: path, .shared)
+            .compactMap { $0.value.int }
+            .replaceError(with: 0)
+            .sink { responses.remove($0); targettableExpectation.fulfill() }
+            .store(in: &bin)
+        wait(for: [targettableExpectation], timeout: 15)
+        XCTAssertEqual(responses.count, 0)
+    }
+
+    // MARK: Switch
+
+    func testAsyncSwitch() async throws {
+        // Prepare the endpoints.
+        let parent: Single<Void, String> = .init {
+            Path("https://gist.githubusercontent.com/sbertix/18271e0e549cac1f6a0d4276bf369c6e/raw/1da47924f034d21f87797edbe836abbe7c73dfd5/one.json")
+        } response: {
+            try JSONDecoder().decode(AnyDecodable.self, from: $0).next.string!
+        }
+        let child: Single<String, Int> = .init {
+            Path($0)
+        } response: {
+            try JSONDecoder().decode(AnyDecodable.self, from: $0).value.int!
+        }
+        let reference: Switch = parent.switch(to: child)
+        // Test single reference.
+        let singleResponse = try await reference.resolve(with: .shared)
+        XCTAssertEqual(singleResponse, 2)
+        // Test targettable reference.
+        var count: Int = 0
+        for try await response in reference._resolve(with: (), .shared) {
+            XCTAssertEqual(response, 2)
+            count += 1
+        }
+        XCTAssertEqual(count, 1)
+    }
+    
+    func testCombineSwitch() {
+        // Prepare the endpoints.
+        let parent: Single<Void, String> = .init {
+            Path("https://gist.githubusercontent.com/sbertix/18271e0e549cac1f6a0d4276bf369c6e/raw/1da47924f034d21f87797edbe836abbe7c73dfd5/one.json")
+        } response: {
+            try JSONDecoder().decode(AnyDecodable.self, from: $0).next.string!
+        }
+        let child: Single<String, Int> = .init {
+            Path($0)
+        } response: {
+            try JSONDecoder().decode(AnyDecodable.self, from: $0).value.int!
+        }
+        let reference: Switch = parent.switch(to: child)
+        // Test single (and targettable) reference.
+        let expectation: XCTestExpectation = .init()
+        expectation.assertForOverFulfill = true
+        let responses: NSMutableSet = .init(set: [2])
+        reference.resolve(with: .shared)
+            .replaceError(with: 0)
+            .sink { responses.remove($0); expectation.fulfill() }
+            .store(in: &bin)
+        wait(for: [expectation], timeout: 15)
+        XCTAssertEqual(responses.count, 0)
+    }
+
+    func testAsyncStreamSwitch() async throws {
+        // Prepare the endpoints.
+        let parent: Single<Void, String> = .init {
+            Path("https://gist.githubusercontent.com/sbertix/18271e0e549cac1f6a0d4276bf369c6e/raw/1da47924f034d21f87797edbe836abbe7c73dfd5/one.json")
+        } response: { _ in
+            "https://gist.githubusercontent.com/sbertix/18271e0e549cac1f6a0d4276bf369c6e/raw/1da47924f034d21f87797edbe836abbe7c73dfd5/one.json"
+        }
+        let child: Loop<String, AnyDecodable> = .init {
+            Path($0)
+        } response: {
+            try JSONDecoder().decode(AnyDecodable.self, from: $0)
+        } page: {
+            $0.next.string
+        }
+        let reference: Switch = parent.switch(to: child)
+        // Test stream (and targettable) reference.
+        var count: Int = 0
+        var responses: Set<Int> = [1, 2]
+        for try await response in reference.resolve(with: .shared) {
+            count += 1
+            guard let value = response.value.int else { continue }
+            responses.remove(value)
+        }
+        XCTAssertEqual(count, 2)
+        XCTAssertTrue(responses.isEmpty)
+    }
+    
+    func testCombineStreamSwitch() {
+        // Prepare the endpoints.
+        let parent: Single<Void, String> = .init {
+            Path("https://gist.githubusercontent.com/sbertix/18271e0e549cac1f6a0d4276bf369c6e/raw/1da47924f034d21f87797edbe836abbe7c73dfd5/one.json")
+        } response: { _ in
+            "https://gist.githubusercontent.com/sbertix/18271e0e549cac1f6a0d4276bf369c6e/raw/1da47924f034d21f87797edbe836abbe7c73dfd5/one.json"
+        }
+        let child: Loop<String, AnyDecodable> = .init {
+            Path($0)
+        } response: {
+            try JSONDecoder().decode(AnyDecodable.self, from: $0)
+        } page: {
+            $0.next.string
+        }
+        let reference: Switch = parent.switch(to: child)
+        // Test stream (and targettable) reference.
+        let expectation: XCTestExpectation = .init()
+        expectation.assertForOverFulfill = true
+        expectation.expectedFulfillmentCount = 2
+        let responses: NSMutableSet = .init(set: [1, 2])
+        reference.resolve(with: .shared)
+            .compactMap { $0.value.int }
+            .replaceError(with: 0)
+            .sink { responses.remove($0); expectation.fulfill() }
+            .store(in: &bin)
+        wait(for: [expectation], timeout: 15)
+        XCTAssertEqual(responses.count, 0)
     }
 }
