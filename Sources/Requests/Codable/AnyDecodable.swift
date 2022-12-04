@@ -23,7 +23,7 @@ import Foundation
             return value.boolValue
         case let string as String:
             switch string.lowercased() {
-            case "y", "yes", "t", "true", "1": return true
+            case "y", "yes", "t", "true", "1", "ok": return true
             case "n", "no", "f", "false", "0": return false
             default: return nil
             }
