@@ -23,7 +23,8 @@ public protocol Provider<Input, Output> {
     ///
     /// - parameter input: Some `Input`.
     /// - returns: Some `Output`.
-    @_spi(Private) func _output(from input: Input) -> Output
+    @_spi(Private)
+    func _output(from input: Input) -> Output
 }
 
 public extension Provider where Output: Provider {

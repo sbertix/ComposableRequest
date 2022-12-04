@@ -34,4 +34,3 @@ public protocol Component {
     /// - parameter request: A mutable `URLRequest`.
     func update(_ request: inout URLRequest)
 }
-

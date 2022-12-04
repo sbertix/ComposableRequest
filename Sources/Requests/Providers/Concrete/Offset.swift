@@ -14,14 +14,14 @@ public extension Providers {
     struct Offset<Offset, Page>: OffsetProvider {
         /// The output generator.
         private let content: (Offset) -> Page
-        
+
         /// Init.
         ///
         /// - parameter content: The output factory.
         public init(_ content: @escaping (Offset) -> Page) {
             self.content = content
         }
-        
+
         /// Compose the page.
         ///
         /// - parameter offset: Some `Offset`.

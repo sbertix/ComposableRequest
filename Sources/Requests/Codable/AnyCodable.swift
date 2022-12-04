@@ -13,15 +13,15 @@ import Foundation
 public struct AnyEncodable {
     /// Some encodable value.
     private let encodableValue: Any
-    
+
     /// Whether it should convert to snake case or not. Defaults to `false`.
     private let convertToSnakeCase: Bool
-        
+
     /// A recursive encodable value.
     private var recursiveEncodableValue: Any {
         (encodableValue as? AnyEncodable)?.recursiveEncodableValue ?? encodableValue
     }
-    
+
     /// Init.
     ///
     /// - parameters:
@@ -31,14 +31,14 @@ public struct AnyEncodable {
         self.encodableValue = (encodableValue as? AnyEncodable)?.recursiveEncodableValue ?? encodableValue
         self.convertToSnakeCase = convertToSnakeCase
     }
-    
+
     /// Init.
     ///
     /// - parameter encodableValue: Some encodable value.
     public init<T>(_ encodableValue: T) {
         self.init(encodableValue, convertToSnakeCase: false)
     }
-    
+
     /// Change all keys to be encoded using snake case.
     ///
     /// "someKey" -> "some_key".

@@ -15,9 +15,10 @@ import Foundation
 /// - you _CAN_ have **at most** `1` `Response`
 /// - **successive** `Component`s of the same type will **override previous** ones
 /// - non-`Single` `Endpoint`s only return themselves or a type-erased version of themeselves.
-@resultBuilder public struct EndpointBuilder {
+@resultBuilder
+public struct EndpointBuilder {     // swiftlint:disable:this convenience_type
     // MARK: Accept
-    
+
     /// Turn a single component into a collection.
     ///
     /// - parameter expression: Some `Component`.
@@ -25,7 +26,7 @@ import Foundation
     public static func buildExpression<C: Component>(_ expression: C) -> Components {
         .init([expression])
     }
-    
+
     /// Turn a valid path into itself.
     ///
     /// - parameter expression: A valid `Path`.
@@ -41,7 +42,7 @@ import Foundation
     public static func buildExpression<O>(_ expression: Response<O>) -> Response<O> {
         expression
     }
-    
+
     /// Turn a valid endpoint into itself.
     ///
     /// - parameter expression: Some `Endpoint`.
@@ -49,9 +50,9 @@ import Foundation
     public static func buildExpression<E: Endpoint>(_ expression: E) -> E {
         expression
     }
-    
+
     // MARK: Start
-    
+
     /// Build an endpoint request, starting from some components.
     ///
     /// - parameter content: Some `Components`.
@@ -67,7 +68,7 @@ import Foundation
     public static func buildPartialBlock(first content: Path) -> TupleItem<Path, Components> {
         .init(first: content, last: .init())
     }
-    
+
     /// Build an endpoint request, starting from the response.
     ///
     /// - paramter content: A valid `Response`.
@@ -75,7 +76,7 @@ import Foundation
     public static func buildPartialBlock<O>(first content: Response<O>) -> Response<O> {
         content
     }
-    
+
     /// Build an endpoint request, starting from some endpoint.
     ///
     /// - parameter content: Some `Endpoint`.
@@ -83,9 +84,9 @@ import Foundation
     public static func buildPartialBlock<E: Endpoint>(first content: E) -> E {
         content
     }
-    
+
     // MARK: Accumulate from `Components`
-        
+
     /// Accumulate an endpoint request, adding to some components.
     ///
     /// - parameters:
@@ -107,7 +108,7 @@ import Foundation
     public static func buildPartialBlock(accumulated: Components, next: Path) -> TupleItem<Path, Components> {
         .init(first: next, last: accumulated)
     }
-        
+
     /// Accumulate an endpoint request, adding to some components.
     ///
     /// - parameters:
@@ -117,9 +118,9 @@ import Foundation
     public static func buildPartialBlock<O>(accumulated: Components, next: Response<O>) -> TupleItem<Components, Response<O>> {
         .init(first: accumulated, last: next)
     }
-    
+
     // MARK: Accumulate from `Response`
-        
+
     /// Accumulate an endpoint request, adding to some response.
     ///
     /// - parameters:
@@ -129,7 +130,7 @@ import Foundation
     public static func buildPartialBlock<O>(accumulated: Response<O>, next: Components) -> TupleItem<Components, Response<O>> {
         .init(first: next, last: accumulated)
     }
-    
+
     /// Accumulate an endpoint request, adding to some response.
     ///
     /// - parameters:
@@ -139,9 +140,9 @@ import Foundation
     public static func buildPartialBlock<O>(accumulated: Response<O>, next: Path) -> Single<O> {
         .init(path: next.path, components: .init(), output: accumulated.content)
     }
-    
+
     // MARK: Accumulate from `Path`, `Components`
-    
+
     /// Accumulate an endpoint request, adding to a tuple item.
     ///
     /// - parameters:
@@ -153,7 +154,7 @@ import Foundation
         accumulated.last.components.merge(next.components) { $1 }
         return accumulated
     }
-    
+
     /// Accumulate an endpoint request, adding to a tuple item.
     ///
     /// - parameters:
@@ -163,9 +164,9 @@ import Foundation
     public static func buildPartialBlock<O>(accumulated: TupleItem<Path, Components>, next: Response<O>) -> Single<O> {
         .init(path: accumulated.first.path, components: accumulated.last.components, output: next.content)
     }
-    
+
     // MARK: Accumulate from `Components`, `Response`
-    
+
     /// Accumulate an endpoint request, adding to a tuple item.
     ///
     /// - parameters:
@@ -177,7 +178,7 @@ import Foundation
         accumulated.first.components.merge(next.components) { $1 }
         return accumulated
     }
-    
+
     /// Accumulate an endpoint request, adding to a tuple item.
     ///
     /// - parameters:
@@ -187,9 +188,9 @@ import Foundation
     public static func buildPartialBlock<O>(accumulated: TupleItem<Components, Response<O>>, next: Path) -> Single<O> {
         .init(path: next.path, components: accumulated.first.components, output: accumulated.last.content)
     }
-    
+
     // MARK: Resolve
-    
+
     /// Resolve a valid tuple item.
     ///
     /// - parameter content: A valid `TupleItem`.
@@ -197,7 +198,7 @@ import Foundation
     public static func buildFinalResult(_ component: TupleItem<Path, Components>) -> TupleItem<Path, Components> {
         component
     }
-    
+
     /// Resolve some endpoint.
     ///
     /// - parameter content: Some `Endpoint`.
@@ -205,7 +206,7 @@ import Foundation
     public static func buildFinalResult<E: Endpoint>(_ component: E) -> E {
         component
     }
-    
+
     /// Resolve some single endpoint.
     ///
     /// - parameter content: Some `SingleEndpoint`.
@@ -213,7 +214,7 @@ import Foundation
     public static func buildFinalResult<E: SingleEndpoint>(_ component: E) -> AnySingleEndpoint<E.Output> {
         component.eraseToAnySingleEndpoint()
     }
-    
+
     /// Resolve some loop endpoint.
     ///
     /// - parameter content: Some `LoopEndpoint`.

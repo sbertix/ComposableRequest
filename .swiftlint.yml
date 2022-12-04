@@ -3,7 +3,6 @@ included:
     - Tests
 
 opt_in_rules:
-    - anyobject_protocol
     - array_init
     - attributes
     - class_delegate_protocol
@@ -23,7 +22,6 @@ opt_in_rules:
     - enum_case_associated_values_count
     - expiring_todo
     - explicit_enum_raw_value
-    - explicit_top_level_acl
     - extension_access_modifier
     - fallthrough
     - fatal_error_message
@@ -43,7 +41,6 @@ opt_in_rules:
     - lower_acl_than_parent
     - missing_docs
     - modifier_order
-    - multiline_arguments
     - multiline_function_chains
     - multiline_parameters
     - number_separator
@@ -61,7 +58,6 @@ opt_in_rules:
     - sorted_first_last
     - sorted_imports
     - static_operator
-    - switch_case_on_newline
     - test_case_accessibility
     - toggle_bool
     - trailing_closure
@@ -92,6 +88,8 @@ identifier_name:
       - id
       - iv
       - url
+    allowed_symbols:
+      - _
 
 line_length:
     ignores_comments: true

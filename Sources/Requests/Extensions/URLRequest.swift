@@ -7,17 +7,6 @@
 
 import Foundation
 
-private extension Dictionary where Key == ObjectIdentifier, Value == any Component {
-    /// Get the cached component, or it's default value
-    /// if it doesn't exist, then drop it.
-    ///
-    /// - parameter component: Some `Component` type.
-    /// - returns: Some `Component`.
-    mutating func drop<C: Component>(_ component: C.Type) -> C {
-        removeValue(forKey: .init(component)) as? C ?? .defaultValue
-    }
-}
-
 extension URLRequest {
     /// Init.
     ///
@@ -47,5 +36,16 @@ extension URLRequest {
         // Update user-defined ones.
         for (_, component) in components { component.update(&request) }
         self = request
+    }
+}
+
+private extension Dictionary where Key == ObjectIdentifier, Value == any Component {
+    /// Get the cached component, or it's default value
+    /// if it doesn't exist, then drop it.
+    ///
+    /// - parameter component: Some `Component` type.
+    /// - returns: Some `Component`.
+    mutating func drop<C: Component>(_ component: C.Type) -> C {
+        removeValue(forKey: .init(component)) as? C ?? .defaultValue
     }
 }

@@ -14,7 +14,7 @@ public protocol OffsetProvider<Offset, Page>: Provider where Input == Offset, Ou
     associatedtype Offset
     /// The associated page type.
     associatedtype Page
-    
+
     /// Compose the page.
     ///
     /// - parameter offset: Some `Offset`.
@@ -27,7 +27,8 @@ public extension OffsetProvider {
     ///
     /// - parameter input: Some `Input`.
     /// - returns: Some `Output`.
-    @_spi(Private) func _output(from input: Input) -> Output {
+    @_spi(Private)
+    func _output(from input: Input) -> Output {
         offset(input)
     }
 }

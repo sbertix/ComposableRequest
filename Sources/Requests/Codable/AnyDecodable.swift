@@ -10,7 +10,8 @@ import Foundation
 /// A `struct` defining an instance
 /// capable of parsing some generic
 /// JSON file.
-@dynamicMemberLookup public struct AnyDecodable {
+@dynamicMemberLookup
+public struct AnyDecodable {
     /// Whether it should convert from snake case or not. Defaults to `false`.
     private let convertFromSnakeCase: Bool
     /// Some decoded value.
@@ -31,7 +32,7 @@ import Foundation
             return nil
         }
     }
-    
+
     /// Simplify into an optional `Double`.
     public var double: Double? {
         switch decodedValue {
@@ -68,7 +69,7 @@ import Foundation
         self.decodedValue = decodedValue
         self.convertFromSnakeCase = convertFromSnakeCase
     }
-    
+
     /// Change all keys to be decoded using camel case.
     ///
     /// "someKey" -> "some_key".
@@ -77,7 +78,7 @@ import Foundation
     public func fromSnakeCase() -> AnyDecodable {
         .init(decodedValue, convertFromSnakeCase: true)
     }
-    
+
     /// Look up a specific key inside
     /// `decodedValue`, if it is a dictionary.
     ///

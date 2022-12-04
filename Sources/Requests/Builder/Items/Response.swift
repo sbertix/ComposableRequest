@@ -16,21 +16,21 @@ import Foundation
 public struct Response<Output> {
     /// The content factory.
     let content: (_ response: URLResponse, _ data: Data) throws -> Output
-    
+
     /// Init.
     ///
     /// - parameter content: A valid content factory.
     public init(_ content: @escaping (_ response: URLResponse, _ data: Data) throws -> Output) {
         self.content = content
     }
-    
+
     /// Init.
     ///
     /// - parameter content: A simplified content factory, only accounting for the actual output.
     public init(_ content: @escaping (Data) throws -> Output) {
         self.init { try content($1) }
     }
-    
+
     /// Init.
     ///
     /// - parameters:
@@ -42,7 +42,7 @@ public struct Response<Output> {
     ) where Output: Decodable {
         self.init { try decoder.decode(output, from: $0) }
     }
-    
+
     #if canImport(Combine)
     /// Init.
     ///

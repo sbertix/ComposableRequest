@@ -17,7 +17,7 @@
  private let item = Item.default
 
 /// A `class` defining all `Storage` test cases.
- internal final class StorageTests: XCTestCase {
+ final class StorageTests: XCTestCase {
     // MARK: Processors
 
     /// Process a `NonThrowingStorage`.

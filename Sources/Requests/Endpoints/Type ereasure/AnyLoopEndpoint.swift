@@ -19,7 +19,7 @@ import Foundation
 public struct AnyLoopEndpoint<Output> {
     /// The task factory.
     private let content: (URLSession) -> AsyncThrowingStream<Output, any Error>
-    
+
     /// Init.
     ///
     /// - parameter endpoint: Some `LoopEndpoint`.

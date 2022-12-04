@@ -17,12 +17,12 @@ import Foundation
 public struct Switch<Parent: SingleEndpoint, Child: Endpoint> {
     /// The associated output type.
     public typealias Output = Child.Output
-    
+
     /// The parent endpoint.
     private let parent: Parent
     /// The child factory.
     private let child: (Parent.Output) -> Child
-    
+
     /// Init.
     ///
     /// - parameters:
@@ -45,7 +45,8 @@ extension Switch: Endpoint {
     ///     You should prefer calling higher-level `protocol`s' `resolve` functions.
     /// - parameter session: The `URLSession` used to fetch the response.
     /// - returns: Some `AsyncStream`.
-    @_spi(Private) public func _resolve(with session: URLSession) -> AsyncThrowingStream<Output, any Error> {
+    @_spi(Private)
+    public func _resolve(with session: URLSession) -> AsyncThrowingStream<Output, any Error> {
         .init { continuation in
             Task {
                 do {

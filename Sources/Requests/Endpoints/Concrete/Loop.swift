@@ -16,7 +16,7 @@ import Foundation
 public struct Loop<Next: Sendable, Content: SingleEndpoint> {
     /// The associated output type.
     public typealias Output = Content.Output
-    
+
     /// The initial page value.
     private let first: Next
     /// The actual endpoint request.
@@ -39,7 +39,7 @@ public struct Loop<Next: Sendable, Content: SingleEndpoint> {
         self.content = content
         self.next = next
     }
-    
+
     /// Init.
     ///
     /// - parameters:

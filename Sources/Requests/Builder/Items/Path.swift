@@ -12,7 +12,7 @@ import Foundation
 public struct Path {
     /// The path.
     let path: String
-    
+
     /// Init.
     ///
     /// - parameter path: The path component for a given endpoint.

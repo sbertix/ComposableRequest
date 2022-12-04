@@ -14,14 +14,14 @@ public extension Providers {
     struct Lock<Key, Secret>: LockProvider {
         /// The output generator.
         private let content: (Key) -> Secret
-        
+
         /// Init.
         ///
         /// - parameter content: The output factory.
         public init(_ content: @escaping (Key) -> Secret) {
             self.content = content
         }
-        
+
         /// Unlock the output.
         ///
         /// - parameter key: Some `Key`.

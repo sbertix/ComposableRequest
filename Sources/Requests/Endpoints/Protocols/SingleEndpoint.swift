@@ -40,7 +40,8 @@ public extension SingleEndpoint {
     ///     You should prefer calling higher-level `protocol`s' `resolve` functions.
     /// - parameter session: The `URLSession` used to fetch the response.
     /// - returns: Some `AsyncStream`.
-    @_spi(Private) func _resolve(with session: URLSession) -> AsyncThrowingStream<Output, any Error> {
+    @_spi(Private)
+    func _resolve(with session: URLSession) -> AsyncThrowingStream<Output, any Error> {
         // You should only ever return one
         // item.
         // We could use `prefix`, but we
@@ -88,7 +89,7 @@ public extension SingleEndpoint {
     }
 }
 
-//public extension SingleEndpoint where Output: Sendable {
+// public extension SingleEndpoint where Output: Sendable {
 //    /// Switch the current endpoint response
 //    /// with a new one fetched from some other
 //    /// (related) endpoint.
@@ -237,4 +238,4 @@ public extension SingleEndpoint {
 //        self.switch(to: .init(output, decoder: decoder, request: request, page: page))
 //    }
 //    #endif
-//}
+// }

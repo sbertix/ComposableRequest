@@ -24,7 +24,8 @@ public protocol Endpoint<Output> {
     ///     You should prefer calling higher-level `protocol`s' `resolve` functions.
     /// - parameter session: The `URLSession` used to fetch the response.
     /// - returns: Some `AsyncStream`.
-    @_spi(Private) func _resolve(with session: URLSession) -> AsyncThrowingStream<Output, any Error>
+    @_spi(Private)
+    func _resolve(with session: URLSession) -> AsyncThrowingStream<Output, any Error>
 
     #if canImport(Combine)
     /// Fetch responses, from a given
@@ -34,7 +35,8 @@ public protocol Endpoint<Output> {
     ///     You should prefer calling higher-level `protocol`s' `resolve` functions.
     /// - parameter session: The `URLSession` used to fetch the response.
     /// - returns: Some `Publisher`.
-    @_spi(Private) func _resolve(with session: URLSession) -> AnyPublisher<Output, any Error>
+    @_spi(Private)
+    func _resolve(with session: URLSession) -> AnyPublisher<Output, any Error>
     #endif
 }
 
@@ -47,9 +49,11 @@ public extension Endpoint {
     ///     You should prefer calling higher-level `protocol`s' `resolve` functions.
     /// - parameter session: The `URLSession` used to fetch the response.
     /// - returns: Some `Publisher`.
-    @_spi(Private) func _resolve(with session: URLSession) -> AnyPublisher<Output, any Error> {
+    @_spi(Private)
+    func _resolve(with session: URLSession) -> AnyPublisher<Output, any Error> {
         // A passthrough subject used
         // to propagate responses.
+        // swiftlint:disable:next private_subject
         let subject: PassthroughSubject<Output, any Error> = .init()
         Task {
             do {

@@ -39,7 +39,8 @@ public extension LoopEndpoint {
     ///     You should prefer calling higher-level `protocol`s' `resolve` functions.
     /// - parameter session: The `URLSession` used to fetch the response.
     /// - returns: Some `AsyncStream`.
-    @_spi(Private) func _resolve(with session: URLSession) -> AsyncThrowingStream<Output, any Error> {
+    @_spi(Private)
+    func _resolve(with session: URLSession) -> AsyncThrowingStream<Output, any Error> {
         resolve(with: session)
     }
 

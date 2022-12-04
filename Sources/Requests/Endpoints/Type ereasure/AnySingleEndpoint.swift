@@ -19,12 +19,12 @@ import Foundation
 public struct AnySingleEndpoint<Output> {
     /// The task factory.
     private let content: (URLSession) -> Task<Output, any Error>
-    
+
     /// Init.
     ///
     /// - parameter endpoint: Some `SingleEndpoint`.
     public init<E: SingleEndpoint>(_ endpoint: E) where E.Output == Output {
-        self.content = { session in .init { try await endpoint.resolve(with: session) }}
+        self.content = { session in .init { try await endpoint.resolve(with: session) } }
     }
 }
 

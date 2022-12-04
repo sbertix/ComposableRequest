@@ -9,19 +9,20 @@ import Combine
 import Foundation
 import XCTest
 
-@_spi(ComposableRequest) @_spi(Private) @testable import Requests
+@_spi(Private)
+@testable import Requests
 
 /// A `class` defining tests for composition `protocol`s.
 final class APItests: XCTestCase {
     /// The cancellable set used to test combine publishers.
     private var bin: Set<AnyCancellable> = []
-    
+
     override func tearDown() {
         bin.removeAll()
     }
-    
+
     // MARK: Builder
-    
+
     func testBuilder() {
         // Prepare the components.
         @EndpointBuilder var components: TupleItem<Path, Components> {
@@ -37,6 +38,7 @@ final class APItests: XCTestCase {
             Expensive(false)
         }
         // Test the request.
+        // swiftlint:disable:next force_unwrapping
         let request = URLRequest(path: components.first.path, components: components.last.components)!
         XCTAssertEqual(request.httpMethod, "POST")
         XCTAssertEqual(request.url?.absoluteString, "https://google.com?key=value")
@@ -48,14 +50,15 @@ final class APItests: XCTestCase {
         XCTAssertEqual(request.allowsConstrainedNetworkAccess, false)
         XCTAssertEqual(request.allowsExpensiveNetworkAccess, false)
     }
-    
+
     // MARK: Single
-    
+
     @EndpointBuilder private func singleEndpoint() -> AnySingleEndpoint<Int> {
         Path("https://gist.githubusercontent.com/sbertix/18271e0e549cac1f6a0d4276bf369c6e/raw/1da47924f034d21f87797edbe836abbe7c73dfd5/one.json")
+        // swiftlint:disable:next force_unwrapping
         Response { try JSONDecoder().decode(AnyDecodable.self, from: $0).value.int! }
     }
-    
+
     func testAsync() async throws {
         let reference = singleEndpoint()
         // Test single reference.
@@ -69,7 +72,7 @@ final class APItests: XCTestCase {
         }
         XCTAssertEqual(count, 1)
     }
-    
+
     func testCombine() {
         let reference = singleEndpoint()
         // Test single reference.
@@ -93,9 +96,9 @@ final class APItests: XCTestCase {
         wait(for: [targettableExpectation], timeout: 15)
         XCTAssertEqual(responses.count, 0)
     }
-    
+
     // MARK: Loop
-    
+
     @EndpointBuilder private func loopEndpoint() -> AnyLoopEndpoint<AnyDecodable> {
         Loop(startingAt: "https://gist.githubusercontent.com/sbertix/18271e0e549cac1f6a0d4276bf369c6e/raw/1da47924f034d21f87797edbe836abbe7c73dfd5/one.json") {
             Path($0)
@@ -104,7 +107,7 @@ final class APItests: XCTestCase {
             $0.next.string
         }
     }
-    
+
     func testAsyncStream() async throws {
         let reference = loopEndpoint()
         // Test stream reference.
@@ -128,7 +131,7 @@ final class APItests: XCTestCase {
         XCTAssertEqual(count, 2)
         XCTAssertTrue(responses.isEmpty)
     }
-    
+
     func testCombineStream() {
         let reference = loopEndpoint()
         // Test stream reference.
@@ -156,19 +159,21 @@ final class APItests: XCTestCase {
         wait(for: [targettableExpectation], timeout: 15)
         XCTAssertEqual(responses.count, 0)
     }
-    
+
     // MARK: Switch
-    
+
     @EndpointBuilder private func switchSingleEndpoint() -> AnySingleEndpoint<Int> {
         Switch {
             Path("https://gist.githubusercontent.com/sbertix/18271e0e549cac1f6a0d4276bf369c6e/raw/1da47924f034d21f87797edbe836abbe7c73dfd5/one.json")
+            // swiftlint:disable:next force_unwrapping
             Response { try JSONDecoder().decode(AnyDecodable.self, from: $0).next.string! }
         } to: {
             Path($0)
+            // swiftlint:disable:next force_unwrapping
             Response { try JSONDecoder().decode(AnyDecodable.self, from: $0).value.int! }
         }
     }
-    
+
     func testAsyncSwitch() async throws {
         let reference = switchSingleEndpoint()
         // Test single reference.
@@ -182,7 +187,7 @@ final class APItests: XCTestCase {
         }
         XCTAssertEqual(count, 1)
     }
-    
+
     func testCombineSwitch() {
         let reference = switchSingleEndpoint()
         // Test single (and targettable) reference.
@@ -196,7 +201,7 @@ final class APItests: XCTestCase {
         wait(for: [expectation], timeout: 15)
         XCTAssertEqual(responses.count, 0)
     }
-    
+
     @EndpointBuilder private func switchLoopEndpoint() -> AnyLoopEndpoint<AnyDecodable> {
         Switch {
             Path("https://gist.githubusercontent.com/sbertix/18271e0e549cac1f6a0d4276bf369c6e/raw/1da47924f034d21f87797edbe836abbe7c73dfd5/one.json")
@@ -210,7 +215,7 @@ final class APItests: XCTestCase {
             }
         }
     }
-    
+
     func testAsyncStreamSwitch() async throws {
         let reference = switchLoopEndpoint()
         // Test stream (and targettable) reference.
@@ -224,7 +229,7 @@ final class APItests: XCTestCase {
         XCTAssertEqual(count, 2)
         XCTAssertTrue(responses.isEmpty)
     }
-    
+
     func testCombineStreamSwitch() {
         let reference = switchLoopEndpoint()
         // Test stream (and targettable) reference.

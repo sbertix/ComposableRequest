@@ -14,7 +14,7 @@ public protocol LockProvider<Key, Secret>: Provider where Input == Key, Output =
     associatedtype Key
     /// The associated secret type.
     associatedtype Secret
-    
+
     /// Unlock the output.
     ///
     /// - parameter key: Some `Key`.
@@ -27,7 +27,8 @@ public extension LockProvider {
     ///
     /// - parameter input: Some `Input`.
     /// - returns: Some `Output`.
-    @_spi(Private) func _output(from input: Input) -> Output {
+    @_spi(Private)
+    func _output(from input: Input) -> Output {
         unlock(with: input)
     }
 }

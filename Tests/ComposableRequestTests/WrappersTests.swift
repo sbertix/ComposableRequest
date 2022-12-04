@@ -15,7 +15,7 @@ import CoreGraphics
 @testable import Requests
 
 /// A `class` defining all models test cases.
-internal final class WrappersTests: XCTestCase {
+final class WrappersTests: XCTestCase {
     func testCodable() throws {
         // Prepare the encoding.
         let encodables: AnyEncodable = .init([
@@ -25,7 +25,8 @@ internal final class WrappersTests: XCTestCase {
             "text": "string",
             "listArray": [2, true],
             "listDictionary": ["text": 1]
-        ]).toSnakeCase()
+        ])
+        .toSnakeCase()
         let data = try JSONEncoder().encode(encodables)
         // Prepare the decoding.
         let decoded = try JSONDecoder()
