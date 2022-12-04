@@ -1,6 +1,6 @@
 //
 //  Query.swift
-//  Core
+//  Requests
 //
 //  Created by Stefano Bertagno on 01/11/22.
 //

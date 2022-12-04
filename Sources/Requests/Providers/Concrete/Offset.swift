@@ -1,13 +1,9 @@
 //
 //  Offset.swift
-//  Core
+//  Requests
 //
 //  Created by Stefano Bertagno on 17/11/22.
 //
-
-#if canImport(Logging)
-import Logging
-#endif
 
 import Foundation
 
@@ -24,13 +20,6 @@ public extension Providers {
         /// - parameter content: The output factory.
         public init(_ content: @escaping (Offset) -> Page) {
             self.content = content
-            #if canImport(Logging)
-            // Using `Lock`s with `Endpoint` `Page`s
-            // is no longer advised: rely on `Endpoint`
-            // `Input` directly.
-            guard Page is Endpoint else { return }
-            os_log(.info, "Please prefer `Partial` `Endpoint`s to custom `Provider`s.")
-            #endif
         }
         
         /// Compose the page.

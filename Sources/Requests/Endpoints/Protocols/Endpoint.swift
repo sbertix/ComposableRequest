@@ -1,6 +1,6 @@
 //
 //  Endpoint.swift
-//  Core
+//  Requests
 //
 //  Created by Stefano Bertagno on 02/11/22.
 //
@@ -13,9 +13,7 @@ import Foundation
 
 /// A `protocol` defining an instance
 /// targeting a single endpoint.
-public protocol Endpoint<Input, Output> {
-    /// The associated input type to generate request components.
-    associatedtype Input: Sendable
+public protocol Endpoint<Output> {
     /// The associated output type.
     associatedtype Output
 
@@ -24,11 +22,9 @@ public protocol Endpoint<Input, Output> {
     ///
     /// - note:
     ///     You should prefer calling higher-level `protocol`s' `resolve` functions.
-    /// - parameters:
-    ///     - input: Some `Input`.
-    ///     - session: The `URLSession` used to fetch the response.
+    /// - parameter session: The `URLSession` used to fetch the response.
     /// - returns: Some `AsyncStream`.
-    @_spi(Private) func _resolve(with input: Input, _ session: URLSession) -> AsyncThrowingStream<Output, any Error>
+    @_spi(Private) func _resolve(with session: URLSession) -> AsyncThrowingStream<Output, any Error>
 
     #if canImport(Combine)
     /// Fetch responses, from a given
@@ -36,11 +32,9 @@ public protocol Endpoint<Input, Output> {
     ///
     /// - note:
     ///     You should prefer calling higher-level `protocol`s' `resolve` functions.
-    /// - parameters:
-    ///     - input: Some `Input`.
-    ///     - session: The `URLSession` used to fetch the response.
+    /// - parameter session: The `URLSession` used to fetch the response.
     /// - returns: Some `Publisher`.
-    @_spi(Private) func _resolve(with input: Input, _ session: URLSession) -> AnyPublisher<Output, any Error>
+    @_spi(Private) func _resolve(with session: URLSession) -> AnyPublisher<Output, any Error>
     #endif
 }
 
@@ -51,17 +45,15 @@ public extension Endpoint {
     ///
     /// - note:
     ///     You should prefer calling higher-level `protocol`s' `resolve` functions.
-    /// - parameters:
-    ///     - input: Some `Input`.
-    ///     - session: The `URLSession` used to fetch the response.
+    /// - parameter session: The `URLSession` used to fetch the response.
     /// - returns: Some `Publisher`.
-    @_spi(Private) func _resolve(with input: Input, _ session: URLSession) -> AnyPublisher<Output, any Error> {
+    @_spi(Private) func _resolve(with session: URLSession) -> AnyPublisher<Output, any Error> {
         // A passthrough subject used
         // to propagate responses.
         let subject: PassthroughSubject<Output, any Error> = .init()
         Task {
             do {
-                for try await response in _resolve(with: input, session) { subject.send(response) }
+                for try await response in _resolve(with: session) { subject.send(response) }
                 subject.send(completion: .finished)
             } catch {
                 subject.send(completion: .failure(error))
@@ -71,4 +63,3 @@ public extension Endpoint {
     }
     #endif
 }
-atom 

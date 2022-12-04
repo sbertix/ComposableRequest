@@ -1,6 +1,6 @@
 //
 //  Component.swift
-//  Core
+//  Requests
 //
 //  Created by Stefano Bertagno on 02/11/22.
 //
@@ -11,7 +11,7 @@ import Foundation
 /// for a specific request component.
 ///
 /// The user can define custom components
-/// to be used inside `ComponentsBuilder`.
+/// to be used inside `EndpointBuilder`.
 public protocol Component {
     /// The associated value type.
     associatedtype Value
@@ -34,3 +34,4 @@ public protocol Component {
     /// - parameter request: A mutable `URLRequest`.
     func update(_ request: inout URLRequest)
 }
+

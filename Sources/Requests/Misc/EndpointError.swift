@@ -1,6 +1,6 @@
 //
 //  EndpointError.swift
-//  Core
+//  Requests
 //
 //  Created by Stefano Bertagno on 14/11/22.
 //

@@ -1,8 +1,8 @@
 //
 //  Loop.swift
-//  Core
+//  Requests
 //
-//  Created by Stefano Bertagno on 14/11/22.
+//  Created by Stefano Bertagno on 04/12/22.
 //
 
 #if canImport(Combine)
@@ -11,104 +11,66 @@ import Combine
 
 import Foundation
 
-/// A `struct` defining the basic instance
-/// targeting a single paginated API endpoint.
-public struct Loop<Input: Sendable, Output> {
-    /// The request components builder.
-    private let request: (Input) -> Components
-    /// The response output mapper.
-    private let response: (Data) throws -> Output
+/// A `struct` defining a custom endpoint
+/// implementation handling a paginated request.
+public struct Loop<Next: Sendable, Content: SingleEndpoint> {
+    /// The associated output type.
+    public typealias Output = Content.Output
+    
+    /// The initial page value.
+    private let first: Next
+    /// The actual endpoint request.
+    private let content: (Next) -> Content
     /// The next page mapper. Return `nil` to stop the stream.
-    private let page: (Output) throws -> Input?
+    private let next: (Output) throws -> Next?
 
     /// Init.
     ///
     /// - parameters:
-    ///     - request: The request component builder.
-    ///     - response: The response output mapper.
-    ///     - page: The next page mapper.
+    ///     - first: The starter `Next` for the pagination.
+    ///     - request: The actual endpoint request.
+    ///     - next: The next page mapper.
     public init(
-        @ComponentsBuilder request: @escaping (Input) -> Components,
-        response: @escaping (Data) throws -> Output,
-        page: @escaping (Output) throws -> Input?
+        startingAt first: Next,
+        @EndpointBuilder content: @escaping (Next) -> Content,
+        next: @escaping (Output) throws -> Next?
     ) {
-        self.request = request
-        self.response = response
-        self.page = page
+        self.first = first
+        self.content = content
+        self.next = next
     }
-
+    
     /// Init.
     ///
     /// - parameters:
-    ///     - request: The request component builder.
-    ///     - page: The next page mapper.
-    public init(
-        @ComponentsBuilder request: @escaping (Input) -> Components,
-        page: @escaping (Output) throws -> Input?
-    ) where Output == Data {
-        self.request = request
-        self.response = { $0 }
-        self.page = page
+    ///     - request: The actual endpoint request.
+    ///     - next: The next page mapper.
+    public init<T>(
+        @EndpointBuilder content: @escaping (Next) -> Content,
+        next: @escaping (Output) throws -> Next?
+    ) where Next == T? {
+        self.first = nil
+        self.content = content
+        self.next = next
     }
-
-    /// Init.
-    ///
-    /// - parameters:
-    ///     - output: The `Output` type.
-    ///     - decoder: A valid `JSONDecoder`. Defaults to `.init`.
-    ///     - request: The request component builder.
-    ///     - page: The next page mapper.
-    public init(
-        _ output: Output.Type,
-        decoder: JSONDecoder = .init(),
-        @ComponentsBuilder request: @escaping (Input) -> Components,
-        page: @escaping (Output) throws -> Input?
-    ) where Output: Decodable {
-        self.request = request
-        self.response = { try decoder.decode(output, from: $0) }
-        self.page = page
-    }
-
-    #if canImport(Combine)
-    /// Init.
-    ///
-    /// - parameters:
-    ///     - output: The `Output` type.
-    ///     - decoder: Some `TopLevelDecoder`.
-    ///     - request: The request component builder.
-    ///     - page: The next page mapper.
-    public init<D: TopLevelDecoder>(
-        _ output: Output.Type,
-        decoder: D,
-        @ComponentsBuilder request: @escaping (Input) -> Components,
-        page: @escaping (Output) throws -> Input?
-    ) where Output: Decodable, D.Input == Data {
-        self.request = request
-        self.response = { try decoder.decode(output, from: $0) }
-        self.page = page
-    }
-    #endif
 }
 
 extension Loop: LoopEndpoint {
     /// Fetch responses, from a given
     /// `Input` and `URLSession`.
     ///
-    /// - parameters:
-    ///     - input: Some `Input`.
-    ///     - session: The `URLSession` used to fetch the response.
+    /// - parameter session: The `URLSession` used to fetch the response.
     /// - returns: Some `AsyncStream`.
-    public func resolve(with input: Input, _ session: URLSession) -> AsyncThrowingStream<Output, any Error> {
+    public func resolve(with session: URLSession) -> AsyncThrowingStream<Output, any Error> {
         // Hold reference to next input,
         // so we can paginate properly.
-        let nextInput: NextInput<Input> = .init(input)
+        let nextInput: NextInput<Next> = .init(first)
         return .init {
             // If next input is `nil`, cancel the stream.
             guard let input = await nextInput.value else { return nil }
-            guard let request = request(input).request else { throw EndpointError.invalidRequest }
-            let output = try await response(session.data(for: request).0)
+            let output = try await content(input).resolve(with: session)
             // Update last input.
-            await nextInput.update(with: try page(output))
+            await nextInput.update(with: try next(output))
             return output
         }
     }

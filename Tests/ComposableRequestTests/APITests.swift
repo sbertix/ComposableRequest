@@ -15,12 +15,16 @@ import XCTest
 final class APItests: XCTestCase {
     /// The cancellable set used to test combine publishers.
     private var bin: Set<AnyCancellable> = []
-
+    
+    override func tearDown() {
+        bin.removeAll()
+    }
+    
     // MARK: Builder
-
+    
     func testBuilder() {
         // Prepare the components.
-        @ComponentsBuilder var components: Components {
+        @EndpointBuilder var components: TupleItem<Path, Components> {
             Method(.post)
             Path("https://google.com")
             Query("value", forKey: "key")
@@ -33,7 +37,7 @@ final class APItests: XCTestCase {
             Expensive(false)
         }
         // Test the request.
-        let request = components.request!
+        let request = URLRequest(path: components.first.path, components: components.last.components)!
         XCTAssertEqual(request.httpMethod, "POST")
         XCTAssertEqual(request.url?.absoluteString, "https://google.com?key=value")
         XCTAssertEqual(request.allHTTPHeaderFields, ["key": "value"])
@@ -44,35 +48,30 @@ final class APItests: XCTestCase {
         XCTAssertEqual(request.allowsConstrainedNetworkAccess, false)
         XCTAssertEqual(request.allowsExpensiveNetworkAccess, false)
     }
-
+    
     // MARK: Single
-
+    
+    @EndpointBuilder private func singleEndpoint() -> AnySingleEndpoint<Int> {
+        Path("https://gist.githubusercontent.com/sbertix/18271e0e549cac1f6a0d4276bf369c6e/raw/1da47924f034d21f87797edbe836abbe7c73dfd5/one.json")
+        Response { try JSONDecoder().decode(AnyDecodable.self, from: $0).value.int! }
+    }
+    
     func testAsync() async throws {
-        // Prepare the endpoint.
-        let reference: Single<Void, Int> = .init {
-            Path("https://gist.githubusercontent.com/sbertix/18271e0e549cac1f6a0d4276bf369c6e/raw/1da47924f034d21f87797edbe836abbe7c73dfd5/one.json")
-        } response: {
-            try JSONDecoder().decode(AnyDecodable.self, from: $0).value.int!
-        }
+        let reference = singleEndpoint()
         // Test single reference.
         let response = try await reference.resolve(with: .shared)
         XCTAssertEqual(response, 1)
         // Test targettable reference.
         var count: Int = 0
-        for try await response in reference._resolve(with: (), .shared) {
+        for try await response in reference._resolve(with: .shared) {
             XCTAssertEqual(response, 1)
             count += 1
         }
         XCTAssertEqual(count, 1)
     }
-
+    
     func testCombine() {
-        // Prepare the endpoint.
-        let reference: Single<Void, Int> = .init {
-            Path("https://gist.githubusercontent.com/sbertix/18271e0e549cac1f6a0d4276bf369c6e/raw/1da47924f034d21f87797edbe836abbe7c73dfd5/one.json")
-        } response: {
-            try JSONDecoder().decode(AnyDecodable.self, from: $0).value.int!
-        }
+        let reference = singleEndpoint()
         // Test single reference.
         let expectation: XCTestExpectation = .init()
         expectation.assertForOverFulfill = true
@@ -87,30 +86,31 @@ final class APItests: XCTestCase {
         let targettableExpectation: XCTestExpectation = .init()
         targettableExpectation.assertForOverFulfill = true
         responses.setSet([1])
-        reference._resolve(with: (), .shared)
+        reference._resolve(with: .shared)
             .replaceError(with: 0)
             .sink { responses.remove($0); targettableExpectation.fulfill() }
             .store(in: &bin)
         wait(for: [targettableExpectation], timeout: 15)
         XCTAssertEqual(responses.count, 0)
     }
-
+    
     // MARK: Loop
-
-    func testAsyncStream() async throws {
-        // Prepare the endpoint.
-        let reference: Loop<String, AnyDecodable> = .init {
+    
+    @EndpointBuilder private func loopEndpoint() -> AnyLoopEndpoint<AnyDecodable> {
+        Loop(startingAt: "https://gist.githubusercontent.com/sbertix/18271e0e549cac1f6a0d4276bf369c6e/raw/1da47924f034d21f87797edbe836abbe7c73dfd5/one.json") {
             Path($0)
-        } response: {
-            try JSONDecoder().decode(AnyDecodable.self, from: $0)
-        } page: {
+            Response(AnyDecodable.self)
+        } next: {
             $0.next.string
         }
-        let path = "https://gist.githubusercontent.com/sbertix/18271e0e549cac1f6a0d4276bf369c6e/raw/1da47924f034d21f87797edbe836abbe7c73dfd5/one.json"
+    }
+    
+    func testAsyncStream() async throws {
+        let reference = loopEndpoint()
         // Test stream reference.
         var count: Int = 0
         var responses: Set<Int> = [1, 2]
-        for try await response in reference.resolve(with: path, .shared) {
+        for try await response in reference.resolve(with: .shared) {
             count += 1
             guard let value = response.value.int else { continue }
             responses.remove(value)
@@ -120,7 +120,7 @@ final class APItests: XCTestCase {
         // Test targettable reference.
         count = 0
         responses = [1, 2]
-        for try await response in reference._resolve(with: path, .shared) {
+        for try await response in reference._resolve(with: .shared) {
             count += 1
             guard let value = response.value.int else { continue }
             responses.remove(value)
@@ -128,23 +128,15 @@ final class APItests: XCTestCase {
         XCTAssertEqual(count, 2)
         XCTAssertTrue(responses.isEmpty)
     }
-
+    
     func testCombineStream() {
-        // Prepare the endpoint.
-        let reference: Loop<String, AnyDecodable> = .init {
-            Path($0)
-        } response: {
-            try JSONDecoder().decode(AnyDecodable.self, from: $0)
-        } page: {
-            $0.next.string
-        }
-        let path = "https://gist.githubusercontent.com/sbertix/18271e0e549cac1f6a0d4276bf369c6e/raw/1da47924f034d21f87797edbe836abbe7c73dfd5/one.json"
+        let reference = loopEndpoint()
         // Test stream reference.
         let expectation: XCTestExpectation = .init()
         expectation.assertForOverFulfill = true
         expectation.expectedFulfillmentCount = 2
         let responses: NSMutableSet = .init(set: [1, 2])
-        reference.resolve(with: path, .shared)
+        reference.resolve(with: .shared)
             .compactMap { $0.value.int }
             .replaceError(with: 0)
             .sink { responses.remove($0); expectation.fulfill() }
@@ -156,7 +148,7 @@ final class APItests: XCTestCase {
         targettableExpectation.assertForOverFulfill = true
         targettableExpectation.expectedFulfillmentCount = 2
         responses.setSet([1, 2])
-        reference._resolve(with: path, .shared)
+        reference._resolve(with: .shared)
             .compactMap { $0.value.int }
             .replaceError(with: 0)
             .sink { responses.remove($0); targettableExpectation.fulfill() }
@@ -164,28 +156,27 @@ final class APItests: XCTestCase {
         wait(for: [targettableExpectation], timeout: 15)
         XCTAssertEqual(responses.count, 0)
     }
-
+    
     // MARK: Switch
-
-    func testAsyncSwitch() async throws {
-        // Prepare the endpoints.
-        let parent: Single<Void, String> = .init {
+    
+    @EndpointBuilder private func switchSingleEndpoint() -> AnySingleEndpoint<Int> {
+        Switch {
             Path("https://gist.githubusercontent.com/sbertix/18271e0e549cac1f6a0d4276bf369c6e/raw/1da47924f034d21f87797edbe836abbe7c73dfd5/one.json")
-        } response: {
-            try JSONDecoder().decode(AnyDecodable.self, from: $0).next.string!
-        }
-        let child: Single<String, Int> = .init {
+            Response { try JSONDecoder().decode(AnyDecodable.self, from: $0).next.string! }
+        } to: {
             Path($0)
-        } response: {
-            try JSONDecoder().decode(AnyDecodable.self, from: $0).value.int!
+            Response { try JSONDecoder().decode(AnyDecodable.self, from: $0).value.int! }
         }
-        let reference: Switch = parent.switch(to: child)
+    }
+    
+    func testAsyncSwitch() async throws {
+        let reference = switchSingleEndpoint()
         // Test single reference.
         let singleResponse = try await reference.resolve(with: .shared)
         XCTAssertEqual(singleResponse, 2)
         // Test targettable reference.
         var count: Int = 0
-        for try await response in reference._resolve(with: (), .shared) {
+        for try await response in reference._resolve(with: .shared) {
             XCTAssertEqual(response, 2)
             count += 1
         }
@@ -193,18 +184,7 @@ final class APItests: XCTestCase {
     }
     
     func testCombineSwitch() {
-        // Prepare the endpoints.
-        let parent: Single<Void, String> = .init {
-            Path("https://gist.githubusercontent.com/sbertix/18271e0e549cac1f6a0d4276bf369c6e/raw/1da47924f034d21f87797edbe836abbe7c73dfd5/one.json")
-        } response: {
-            try JSONDecoder().decode(AnyDecodable.self, from: $0).next.string!
-        }
-        let child: Single<String, Int> = .init {
-            Path($0)
-        } response: {
-            try JSONDecoder().decode(AnyDecodable.self, from: $0).value.int!
-        }
-        let reference: Switch = parent.switch(to: child)
+        let reference = switchSingleEndpoint()
         // Test single (and targettable) reference.
         let expectation: XCTestExpectation = .init()
         expectation.assertForOverFulfill = true
@@ -216,22 +196,23 @@ final class APItests: XCTestCase {
         wait(for: [expectation], timeout: 15)
         XCTAssertEqual(responses.count, 0)
     }
-
-    func testAsyncStreamSwitch() async throws {
-        // Prepare the endpoints.
-        let parent: Single<Void, String> = .init {
+    
+    @EndpointBuilder private func switchLoopEndpoint() -> AnyLoopEndpoint<AnyDecodable> {
+        Switch {
             Path("https://gist.githubusercontent.com/sbertix/18271e0e549cac1f6a0d4276bf369c6e/raw/1da47924f034d21f87797edbe836abbe7c73dfd5/one.json")
-        } response: { _ in
-            "https://gist.githubusercontent.com/sbertix/18271e0e549cac1f6a0d4276bf369c6e/raw/1da47924f034d21f87797edbe836abbe7c73dfd5/one.json"
+            Response { _ in "https://gist.githubusercontent.com/sbertix/18271e0e549cac1f6a0d4276bf369c6e/raw/1da47924f034d21f87797edbe836abbe7c73dfd5/one.json" }
+        } to: {
+            Loop(startingAt: $0) {
+                Path($0)
+                Response(AnyDecodable.self)
+            } next: {
+                $0.next.string
+            }
         }
-        let child: Loop<String, AnyDecodable> = .init {
-            Path($0)
-        } response: {
-            try JSONDecoder().decode(AnyDecodable.self, from: $0)
-        } page: {
-            $0.next.string
-        }
-        let reference: Switch = parent.switch(to: child)
+    }
+    
+    func testAsyncStreamSwitch() async throws {
+        let reference = switchLoopEndpoint()
         // Test stream (and targettable) reference.
         var count: Int = 0
         var responses: Set<Int> = [1, 2]
@@ -245,20 +226,7 @@ final class APItests: XCTestCase {
     }
     
     func testCombineStreamSwitch() {
-        // Prepare the endpoints.
-        let parent: Single<Void, String> = .init {
-            Path("https://gist.githubusercontent.com/sbertix/18271e0e549cac1f6a0d4276bf369c6e/raw/1da47924f034d21f87797edbe836abbe7c73dfd5/one.json")
-        } response: { _ in
-            "https://gist.githubusercontent.com/sbertix/18271e0e549cac1f6a0d4276bf369c6e/raw/1da47924f034d21f87797edbe836abbe7c73dfd5/one.json"
-        }
-        let child: Loop<String, AnyDecodable> = .init {
-            Path($0)
-        } response: {
-            try JSONDecoder().decode(AnyDecodable.self, from: $0)
-        } page: {
-            $0.next.string
-        }
-        let reference: Switch = parent.switch(to: child)
+        let reference = switchLoopEndpoint()
         // Test stream (and targettable) reference.
         let expectation: XCTestExpectation = .init()
         expectation.assertForOverFulfill = true

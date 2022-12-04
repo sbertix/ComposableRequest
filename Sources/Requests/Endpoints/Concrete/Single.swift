@@ -1,8 +1,8 @@
 //
 //  Single.swift
-//  Core
+//  Requests
 //
-//  Created by Stefano Bertagno on 02/11/22.
+//  Created by Stefano Bertagno on 04/12/22.
 //
 
 #if canImport(Combine)
@@ -11,98 +11,65 @@ import Combine
 
 import Foundation
 
-/// A `struct` defining the basic instance
-/// targeting a single API endpoint.
-public struct Single<Input: Sendable, Output> {
-    /// The request components builder.
-    private let request: (Input) -> Components
-    /// The response output mapper.
-    private let response: (Data) throws -> Output
-
+/// A `struct` defining a custom endpoint
+/// implementation handling a single request.
+public struct Single<Output> {
+    /// The endpoint path.
+    let path: String
+    /// The components.
+    var components: [ObjectIdentifier: any Component]
+    /// The response.
+    let output: (_ response: URLResponse, _ data: Data) throws -> Output
+    
     /// Init.
     ///
     /// - parameters:
-    ///     - request: The request component builder.
-    ///     - response: The response output mapper.
-    public init(
-        @ComponentsBuilder request: @escaping (Input) -> Components,
-        response: @escaping (Data) throws -> Output
+    ///     - path: A valid `String`.
+    ///     - components: A valid `Component` dictionary.
+    ///     - output: A valid output factory.
+    init(
+        path: String,
+        components: [ObjectIdentifier : any Component],
+        output: @escaping (_ response: URLResponse, _ data: Data) throws -> Output
     ) {
-        self.request = request
-        self.response = response
+        self.path = path
+        self.components = components
+        self.output = output
     }
-
+    
     /// Init.
     ///
-    /// - parameter request: The request component builder.
-    public init(@ComponentsBuilder request: @escaping (Input) -> Components) where Output == Data {
-        self.request = request
-        self.response = { $0 }
+    /// - parameter content: A valid `Single` factory.
+    public init(@EndpointBuilder content: () -> Single) {
+        self = content()
     }
-
-    /// Init.
-    ///
-    /// - parameters:
-    ///     - output: The `Output` type.
-    ///     - decoder: A valid `JSONDecoder`. Defaults to `.init`.
-    ///     - request: The request component builder.
-    public init(
-        _ output: Output.Type,
-        decoder: JSONDecoder = .init(),
-        @ComponentsBuilder request: @escaping (Input) -> Components
-    ) where Output: Decodable {
-        self.request = request
-        self.response = { try decoder.decode(output, from: $0) }
-    }
-
-    #if canImport(Combine)
-    /// Init.
-    ///
-    /// - parameters:
-    ///     - output: The `Output` type.
-    ///     - decoder: Some `TopLevelDecoder`.
-    ///     - request: The request component builder.
-    public init<D: TopLevelDecoder>(
-        _ output: Output.Type,
-        decoder: D,
-        @ComponentsBuilder request: @escaping (Input) -> Components
-    ) where Output: Decodable, D.Input == Data {
-        self.request = request
-        self.response = { try decoder.decode(output, from: $0) }
-    }
-    #endif
 }
 
 extension Single: SingleEndpoint {
-    /// Fetch the response, from a given
-    /// `Input` and `URLSession`.
+    /// Resolve the current endpoint.
     ///
-    /// - parameters:
-    ///     - input: Some `Input`.
-    ///     - session: The `URLSession` used to fetch the response.
+    /// - parameter session: A valid `URLSession`.
     /// - throws: Any `Error`.
     /// - returns: Some `Output`.
-    public func resolve(with input: Input, _ session: URLSession) async throws -> Output {
-        guard let request = request(input).request else { throw EndpointError.invalidRequest }
-        return try await response(session.data(for: request).0)
+    public func resolve(with session: URLSession) async throws -> Output {
+        guard let request = URLRequest(path: path, components: components) else { throw EndpointError.invalidRequest }
+        let (data, response) = try await session.data(for: request)
+        return try output(response, data)
     }
-
+    
     #if canImport(Combine)
     /// Fetch the response, from a given
     /// `Input` and `URLSession`.
     ///
-    /// - parameters:
-    ///     - input: Some `Input`.
-    ///     - session: The `URLSession` used to fetch the response.
+    /// - parameter session: The `URLSession` used to fetch the response.
     /// - returns: Some `AnyPublisher`.
-    public func resolve(with input: Input, _ session: URLSession) -> AnyPublisher<Output, any Error> {
-        guard let request = request(input).request else {
+    public func resolve(with session: URLSession) -> AnyPublisher<Output, any Error> {
+        guard let request = URLRequest(path: path, components: components) else {
             return Fail(error: EndpointError.invalidRequest)
                 .eraseToAnyPublisher()
         }
         return session.dataTaskPublisher(for: request)
-            .map(\.data)
-            .tryMap(response)
+            .tryMap { try output($0.response, $0.data) }
             .eraseToAnyPublisher()
     }
     #endif
