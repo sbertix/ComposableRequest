@@ -3,7 +3,6 @@
 <br />
 
 [![Swift](https://img.shields.io/badge/Swift-5.7-%23DE5C43?style=flat&logo=swift)](https://swift.org)
-[![codecov](https://codecov.io/gh/sbertix/ComposableRequest/branch/main/graph/badge.svg)](https://codecov.io/gh/sbertix/ComposableRequest)
 <br />
 ![iOS](https://img.shields.io/badge/iOS-13.0-8CFF96)
 ![macOS](https://img.shields.io/badge/macOS-10.15-8CFF96)

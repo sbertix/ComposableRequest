@@ -53,7 +53,7 @@ extension Single: SingleEndpoint {
     /// - returns: Some `Output`.
     public func resolve(with session: URLSession) async throws -> Output {
         guard let request = URLRequest(path: path, components: components) else { throw EndpointError.invalidRequest }
-        let (data, response) = try await session.data(for: request)
+        let (data, response) = try await session._data(for: request)
         return try output(response, data)
     }
 
