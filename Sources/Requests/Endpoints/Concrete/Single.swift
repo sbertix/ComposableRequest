@@ -19,7 +19,7 @@ public struct Single<Output> {
     /// The components.
     var components: [ObjectIdentifier: any Component]
     /// The response.
-    let output: (_ response: URLResponse, _ data: Data) throws -> Output
+    let output: (DefaultResponse) throws -> Output
 
     /// Init.
     ///
@@ -30,7 +30,7 @@ public struct Single<Output> {
     init(
         path: String,
         components: [ObjectIdentifier: any Component],
-        output: @escaping (_ response: URLResponse, _ data: Data) throws -> Output
+        output: @escaping (DefaultResponse) throws -> Output
     ) {
         self.path = path
         self.components = components
@@ -54,7 +54,7 @@ extension Single: SingleEndpoint {
     public func resolve(with session: URLSession) async throws -> Output {
         guard let request = URLRequest(path: path, components: components) else { throw EndpointError.invalidRequest }
         let (data, response) = try await session._data(for: request)
-        return try output(response, data)
+        return try output(.init(response: response, data: data))
     }
 
     #if canImport(Combine)
@@ -69,7 +69,7 @@ extension Single: SingleEndpoint {
                 .eraseToAnyPublisher()
         }
         return session.dataTaskPublisher(for: request)
-            .tryMap { try output($0.response, $0.data) }
+            .tryMap { try output(.init(response: $0.response, data: $0.data)) }
             .eraseToAnyPublisher()
     }
     #endif

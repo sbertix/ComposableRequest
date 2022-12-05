@@ -25,24 +25,33 @@ final class APItests: XCTestCase {
 
     func testBuilder() {
         // Prepare the components.
-        @EndpointBuilder var components: TupleItem<Path, Components> {
-            Method(.post)
+        @EndpointBuilder func components(_ flag: Bool) -> Single<DefaultResponse> {
+            if #available(iOS 13, macOS 10.15, tvOS 13, watchOS 6, *) {
+                Method(.post)
+            }
             Path("https://google.com")
             Path("it")
-            Query("value", forKey: "key")
-            Query("value", forKey: "key2")
-            Headers("value", forKey: "key")
-            Headers("value", forKey: "key2")
-            Body(.init())
-            Service(.background)
-            Cellular(false)
-            Timeout(15)
-            Constrained(false)
-            Expensive(false)
+            if flag {
+                Query("value", forKey: "key")
+                Query("value", forKey: "key2")
+                Headers("value", forKey: "key")
+                Headers("value", forKey: "key2")
+            } else {
+                Query("wrong", forKey: "wrongKey")
+            }
+            if true {
+                Body(.init())
+                Service(.background)
+                Cellular(false)
+                Timeout(15)
+                Constrained(false)
+                Expensive(false)
+            }
         }
         // Test the request.
         // swiftlint:disable:next force_unwrapping
-        let request = URLRequest(path: components.first.path, components: components.last.components)!
+        let endpoint = components(true)
+        let request = URLRequest(path: endpoint.path, components: endpoint.components)!
         XCTAssertEqual(request.httpMethod, "POST")
         XCTAssertEqual(request.url?.absoluteString, "https://google.com/it?key=value&key2=value")
         XCTAssertEqual(request.allHTTPHeaderFields, ["key": "value", "key2": "value"])
@@ -56,15 +65,16 @@ final class APItests: XCTestCase {
 
     // MARK: Single
 
-    @EndpointBuilder private func singleEndpoint() -> AnySingleEndpoint<Int> {
+    @EndpointBuilder private func singleEndpoint() -> Single<Int> {
         Path("https://gist.githubusercontent.com")
         Path("sbertix")
         Path("18271e0e549cac1f6a0d4276bf369c6e")
         Path("raw")
         Path("1da47924f034d21f87797edbe836abbe7c73dfd5")
         Path("one.json")
+        Response(AnyDecodable.self)
         // swiftlint:disable:next force_unwrapping
-        Response { try JSONDecoder().decode(AnyDecodable.self, from: $0).value.int! }
+        Response<AnyDecodable, _>(\.value.int!)
     }
 
     func testAsync() async throws {
@@ -113,7 +123,7 @@ final class APItests: XCTestCase {
             Response(AnyDecodable.self)
         } next: {
             $0.next.string
-        }
+        }.eraseToAnyLoopEndpoint()
     }
 
     func testAsyncStream() async throws {
@@ -173,13 +183,15 @@ final class APItests: XCTestCase {
     @EndpointBuilder private func switchSingleEndpoint() -> AnySingleEndpoint<Int> {
         Switch {
             Path("https://gist.githubusercontent.com/sbertix/18271e0e549cac1f6a0d4276bf369c6e/raw/1da47924f034d21f87797edbe836abbe7c73dfd5/one.json")
+            Response(AnyDecodable.self)
             // swiftlint:disable:next force_unwrapping
-            Response { try JSONDecoder().decode(AnyDecodable.self, from: $0).next.string! }
+            Response<AnyDecodable, _>(\.next.string!)
         } to: {
             Path($0)
+            Response(AnyDecodable.self)
             // swiftlint:disable:next force_unwrapping
-            Response { try JSONDecoder().decode(AnyDecodable.self, from: $0).value.int! }
-        }
+            Response<AnyDecodable, _>(\.value.int!)
+        }.eraseToAnySingleEndpoint()
     }
 
     func testAsyncSwitch() async throws {
@@ -221,7 +233,7 @@ final class APItests: XCTestCase {
             } next: {
                 $0.next.string
             }
-        }
+        }.eraseToAnyLoopEndpoint()
     }
 
     func testAsyncStreamSwitch() async throws {
