@@ -78,6 +78,13 @@ public extension SingleEndpoint {
         .init(self)
     }
 
+    /// Erase to `AnyLoopEndpoint`.
+    ///
+    /// - returns: A valid `AnyLoopEndpoint`.
+    func eraseToAnyLoopEndpoint() -> AnyLoopEndpoint<Output> {
+        .init(Loop(once: self))
+    }
+
     /// Switch the current endpoint response
     /// with a new one fetched from some other
     /// (related) endpoint.
