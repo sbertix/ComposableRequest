@@ -18,7 +18,7 @@ public struct Headers: Component {
     }
 
     /// The request headers for a given endpoint.
-    public let value: [String: String]
+    public var value: [String: String]
 
     /// Init.
     ///
@@ -66,6 +66,23 @@ public struct Headers: Component {
     ///     - values: A sequence of `String`s representing request header values.
     public init<K: Sequence, V: Sequence>(keys: K, values: V) where K.Element == String, V.Element == String {
         self.init(zip(keys, values))
+    }
+
+    /// Inherit some previously cached value.
+    ///
+    /// ```
+    /// Headers("value1", forKey: "key1")
+    /// Headers("value2", forKey: "key2")
+    /// ```
+    /// would be resolved to `["key1": "value1", "key2": "value2"]`.
+    ///
+    /// - note:
+    ///     If there's no cached value, this will not be called,
+    ///     instead the new one will replace the default one.
+    /// - parameter original: The original value for the cached component.
+    public mutating func inherit(from original: any Component) {
+        guard let original = original as? Headers else { return }
+        value.merge(original.value) { lhs, _ in lhs }
     }
 
     /// Update a given `URLRequest`.

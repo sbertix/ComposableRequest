@@ -28,8 +28,11 @@ final class APItests: XCTestCase {
         @EndpointBuilder var components: TupleItem<Path, Components> {
             Method(.post)
             Path("https://google.com")
+            Path("it")
             Query("value", forKey: "key")
+            Query("value", forKey: "key2")
             Headers("value", forKey: "key")
+            Headers("value", forKey: "key2")
             Body(.init())
             Service(.background)
             Cellular(false)
@@ -41,8 +44,8 @@ final class APItests: XCTestCase {
         // swiftlint:disable:next force_unwrapping
         let request = URLRequest(path: components.first.path, components: components.last.components)!
         XCTAssertEqual(request.httpMethod, "POST")
-        XCTAssertEqual(request.url?.absoluteString, "https://google.com?key=value")
-        XCTAssertEqual(request.allHTTPHeaderFields, ["key": "value"])
+        XCTAssertEqual(request.url?.absoluteString, "https://google.com/it?key=value&key2=value")
+        XCTAssertEqual(request.allHTTPHeaderFields, ["key": "value", "key2": "value"])
         XCTAssertEqual(request.httpBody, .init())
         XCTAssertEqual(request.networkServiceType, .background)
         XCTAssertEqual(request.allowsCellularAccess, false)
@@ -54,7 +57,12 @@ final class APItests: XCTestCase {
     // MARK: Single
 
     @EndpointBuilder private func singleEndpoint() -> AnySingleEndpoint<Int> {
-        Path("https://gist.githubusercontent.com/sbertix/18271e0e549cac1f6a0d4276bf369c6e/raw/1da47924f034d21f87797edbe836abbe7c73dfd5/one.json")
+        Path("https://gist.githubusercontent.com")
+        Path("sbertix")
+        Path("18271e0e549cac1f6a0d4276bf369c6e")
+        Path("raw")
+        Path("1da47924f034d21f87797edbe836abbe7c73dfd5")
+        Path("one.json")
         // swiftlint:disable:next force_unwrapping
         Response { try JSONDecoder().decode(AnyDecodable.self, from: $0).value.int! }
     }

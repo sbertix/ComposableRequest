@@ -15,35 +15,6 @@ public struct Components {
     /// user-defined request components.
     var components: [ObjectIdentifier: any Component] = [:]
 
-//    /// Compose a `URLRequest` from
-//    /// existing `components`, if they're
-//    /// valid (really they just need to have
-//    /// a non-`nil` `Path` `value`).
-//    var request: URLRequest? {
-//        var copy = self
-//        // Make sure `Path` `value` is non-`nil`,
-//        // and add the `Query` items.
-//        guard var urlComponents = URLComponents(string: path) else {
-//            return nil
-//        }
-//        urlComponents.queryItems = copy.drop(Query.self).value
-//        // Compose the request.
-//        guard let url = urlComponents.url else { return nil }
-//        var request = URLRequest(url: url)
-//        // Update remaining standard components.
-//        copy.drop(Headers.self).update(&request)
-//        copy.drop(Body.self).update(&request)
-//        copy.drop(Method.self).update(&request)
-//        copy.drop(Cellular.self).update(&request)
-//        copy.drop(Service.self).update(&request)
-//        copy.drop(Timeout.self).update(&request)
-//        copy.drop(Constrained.self).update(&request)
-//        copy.drop(Expensive.self).update(&request)
-//        // Update user-defined ones.
-//        for (_, component) in components { component.update(&request) }
-//        return request
-//    }
-
     /// Init.
     ///
     /// - parameter components: The initial `Component`s.
@@ -51,12 +22,15 @@ public struct Components {
         self.components = components.reduce(into: [:]) { $0[.init(type(of: $1))] = $1 }
     }
 
-//    /// Get the cached component, or it's default value
-//    /// if it doesn't exist, then drop it.
-//    ///
-//    /// - parameter component: Some `Component` type.
-//    /// - returns: Some `Component`.
-//    mutating func drop<C: Component>(_ component: C.Type) -> C {
-//        components.removeValue(forKey: .init(component)) as? C ?? .defaultValue
-//    }
+    /// Inherit some previously cached value.
+    ///
+    /// - parameter original: The original value for the cached components.
+    mutating func inherit(from original: Components) {
+        components.merge(original.components) { new, old in
+            var new = new
+            new.inherit(from: old)
+            return new
+        }
+        print("CIAONE", components)
+    }
 }

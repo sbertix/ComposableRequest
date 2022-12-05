@@ -11,9 +11,11 @@ import Foundation
 /// endpoint from a collection of components.
 ///
 /// This `resultBuilder` enforces the following rules:
-/// - you **MUST** have `1` `Path`
+/// - you **MUST** have at least `1` `Path`
 /// - you _CAN_ have **at most** `1` `Response`
-/// - **successive** `Component`s of the same type will **override previous** ones
+/// - **successive** `Component`s of the same type,
+///   or `Path`s will call `inherit` together with their
+///   previous values
 /// - non-`Single` `Endpoint`s only return themselves or a type-erased version of themeselves.
 @resultBuilder
 public struct EndpointBuilder {     // swiftlint:disable:this convenience_type
@@ -94,9 +96,9 @@ public struct EndpointBuilder {     // swiftlint:disable:this convenience_type
     ///     - next: Some `Components`.
     /// - returns: Some `Components`.
     public static func buildPartialBlock(accumulated: Components, next: Components) -> Components {
-        var accumulated = accumulated
-        accumulated.components.merge(next.components) { $1 }
-        return accumulated
+        var next = next
+        next.inherit(from: accumulated)
+        return next
     }
 
     /// Accumulate an endpoint request, adding to some components.
@@ -147,11 +149,27 @@ public struct EndpointBuilder {     // swiftlint:disable:this convenience_type
     ///
     /// - parameters:
     ///     - accumulated: A valid `TupleItem`.
+    ///     - next: A valid `Path`.
+    /// - returns: A valid `TupleItem`.
+    public static func buildPartialBlock(accumulated: TupleItem<Path, Components>, next: Path) -> TupleItem<Path, Components> {
+        var next = next
+        next.inherit(from: accumulated.first)
+        var accumulated = accumulated
+        accumulated.first = next
+        return accumulated
+    }
+
+    /// Accumulate an endpoint request, adding to a tuple item.
+    ///
+    /// - parameters:
+    ///     - accumulated: A valid `TupleItem`.
     ///     - next: Some `Components`.
     /// - returns: A valid `TupleItem`.
     public static func buildPartialBlock(accumulated: TupleItem<Path, Components>, next: Components) -> TupleItem<Path, Components> {
+        var next = next
+        next.inherit(from: accumulated.last)
         var accumulated = accumulated
-        accumulated.last.components.merge(next.components) { $1 }
+        accumulated.last = next
         return accumulated
     }
 
@@ -174,8 +192,10 @@ public struct EndpointBuilder {     // swiftlint:disable:this convenience_type
     ///     - next: Some `Components`.
     /// - returns: A valid `TupleItem`.
     public static func buildPartialBlock<O>(accumulated: TupleItem<Components, Response<O>>, next: Components) -> TupleItem<Components, Response<O>> {
+        var next = next
+        next.inherit(from: accumulated.first)
         var accumulated = accumulated
-        accumulated.first.components.merge(next.components) { $1 }
+        accumulated.first = next
         return accumulated
     }
 

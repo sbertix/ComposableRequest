@@ -52,6 +52,17 @@ public struct Body: Component {
         self.init(body.encoded)
     }
 
+    /// Init.
+    ///
+    /// A dictionary like `["key1": "value1", "key2": "value2"]`
+    /// converts into the data representation of a `String` like
+    /// `key1=value1&key2=value2`.
+    ///
+    /// - parameter body: The request body parameters for a given endpoint.
+    public init(parameters body: [String: String?]) {
+        self.init(body.compactMapValues { $0 }.encoded)
+    }
+
     #if canImport(Combine)
     /// Init.
     ///
