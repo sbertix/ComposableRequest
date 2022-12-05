@@ -90,9 +90,19 @@ public extension SingleEndpoint {
     /// (related) endpoint.
     ///
     /// - parameter child: Some `Endpoint` factory.
-    /// - returns: Some `Target.Switch`.
+    /// - returns: Some `Switch`.
     func `switch`<E: Endpoint>(@EndpointBuilder to child: @escaping (Output) -> E) -> Switch<Self, E> {
         .init { self } to: { child($0) }
+    }
+
+    /// Switch the current endpoint response
+    /// with a new one fetched from some other
+    /// (related) endpoint.
+    ///
+    /// - parameter child: Some async throwing factory.
+    /// - returns: Some `Switch`.
+    func `switch`<O>(to child: @escaping (Output) async throws -> O) -> Switch<Self, Static<O>> {
+        .init { self } to: { input in Static<O> { try await child(input) } }
     }
 }
 

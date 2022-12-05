@@ -60,6 +60,15 @@ public struct AnyDecodable {
         }
     }
 
+    /// Simplify into an optional `Array`.
+    public var array: [AnyDecodable]? {
+        switch decodedValue {
+        case let value as [AnyDecodable]: return value
+        case let value as [Any]: return value.map { .init($0, convertFromSnakeCase: convertFromSnakeCase) }
+        default: return nil
+        }
+    }
+
     /// Init.
     ///
     /// - parameters:

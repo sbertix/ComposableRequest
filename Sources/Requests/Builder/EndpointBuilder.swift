@@ -231,6 +231,22 @@ public struct EndpointBuilder {     // swiftlint:disable:this convenience_type
     ///
     /// - parameter content: Some `SingleEndpoint`.
     /// - returns: Some `Endpoint`.
+    public static func buildFinalResult<E: SingleEndpoint>(_ component: E) -> E {
+        component
+    }
+
+    /// Resolve some loop endpoint.
+    ///
+    /// - parameter content: Some `LoopEndpoint`.
+    /// - returns: Some `Endpoint`.
+    public static func buildFinalResult<E: LoopEndpoint>(_ component: E) -> E {
+        component
+    }
+
+    /// Resolve some single endpoint.
+    ///
+    /// - parameter content: Some `SingleEndpoint`.
+    /// - returns: Some `Endpoint`.
     public static func buildFinalResult<E: SingleEndpoint>(_ component: E) -> AnySingleEndpoint<E.Output> {
         component.eraseToAnySingleEndpoint()
     }
