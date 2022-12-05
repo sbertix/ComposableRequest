@@ -49,8 +49,8 @@ final class APItests: XCTestCase {
             }
         }
         // Test the request.
-        // swiftlint:disable:next force_unwrapping
         let endpoint = components(true)
+        // swiftlint:disable:next force_unwrapping
         let request = URLRequest(path: endpoint.path, components: endpoint.components)!
         XCTAssertEqual(request.httpMethod, "POST")
         XCTAssertEqual(request.url?.absoluteString, "https://google.com/it?key=value&key2=value")
@@ -73,7 +73,6 @@ final class APItests: XCTestCase {
         Path("1da47924f034d21f87797edbe836abbe7c73dfd5")
         Path("one.json")
         Response(AnyDecodable.self)
-        // swiftlint:disable:next force_unwrapping
         Response<AnyDecodable, _>(\.value.int!)
     }
 
@@ -122,7 +121,7 @@ final class APItests: XCTestCase {
             Path($0)
             Response(AnyDecodable.self)
         } next: {
-            $0.next.string
+            $0.next.string.flatMap(NextAction.advance) ?? .break
         }.eraseToAnyLoopEndpoint()
     }
 
@@ -184,12 +183,10 @@ final class APItests: XCTestCase {
         Switch {
             Path("https://gist.githubusercontent.com/sbertix/18271e0e549cac1f6a0d4276bf369c6e/raw/1da47924f034d21f87797edbe836abbe7c73dfd5/one.json")
             Response(AnyDecodable.self)
-            // swiftlint:disable:next force_unwrapping
             Response<AnyDecodable, _>(\.next.string!)
         } to: {
             Path($0)
             Response(AnyDecodable.self)
-            // swiftlint:disable:next force_unwrapping
             Response<AnyDecodable, _>(\.value.int!)
         }.eraseToAnySingleEndpoint()
     }
@@ -231,7 +228,7 @@ final class APItests: XCTestCase {
                 Path($0)
                 Response(AnyDecodable.self)
             } next: {
-                $0.next.string
+                $0.next.string.flatMap(NextAction.advance) ?? .break
             }
         }.eraseToAnyLoopEndpoint()
     }

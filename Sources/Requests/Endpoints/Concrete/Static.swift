@@ -30,14 +30,14 @@ public struct Static<Output> {
     ///
     /// - parameter output: A single output.
     public init(_ output: Output) {
-        self.content = { output }
+        self.init { output }
     }
 
     /// Init.
     ///
     /// - parameter error: A single error.
     public init(error: any Error) {
-        self.content = { throw error }
+        self.init { throw error }
     }
 }
 

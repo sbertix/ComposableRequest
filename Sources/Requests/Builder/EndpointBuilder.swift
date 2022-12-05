@@ -53,9 +53,9 @@ public struct EndpointBuilder {     // swiftlint:disable:this convenience_type
     public static func buildExpression<E: Endpoint>(_ expression: E) -> E {
         expression
     }
-    
+
     // MARK: Conditional
-    
+
     /// Turn a single path into itself.
     ///
     /// - parameter component: A valid `Path`.
@@ -71,7 +71,7 @@ public struct EndpointBuilder {     // swiftlint:disable:this convenience_type
     public static func buildEither(second component: Path) -> Path {
         component
     }
-    
+
     /// Turn a single component into a collection.
     ///
     /// - parameter component: A valid `Path`.
@@ -95,7 +95,7 @@ public struct EndpointBuilder {     // swiftlint:disable:this convenience_type
     public static func buildEither(second component: Components) -> Components {
         component
     }
-    
+
     /// Turn an item into itself.
     ///
     /// - parameter component: Some item.
@@ -173,7 +173,7 @@ public struct EndpointBuilder {     // swiftlint:disable:this convenience_type
     }
 
     // MARK: Accumulate from `Response`
-    
+
     /// Accumulate a response, adding to some response.
     ///
     /// - parameters:
@@ -219,7 +219,7 @@ public struct EndpointBuilder {     // swiftlint:disable:this convenience_type
         accumulated.first = next
         return accumulated
     }
-    
+
     /// Accumulate an endpoint request, adding to a tuple item.
     ///
     /// - parameters:
@@ -239,9 +239,9 @@ public struct EndpointBuilder {     // swiftlint:disable:this convenience_type
     public static func buildPartialBlock<O>(accumulated: TupleItem<Components, Response<DefaultResponse, O>>, next: Path) -> TupleEndpoint<O> {
         .init(first: next, middle: accumulated.first, last: accumulated.last)
     }
-    
+
     // MARK: Accumulate from `TupleEndpoint`.
-    
+
     /// Accumulate an endpoint request, adding to a tuple item.
     ///
     /// - parameters:
@@ -255,7 +255,7 @@ public struct EndpointBuilder {     // swiftlint:disable:this convenience_type
         accumulated.middle = next
         return accumulated
     }
-    
+
     /// Accumulate an endpoint request, adding to a tuple item.
     ///
     /// - parameters:
@@ -263,7 +263,11 @@ public struct EndpointBuilder {     // swiftlint:disable:this convenience_type
     ///     - next: A valid `Response`.
     /// - returns: A valid `TupleEndpoint`.
     public static func buildPartialBlock<I, O>(accumulated: TupleEndpoint<I>, next: Response<I, O>) -> TupleEndpoint<O> {
-        .init(first: accumulated.first, middle: accumulated.middle, last: .init { try next.content(accumulated.last.content($0)) })
+        .init(
+            first: accumulated.first,
+            middle: accumulated.middle,
+            last: .init { try next.content(accumulated.last.content($0)) }
+        )
     }
 
     /// Accumulate an endpoint request, adding to a tuple item.
@@ -281,7 +285,7 @@ public struct EndpointBuilder {     // swiftlint:disable:this convenience_type
     }
 
     // MARK: Resolve
-    
+
     /// Resolve a valid tuple endpoint.
     ///
     /// - parameter content: A valid `TupleEndpoint`.

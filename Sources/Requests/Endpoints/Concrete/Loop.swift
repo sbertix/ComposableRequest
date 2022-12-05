@@ -22,7 +22,7 @@ public struct Loop<Next: Sendable, Content: SingleEndpoint> {
     /// The actual endpoint request.
     private let content: (Next) -> Content
     /// The next page mapper. Return `nil` to stop the stream.
-    private let next: (Output) throws -> Next?
+    private let next: (Output) throws -> NextAction<Next>
 
     /// Init.
     ///
@@ -33,7 +33,7 @@ public struct Loop<Next: Sendable, Content: SingleEndpoint> {
     public init(
         startingAt first: Next,
         @EndpointBuilder content: @escaping (Next) -> Content,
-        next: @escaping (Output) throws -> Next?
+        next: @escaping (Output) throws -> NextAction<Next>
     ) {
         self.first = first
         self.content = content
@@ -47,11 +47,39 @@ public struct Loop<Next: Sendable, Content: SingleEndpoint> {
     ///     - next: The next page mapper.
     public init<T>(
         @EndpointBuilder content: @escaping (Next) -> Content,
-        next: @escaping (Output) throws -> Next?
+        next: @escaping (Output) throws -> NextAction<Next>
     ) where Next == T? {
-        self.first = nil
-        self.content = content
-        self.next = next
+        self.init(startingAt: nil, content: content, next: next)
+    }
+
+    /// Init.
+    ///
+    /// - parameters:
+    ///     - first: The starter `Next` for the pagination.
+    ///     - request: The actual endpoint request.
+    ///     - next: The next page mapper.
+    public init(
+        startingAt first: Next,
+        @EndpointBuilder content: @escaping (Next) -> Content,
+        next: @escaping (Output) throws -> NextAction<Next>?
+    ) {
+        self.init(startingAt: first, content: content) {
+            try next($0) ?? .break
+        }
+    }
+
+    /// Init.
+    ///
+    /// - parameters:
+    ///     - request: The actual endpoint request.
+    ///     - next: The next page mapper.
+    public init<T>(
+        @EndpointBuilder content: @escaping (Next) -> Content,
+        next: @escaping (Output) throws -> NextAction<Next>?
+    ) where Next == T? {
+        self.init(content: content) {
+            try next($0) ?? .break
+        }
     }
 
     /// Init, by transforming a `SingleEndpoint`
@@ -61,9 +89,7 @@ public struct Loop<Next: Sendable, Content: SingleEndpoint> {
     /// - note: We do not provide an `EndpointBuilder` representation, to avoid `once` being omitted.
     /// - parameter single: Some `SingleEndpoint`.
     public init(once single: Content) where Next == Void {
-        self.first = ()
-        self.content = { _ in single }
-        self.next = { _ in nil }
+        self.init(startingAt: (), content: { _ in single }, next: { _ in .break })
     }
 }
 
@@ -82,7 +108,14 @@ extension Loop: LoopEndpoint {
             guard let input = await nextInput.value else { return nil }
             let output = try await content(input).resolve(with: session)
             // Update last input.
-            await nextInput.update(with: try next(output))
+            switch try next(output) {
+            case .advance(let destination):
+                await nextInput.update(with: destination)
+            case .repeat:
+                await nextInput.update(with: input)
+            case .break:
+                await nextInput.update(with: nil)
+            }
             return output
         }
     }

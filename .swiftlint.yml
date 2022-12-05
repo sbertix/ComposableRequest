@@ -87,6 +87,7 @@ identifier_name:
       - y
       - id
       - iv
+      - to
       - url
     allowed_symbols:
       - _
