@@ -20,9 +20,9 @@ public struct Loop<Next: Sendable, Content: SingleEndpoint> {
     /// The initial page value.
     private let first: Next
     /// The actual endpoint request.
-    private let content: (Next) -> Content
+    private let content: (_ offset: Int, _ input: Next) -> Content
     /// The next page mapper. Return `nil` to stop the stream.
-    private let next: (Output) throws -> NextAction<Next>
+    private let next: (_ offset: Int, _ output: Output) throws -> NextAction<Next>
 
     /// Init.
     ///
@@ -32,8 +32,8 @@ public struct Loop<Next: Sendable, Content: SingleEndpoint> {
     ///     - next: The next page mapper.
     public init(
         startingAt first: Next,
-        @EndpointBuilder content: @escaping (Next) -> Content,
-        next: @escaping (Output) throws -> NextAction<Next>
+        @EndpointBuilder content: @escaping (_ offset: Int, _ input: Next) -> Content,
+        next: @escaping (_ offset: Int, _ output: Output) throws -> NextAction<Next>
     ) {
         self.first = first
         self.content = content
@@ -43,42 +43,18 @@ public struct Loop<Next: Sendable, Content: SingleEndpoint> {
     /// Init.
     ///
     /// - parameters:
-    ///     - request: The actual endpoint request.
-    ///     - next: The next page mapper.
-    public init<T>(
-        @EndpointBuilder content: @escaping (Next) -> Content,
-        next: @escaping (Output) throws -> NextAction<Next>
-    ) where Next == T? {
-        self.init(startingAt: nil, content: content, next: next)
-    }
-
-    /// Init.
-    ///
-    /// - parameters:
     ///     - first: The starter `Next` for the pagination.
     ///     - request: The actual endpoint request.
     ///     - next: The next page mapper.
     public init(
         startingAt first: Next,
         @EndpointBuilder content: @escaping (Next) -> Content,
-        next: @escaping (Output) throws -> NextAction<Next>?
+        next: @escaping (Output) throws -> NextAction<Next>
     ) {
-        self.init(startingAt: first, content: content) {
-            try next($0) ?? .break
-        }
-    }
-
-    /// Init.
-    ///
-    /// - parameters:
-    ///     - request: The actual endpoint request.
-    ///     - next: The next page mapper.
-    public init<T>(
-        @EndpointBuilder content: @escaping (Next) -> Content,
-        next: @escaping (Output) throws -> NextAction<Next>?
-    ) where Next == T? {
-        self.init(content: content) {
-            try next($0) ?? .break
+        self.init(startingAt: first) {
+            content($1)
+        } next: {
+            try next($1)
         }
     }
 
@@ -106,9 +82,10 @@ extension Loop: LoopEndpoint {
         return .init {
             // If next input is `nil`, cancel the stream.
             guard let input = await nextInput.value else { return nil }
-            let output = try await content(input).resolve(with: session)
-            // Update last input.
-            switch try next(output) {
+            let offset = await nextInput.count
+            let output = try await content(offset, input).resolve(with: session)
+            // Update next input.
+            switch try next(offset, output) {
             case .advance(let destination):
                 await nextInput.update(with: destination)
             case .repeat:
@@ -119,4 +96,41 @@ extension Loop: LoopEndpoint {
             return output
         }
     }
+
+    #if canImport(Combine)
+    /// Fetch responses, from a given
+    /// `Input` and `URLSession`.
+    ///
+    /// - parameter session: The `URLSession` used to fetch the response.
+    /// - returns: Some `AsyncStream`.
+    public func resolve(with session: URLSession) -> AnyPublisher<Output, any Error> {
+        // Hold reference to next input,
+        // so we can paginate properly.
+        // swiftlint:disable:next private_subject
+        let nextInput: CurrentValueSubject<(offset: Int, input: Next), any Error> = .init((0, first))
+        return nextInput
+            .flatMap(maxPublishers: .max(1)) { item in
+                content(item.offset, item.input)
+                    .resolve(with: session)
+                    .prefix(1)
+                    .handleEvents(receiveOutput: {
+                        do {
+                            // Switch depending on the
+                            // next generated page.
+                            switch try next(item.offset, $0) {
+                            case .advance(let destination):
+                                nextInput.send((item.offset + 1, destination))
+                            case .repeat:
+                                nextInput.send((item.offset + 1, item.input))
+                            case .break:
+                                nextInput.send(completion: .finished)
+                            }
+                        } catch {
+                            nextInput.send(completion: .failure(error))
+                        }
+                    })
+            }
+            .eraseToAnyPublisher()
+    }
+    #endif
 }

@@ -12,6 +12,8 @@ import Foundation
 actor NextInput<Input: Sendable> {
     /// The value of an optional next `Input`.
     var value: Input?
+    /// The update count.
+    var count: Int = 0
 
     /// Init.
     ///
@@ -25,5 +27,6 @@ actor NextInput<Input: Sendable> {
     /// - parameter value: The next `Input`.
     func update(with value: Input?) {
         self.value = value
+        self.count += 1
     }
 }

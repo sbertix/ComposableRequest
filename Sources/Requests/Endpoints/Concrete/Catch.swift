@@ -1,5 +1,5 @@
 //
-//  Switch.swift
+//  Catch.swift
 //  Requests
 //
 //  Created by Stefano Bertagno on 04/12/22.
@@ -13,31 +13,39 @@ import Foundation
 
 /// A `struct` defining a custom endpoint
 /// implementation handling a request generated
-/// by the response of a previous one.
-public struct Switch<Parent: SingleEndpoint, Child: Endpoint> {
+/// by an error in the previous one.
+///
+/// This is only available for `SingleEndpoint`
+/// `Child`s cause we want to be sure to
+/// guarantee a deterministic ordering for outputs
+/// which is choerent with user expectations (i.e.
+/// work like **Combine**), and it wouldn't
+/// otherwise be possible by extending it to
+/// `LoopEndpoint`s.
+public struct Catch<Parent: Endpoint, Child: SingleEndpoint> where Child.Output == Parent.Output {
     /// The associated output type.
     public typealias Output = Child.Output
 
     /// The parent endpoint.
     private let parent: Parent
     /// The child factory.
-    private let child: (Parent.Output) -> Child
+    private let child: (any Error) -> Child
 
     /// Init.
     ///
     /// - parameters:
-    ///     - parent: A valid `Parent`.
+    ///     - parent: A valid `Parent` factory.
     ///     - child: A valid `Child` factory.
     public init(
-        @EndpointBuilder from parent: () -> Parent,
-        @EndpointBuilder to child: @escaping (Parent.Output) -> Child
+        @EndpointBuilder _ parent: () -> Parent,
+        @EndpointBuilder to child: @escaping (any Error) -> Child
     ) {
         self.parent = parent()
         self.child = child
     }
 }
 
-extension Switch: Endpoint {
+extension Catch: Endpoint {
     /// Fetch responses, from a given
     /// `Input` and `URLSession`.
     ///
@@ -50,20 +58,34 @@ extension Switch: Endpoint {
         .init { continuation in
             Task {
                 do {
-                    let response = try await parent.resolve(with: session)
-                    for try await output in child(response)._resolve(with: session) {
-                        continuation.yield(output)
-                    }
+                    for try await output in parent._resolve(with: session) { continuation.yield(output) }
                     continuation.finish()
                 } catch {
-                    continuation.finish(throwing: error)
+                    continuation.yield(try await child(error).resolve(with: session))
+                    continuation.finish()
                 }
             }
         }
     }
+
+    #if canImport(Combine)
+    /// Fetch responses, from a given
+    /// `Input` and `URLSession`.
+    ///
+    /// - note:
+    ///     You should prefer calling higher-level `protocol`s' `resolve` functions.
+    /// - parameter session: The `URLSession` used to fetch the response.
+    /// - returns: Some `AsyncStream`.
+    @_spi(Private)
+    public func _resolve(with session: URLSession) -> AnyPublisher<Output, any Error> {
+        parent._resolve(with: session)
+            .catch { child($0).resolve(with: session) }
+            .eraseToAnyPublisher()
+    }
+    #endif
 }
 
-extension Switch: SingleEndpoint where Child: SingleEndpoint {
+extension Catch: SingleEndpoint where Parent: SingleEndpoint {
     /// Fetch the response, from a given
     /// `Input` and `URLSession`.
     ///
@@ -71,7 +93,11 @@ extension Switch: SingleEndpoint where Child: SingleEndpoint {
     /// - throws: Any `Error`.
     /// - returns: Some `Output`.
     public func resolve(with session: URLSession) async throws -> Output {
-        try await child(try await parent.resolve(with: session)).resolve(with: session)
+        do {
+            return try await parent.resolve(with: session)
+        } catch {
+            return try await child(error).resolve(with: session)
+        }
     }
 
     #if canImport(Combine)
@@ -82,13 +108,13 @@ extension Switch: SingleEndpoint where Child: SingleEndpoint {
     /// - returns: Some `AnyPublisher`.
     public func resolve(with session: URLSession) -> AnyPublisher<Output, any Error> {
         parent.resolve(with: session)
-            .flatMap { child($0).resolve(with: session) }
+            .catch { child($0).resolve(with: session) }
             .eraseToAnyPublisher()
     }
     #endif
 }
 
-extension Switch: LoopEndpoint where Child: LoopEndpoint {
+extension Catch: LoopEndpoint where Parent: LoopEndpoint {
     /// Fetch responses, from a given
     /// `Input` and `URLSession`.
     ///
@@ -97,4 +123,15 @@ extension Switch: LoopEndpoint where Child: LoopEndpoint {
     public func resolve(with session: URLSession) -> AsyncThrowingStream<Output, any Error> {
         _resolve(with: session)
     }
+
+    #if canImport(Combine)
+    /// Fetch the response, from a given
+    /// `Input` and `URLSession`.
+    ///
+    /// - parameter session: The `URLSession` used to fetch the response.
+    /// - returns: Some `AnyPublisher`.
+    public func resolve(with session: URLSession) -> AnyPublisher<Output, any Error> {
+        _resolve(with: session)
+    }
+    #endif
 }

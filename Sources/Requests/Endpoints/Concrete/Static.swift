@@ -5,10 +5,6 @@
 //  Created by Stefano Bertagno on 05/12/22.
 //
 
-#if canImport(Combine)
-import Combine
-#endif
-
 import Foundation
 
 /// A `struct` defining some external

@@ -27,43 +27,59 @@ public protocol Provider<Input, Output> {
     func _output(from input: Input) -> Output
 }
 
-public extension Provider where Output: Provider {
+public extension Provider {
     /// Init.
     ///
     /// - parameter content: The output factory.
-    init(_ content: @escaping (Input, Output.Input) -> Output.Output) {
+    init(_ content: @escaping (Input, Output.Input) -> Output.Output) where Output: Provider {
         self.init { input in .init { content(input, $0) } }
     }
-}
 
-public extension Provider where Output: Provider, Output.Output: Provider {
     /// Init.
     ///
     /// - parameter content: The output factory.
-    init(_ content: @escaping (Input, Output.Input, Output.Output.Input) -> Output.Output.Output) {
+    init(
+        _ content: @escaping (
+            Input,
+            Output.Input,
+            Output.Output.Input
+        ) -> Output.Output.Output
+    ) where Output: Provider,
+            Output.Output: Provider {
         self.init { input in .init { content(input, $0, $1) } }
     }
-}
 
-public extension Provider where Output: Provider,
-                                Output.Output: Provider,
-                                Output.Output.Output: Provider {
     /// Init.
     ///
     /// - parameter content: The output factory.
-    init(_ content: @escaping (Input, Output.Input, Output.Output.Input, Output.Output.Output.Input) -> Output.Output.Output.Output) {
+    init(
+        _ content: @escaping (
+            Input,
+            Output.Input,
+            Output.Output.Input,
+            Output.Output.Output.Input
+        ) -> Output.Output.Output.Output
+    ) where Output: Provider,
+            Output.Output: Provider,
+            Output.Output.Output: Provider {
         self.init { input in .init { content(input, $0, $1, $2) } }
     }
-}
 
-public extension Provider where Output: Provider,
-                                Output.Output: Provider,
-                                Output.Output.Output: Provider,
-                                Output.Output.Output.Output: Provider {
     /// Init.
     ///
     /// - parameter content: The output factory.
-    init(_ content: @escaping (Input, Output.Input, Output.Output.Input, Output.Output.Output.Input, Output.Output.Output.Output.Input) -> Output.Output.Output.Output.Output) {
+    init(
+        _ content: @escaping (
+            Input,
+            Output.Input,
+            Output.Output.Input,
+            Output.Output.Output.Input,
+            Output.Output.Output.Output.Input
+        ) -> Output.Output.Output.Output.Output
+    ) where Output: Provider,
+            Output.Output: Provider,
+            Output.Output.Output: Provider,
+            Output.Output.Output.Output: Provider {
         self.init { input in .init { content(input, $0, $1, $2, $3) } }
     }
 }

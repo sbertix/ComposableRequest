@@ -50,8 +50,9 @@ public extension LoopEndpoint {
     ///
     /// - parameter session: The `URLSession` used to fetch the response.
     /// - returns: Some `Publisher`.
-    func resolve(with session: URLSession) -> AnyPublisher<Output, any Error> {
-        _resolve(with: session)
+    @_spi(Private)
+    func _resolve(with session: URLSession) -> AnyPublisher<Output, any Error> {
+        resolve(with: session)
     }
     #endif
 }
@@ -62,5 +63,37 @@ public extension LoopEndpoint {
     /// - returns: A valid `AnyLoopEndpoint`.
     func eraseToAnyLoopEndpoint() -> AnyLoopEndpoint<Output> {
         .init(self)
+    }
+
+    /// Collect the first output and wrap
+    /// it in a `SingleEndpoint`.
+    ///
+    /// - returns: Some `SingleEndpoint`.
+    func first() -> First<Self> {
+        .init { self }
+    }
+
+    /// Collect the final output and wrap
+    /// it in a `SingleEndpoint`.
+    ///
+    /// - returns: Some `SingleEndpoint`.
+    func last() -> Last<Self> {
+        .init { self }
+    }
+
+    /// Collect all outputs and wrap
+    /// them in a `SingleEndpoint`.
+    ///
+    /// - returns: Some `SingleEndpoint`.
+    func collect() -> Collect<Self> {
+        .init { self }
+    }
+
+    /// Collect up to `count` outputs.
+    ///
+    /// - parameter count: A valid `Int`.
+    /// - returns: Some `LoopEndpoint`.
+    func prefix(_ count: Int) -> Prefix<Self> {
+        .init(count) { self }
     }
 }

@@ -33,6 +33,29 @@ public protocol SingleEndpoint<Output>: Endpoint {
 }
 
 public extension SingleEndpoint {
+    #if canImport(Combine)
+    /// Fetch the response, from a given
+    /// `Input` and `URLSession`.
+    ///
+    /// - parameter session: The `URLSession` used to fetch the response.
+    /// - returns: Some `AnyPublisher`.
+    func resolve(with session: URLSession) -> AnyPublisher<Output, any Error> {
+        // Hold reference to the task, so we can cancel
+        // it according to the `Publisher` stream.
+        var task: Task<Void, Never>?
+        return Deferred {
+            Future { subscriber in
+                task = .init {
+                    guard !Task.isCancelled else { return }
+                    await subscriber(Result.async { try await resolve(with: session) })
+                }
+            }
+        }
+        .handleEvents(receiveCancel: { task?.cancel() })
+        .eraseToAnyPublisher()
+    }
+    #endif
+
     /// Fetch responses, from a given
     /// `Input` and `URLSession`.
     ///
@@ -64,8 +87,9 @@ public extension SingleEndpoint {
     ///
     /// - parameter session: The `URLSession` used to fetch the response.
     /// - returns: Some `AnyPublisher`.
-    func resolve(with session: URLSession) -> AnyPublisher<Output, any Error> {
-        _resolve(with: session).first().eraseToAnyPublisher()
+    @_spi(Private)
+    func _resolve(with session: URLSession) -> AnyPublisher<Output, any Error> {
+        resolve(with: session)
     }
     #endif
 }
@@ -90,8 +114,8 @@ public extension SingleEndpoint {
     /// (related) endpoint.
     ///
     /// - parameter child: Some `Endpoint` factory.
-    /// - returns: Some `Switch`.
-    func `switch`<E: Endpoint>(@EndpointBuilder to child: @escaping (Output) -> E) -> Switch<Self, E> {
+    /// - returns: Some `FlatMap`.
+    func flatMap<E: Endpoint>(@EndpointBuilder to child: @escaping (Output) -> E) -> FlatMap<Self, E> {
         .init { self } to: { child($0) }
     }
 
@@ -100,159 +124,8 @@ public extension SingleEndpoint {
     /// (related) endpoint.
     ///
     /// - parameter child: Some async throwing factory.
-    /// - returns: Some `Switch`.
-    func `switch`<O>(to child: @escaping (Output) async throws -> O) -> Switch<Self, Static<O>> {
+    /// - returns: Some `FlatMap`.
+    func flatMap<O>(to child: @escaping (Output) async throws -> O) -> FlatMap<Self, Static<O>> {
         .init { self } to: { input in Static<O> { try await child(input) } }
     }
 }
-
-// public extension SingleEndpoint where Output: Sendable {
-//    /// Switch the current endpoint response
-//    /// with a new one fetched from some other
-//    /// (related) endpoint.
-//    ///
-//    /// - parameter child: Some `Endpoint`.
-//    /// - returns: Some `Target.Switch`.
-//    func `switch`<T: Endpoint>(to child: T) -> Switch<Self, T> {
-//        .init(parent: self, child: child)
-//    }
-//
-//    // MARK: Single
-//
-//    /// Switch the current endpoint response
-//    /// with a new one fetched from some other
-//    /// (related) endpoint.
-//    ///
-//    /// - parameters:
-//    ///     - request: The request component builder.
-//    ///     - response: The response output mapper.
-//    /// - returns: Some `Target.Switch`.
-//    func `switch`<O>(
-//        @ComponentsBuilder request: @escaping (Output) -> Components,
-//        response: @escaping (Data) throws -> O
-//    ) -> Switch<Self, Single<Output, O>> {
-//        self.switch(to: .init(request: request, response: response))
-//    }
-//
-//    /// Switch the current endpoint response
-//    /// with a new one fetched from some other
-//    /// (related) endpoint.
-//    ///
-//    /// - parameter request: The request component builder.
-//    /// - returns: Some `Target.Switch`.
-//    func `switch`(
-//        @ComponentsBuilder request: @escaping (Output) -> Components
-//    ) -> Switch<Self, Single<Output, Data>> {
-//        self.switch(to: .init(request: request))
-//    }
-//
-//    /// Switch the current endpoint response
-//    /// with a new one fetched from some other
-//    /// (related) endpoint.
-//    /// Init.
-//    ///
-//    /// - parameters:
-//    ///     - output: The `Output` type.
-//    ///     - decoder: A valid `JSONDecoder`. Defaults to `.init`.
-//    ///     - request: The request component builder.
-//    func `switch`<O: Decodable>(
-//        _ output: O.Type,
-//        decoder: JSONDecoder = .init(),
-//        @ComponentsBuilder request: @escaping (Output) -> Components
-//    ) -> Switch<Self, Single<Output, O>> {
-//        self.switch(to: .init(output, decoder: decoder, request: request))
-//    }
-//
-//    #if canImport(Combine)
-//    /// Switch the current endpoint response
-//    /// with a new one fetched from some other
-//    /// (related) endpoint.
-//    /// Init.
-//    ///
-//    /// - parameters:
-//    ///     - output: The `Output` type.
-//    ///     - decoder: Some `TopLevelDecoder`.
-//    ///     - request: The request component builder.
-//    func `switch`<O: Decodable, D: TopLevelDecoder>(
-//        _ output: O.Type,
-//        decoder: D,
-//        @ComponentsBuilder request: @escaping (Output) -> Components
-//    ) -> Switch<Self, Single<Output, O>> where D.Input == Data {
-//        self.switch(to: .init(output, decoder: decoder, request: request))
-//    }
-//    #endif
-//
-//    // MARK: Loop
-//
-//    /// Switch the current endpoint response
-//    /// with a new one fetched from some other
-//    /// (related) endpoint.
-//    ///
-//    /// - parameters:
-//    ///     - request: The request component builder.
-//    ///     - response: The response output mapper.
-//    ///     - page: The next page mapper.
-//    /// - returns: Some `Target.Switch`.
-//    func `switch`<O>(
-//        @ComponentsBuilder request: @escaping (Output) -> Components,
-//        response: @escaping (Data) throws -> O,
-//        page: @escaping (O) throws -> Output?
-//    ) -> Switch<Self, Loop<Output, O>> {
-//        self.switch(to: .init(request: request, response: response, page: page))
-//    }
-//
-//    /// Switch the current endpoint response
-//    /// with a new one fetched from some other
-//    /// (related) endpoint.
-//    ///
-//    /// - parameters:
-//    ///     - request: The request component builder.
-//    ///     - page: The next page mapper.
-//    /// - returns: Some `Target.Switch`.
-//    func `switch`(
-//        @ComponentsBuilder request: @escaping (Output) -> Components,
-//        page: @escaping (Data) throws -> Output?
-//    ) -> Switch<Self, Loop<Output, Data>> {
-//        self.switch(to: .init(request: request, page: page))
-//    }
-//
-//    /// Switch the current endpoint response
-//    /// with a new one fetched from some other
-//    /// (related) endpoint.
-//    /// Init.
-//    ///
-//    /// - parameters:
-//    ///     - output: The `Output` type.
-//    ///     - decoder: A valid `JSONDecoder`. Defaults to `.init`.
-//    ///     - request: The request component builder.
-//    ///     - page: The next page mapper.
-//    func `switch`<O: Decodable>(
-//        _ output: O.Type,
-//        decoder: JSONDecoder = .init(),
-//        @ComponentsBuilder request: @escaping (Output) -> Components,
-//        page: @escaping (O) throws -> Output?
-//    ) -> Switch<Self, Loop<Output, O>> {
-//        self.switch(to: .init(output, decoder: decoder, request: request, page: page))
-//    }
-//
-//    #if canImport(Combine)
-//    /// Switch the current endpoint response
-//    /// with a new one fetched from some other
-//    /// (related) endpoint.
-//    /// Init.
-//    ///
-//    /// - parameters:
-//    ///     - output: The `Output` type.
-//    ///     - decoder: Some `TopLevelDecoder`.
-//    ///     - request: The request component builder.
-//    ///     - page: The next page mapper.
-//    func `switch`<O: Decodable, D: TopLevelDecoder>(
-//        _ output: O.Type,
-//        decoder: D,
-//        @ComponentsBuilder request: @escaping (Output) -> Components,
-//        page: @escaping (O) throws -> Output?
-//    ) -> Switch<Self, Loop<Output, O>> where D.Input == Data {
-//        self.switch(to: .init(output, decoder: decoder, request: request, page: page))
-//    }
-//    #endif
-// }

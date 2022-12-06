@@ -2,6 +2,9 @@ included:
     - Sources
     - Tests
 
+disabled_rules:
+    - type_body_length
+
 opt_in_rules:
     - array_init
     - attributes
@@ -60,7 +63,6 @@ opt_in_rules:
     - static_operator
     - test_case_accessibility
     - toggle_bool
-    - trailing_closure
     - type_contents_order
     - unavailable_function
     - unneeded_parentheses_in_closure_argument

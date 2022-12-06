@@ -41,29 +41,21 @@ public protocol Endpoint<Output> {
 }
 
 public extension Endpoint {
-    #if canImport(Combine)
-    /// Fetch responses, from a given
-    /// `Input` and `URLSession`.
+    /// Map the output to some convenience value.
     ///
-    /// - note:
-    ///     You should prefer calling higher-level `protocol`s' `resolve` functions.
-    /// - parameter session: The `URLSession` used to fetch the response.
-    /// - returns: Some `Publisher`.
-    @_spi(Private)
-    func _resolve(with session: URLSession) -> AnyPublisher<Output, any Error> {
-        // A passthrough subject used
-        // to propagate responses.
-        // swiftlint:disable:next private_subject
-        let subject: PassthroughSubject<Output, any Error> = .init()
-        Task {
-            do {
-                for try await response in _resolve(with: session) { subject.send(response) }
-                subject.send(completion: .finished)
-            } catch {
-                subject.send(completion: .failure(error))
-            }
-        }
-        return subject.eraseToAnyPublisher()
+    /// - parameter content: A valid content factory.
+    /// - returns: Some `Endpoint`.
+    func map<O>(_ content: @escaping (Output) throws -> O) -> Map<Self, O> {
+        .init({ self }, to: content)
     }
-    #endif
+
+    /// Catch the error and compose a new endpoint.
+    ///
+    /// - parameter content: A valid content factory.
+    /// - returns: Some `Endpoint`.
+    func `catch`<S: SingleEndpoint>(
+        @EndpointBuilder _ content: @escaping (any Error) -> S
+    ) -> Catch<Self, S> {
+        .init({ self }, to: content)
+    }
 }
