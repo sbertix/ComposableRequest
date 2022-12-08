@@ -55,18 +55,13 @@ extension FlatMap: Endpoint {
     /// - returns: Some `AsyncStream`.
     @_spi(Private)
     public func _resolve(with session: URLSession) -> AsyncThrowingStream<Output, any Error> {
-        .init { continuation in
-            Task {
-                do {
-                    let response = try await parent.resolve(with: session)
-                    for try await output in child(response)._resolve(with: session) {
-                        continuation.yield(output)
-                    }
-                    continuation.finish()
-                } catch {
-                    continuation.finish(throwing: error)
-                }
+        var iterator: AsyncThrowingStream<Child.Output, any Error>.AsyncIterator?
+        return .init {
+            if iterator == nil {
+                let output = try await parent.resolve(with: session)
+                iterator = child(output)._resolve(with: session).makeAsyncIterator()
             }
+            return try await iterator?.next()
         }
     }
 

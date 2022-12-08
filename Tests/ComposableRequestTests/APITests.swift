@@ -383,4 +383,19 @@ final class APItests: XCTestCase {
             }.prefix(5)
         }
     }
+
+    func testForEach() async throws {
+        try await test(expecting: [1, 2]) {
+            ForEach(["one.json", "two.json"]) {
+                Path("https://gist.githubusercontent.com")
+                Path("sbertix")
+                Path("18271e0e549cac1f6a0d4276bf369c6e")
+                Path("raw")
+                Path("1da47924f034d21f87797edbe836abbe7c73dfd5")
+                Path($0)
+                Response(AnyDecodable.self)
+                Response<AnyDecodable, _>(\.value.int)
+            }
+        }
+    }
 }

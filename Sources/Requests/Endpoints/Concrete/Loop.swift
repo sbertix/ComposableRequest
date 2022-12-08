@@ -57,16 +57,6 @@ public struct Loop<Next: Sendable, Content: SingleEndpoint> {
             try next($1)
         }
     }
-
-    /// Init, by transforming a `SingleEndpoint`
-    /// into a `Loop`, while still making sure it only
-    /// returns once.
-    ///
-    /// - note: We do not provide an `EndpointBuilder` representation, to avoid `once` being omitted.
-    /// - parameter single: Some `SingleEndpoint`.
-    public init(once single: Content) where Next == Void {
-        self.init(startingAt: (), content: { _ in single }, next: { _ in .break })
-    }
 }
 
 extension Loop: LoopEndpoint {

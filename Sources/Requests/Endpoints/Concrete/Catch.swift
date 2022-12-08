@@ -55,15 +55,15 @@ extension Catch: Endpoint {
     /// - returns: Some `AsyncStream`.
     @_spi(Private)
     public func _resolve(with session: URLSession) -> AsyncThrowingStream<Output, any Error> {
-        .init { continuation in
-            Task {
-                do {
-                    for try await output in parent._resolve(with: session) { continuation.yield(output) }
-                    continuation.finish()
-                } catch {
-                    continuation.yield(try await child(error).resolve(with: session))
-                    continuation.finish()
-                }
+        var iterator: AsyncThrowingStream<Output, any Error>.AsyncIterator? = parent
+            ._resolve(with: session)
+            .makeAsyncIterator()
+        return .init {
+            do {
+                return try await iterator?.next()
+            } catch {
+                iterator = nil
+                return try await child(error).resolve(with: session)
             }
         }
     }
@@ -79,7 +79,7 @@ extension Catch: Endpoint {
     @_spi(Private)
     public func _resolve(with session: URLSession) -> AnyPublisher<Output, any Error> {
         parent._resolve(with: session)
-            .catch { child($0).resolve(with: session) }
+            .catch { child($0).resolve(with: session).prefix(1) }
             .eraseToAnyPublisher()
     }
     #endif
@@ -108,7 +108,7 @@ extension Catch: SingleEndpoint where Parent: SingleEndpoint {
     /// - returns: Some `AnyPublisher`.
     public func resolve(with session: URLSession) -> AnyPublisher<Output, any Error> {
         parent.resolve(with: session)
-            .catch { child($0).resolve(with: session) }
+            .catch { child($0).resolve(with: session).prefix(1) }
             .eraseToAnyPublisher()
     }
     #endif

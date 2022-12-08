@@ -106,7 +106,7 @@ public extension SingleEndpoint {
     ///
     /// - returns: A valid `AnyLoopEndpoint`.
     func eraseToAnyLoopEndpoint() -> AnyLoopEndpoint<Output> {
-        .init(Loop(once: self))
+        .init(ForEach([()]) { _ in self })
     }
 
     /// Switch the current endpoint response
@@ -117,15 +117,5 @@ public extension SingleEndpoint {
     /// - returns: Some `FlatMap`.
     func flatMap<E: Endpoint>(@EndpointBuilder to child: @escaping (Output) -> E) -> FlatMap<Self, E> {
         .init { self } to: { child($0) }
-    }
-
-    /// Switch the current endpoint response
-    /// with a new one fetched from some other
-    /// (related) endpoint.
-    ///
-    /// - parameter child: Some async throwing factory.
-    /// - returns: Some `FlatMap`.
-    func flatMap<O>(to child: @escaping (Output) async throws -> O) -> FlatMap<Self, Static<O>> {
-        .init { self } to: { input in Static<O> { try await child(input) } }
     }
 }
