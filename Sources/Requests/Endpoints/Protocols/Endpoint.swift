@@ -11,6 +11,8 @@ import Combine
 
 import Foundation
 
+import Storages
+
 /// A `protocol` defining an instance
 /// targeting a single endpoint.
 public protocol Endpoint<Output> {
@@ -57,5 +59,13 @@ public extension Endpoint {
         @EndpointBuilder _ content: @escaping (any Error) -> S
     ) -> Catch<Self, S> {
         .init({ self }, to: content)
+    }
+
+    /// Store an item into the appropriate storage.
+    ///
+    /// - parameter storage: Some `Storage`.
+    /// - returns: Some `Endpoint`.
+    func store<S: Storage>(in storage: S) -> Map<Self, Output> where S.Item == Output {
+        map { try S.store($0, in: storage) }
     }
 }

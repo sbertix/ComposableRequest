@@ -27,8 +27,8 @@ let package = Package(
     ],
     // All targets.
     targets: [
-        .target(name: "Requests"),
         .target(name: "Storages"),
+        .target(name: "Requests", dependencies: ["Storages"]),
         .target(name: "EncryptedStorages", dependencies: ["Storages", "KeychainAccess"]),
         .testTarget(name: "ComposableRequestTests", dependencies: ["Requests", "Storages", "EncryptedStorages"])
     ]
