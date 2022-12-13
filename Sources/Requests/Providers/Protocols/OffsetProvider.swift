@@ -19,7 +19,7 @@ public protocol OffsetProvider<Offset, Page>: Provider where Input == Offset, Ou
     ///
     /// - parameter offset: Some `Offset`.
     /// - returns: Some `Page`.
-    func offset(_ offset: Offset) -> Page
+    func start(at offset: Offset) -> Page
 }
 
 public extension OffsetProvider {
@@ -29,6 +29,22 @@ public extension OffsetProvider {
     /// - returns: Some `Output`.
     @_spi(Private)
     func _output(from input: Input) -> Output {
-        offset(input)
+        start(at: input)
+    }
+}
+
+public extension OffsetProvider {
+    /// Compose the page, with no offset.
+    ///
+    /// - returns: Some `Page`.
+    func start() -> Page where Offset == Void {
+        start(at: ())
+    }
+
+    /// Compose the page, with no offset.
+    ///
+    /// - returns: Some `Page`.
+    func start<T>() -> Page where T? == Offset {
+        start(at: nil)
     }
 }

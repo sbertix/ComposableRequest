@@ -33,11 +33,43 @@ public extension LockProvider {
     }
 }
 
-public extension LockProvider where Input == Void {
+public extension LockProvider {
     /// Unlock the output.
     ///
     /// - returns: Some `Secret`.
-    func unlock() -> Secret {
+    func unlock() -> Secret where Input == Void {
         unlock(with: ())
+    }
+
+    /// Unlock the output.
+    ///
+    /// - returns: Some `Secret`.
+    func unlock<T>() -> Secret where Input == T? {
+        unlock(with: nil)
+    }
+
+    /// Unlock an optionally offsetted output.
+    ///
+    /// - parameter key: Some `Key`.
+    /// - returns: Some `Secret.Output`.
+    func unlock<T>(with key: Key) -> Secret.Output
+    where Secret: OffsetProvider, Secret.Offset == T? {
+        unlock(with: key).start()
+    }
+
+    /// Unlock an optionally offsetted output.
+    ///
+    /// - parameter key: Some `Key`.
+    /// - returns: Some `Secret.Output`.
+    func unlock<T>() -> Secret.Output where Input == Void, Secret: OffsetProvider, Secret.Offset == T? {
+        unlock().start()
+    }
+
+    /// Unlock an optionally offsetted output.
+    ///
+    /// - parameter key: Some `Key`.
+    /// - returns: Some `Secret.Output`.
+    func unlock<T1, T2>() -> Secret.Output where Input == T1?, Secret: OffsetProvider, Secret.Offset == T2? {
+        unlock().start()
     }
 }

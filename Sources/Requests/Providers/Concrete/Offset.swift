@@ -26,7 +26,7 @@ public extension Providers {
         ///
         /// - parameter offset: Some `Offset`.
         /// - returns: Some `Page`.
-        public func offset(_ offset: Offset) -> Page {
+        public func start(at offset: Offset) -> Page {
             content(offset)
         }
     }
