@@ -44,7 +44,7 @@ public extension SingleEndpoint {
         // it according to the `Publisher` stream.
         var task: Task<Void, Never>?
         return Deferred {
-            Future { subscriber in
+            Combine.Future { subscriber in
                 task = .init {
                     guard !Task.isCancelled else { return }
                     await subscriber(Result.async { try await resolve(with: session) })

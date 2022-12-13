@@ -298,6 +298,25 @@ final class APItests: XCTestCase {
         }
     }
 
+    func testSyncFuture() async throws {
+        try await test(expecting: 0) {
+            Future {
+                0
+            }
+        }
+    }
+
+    func testAsyncFuture() async throws {
+        try await test(expecting: 1) {
+            Requests.Future<Int> {
+                try await Task.sleep(nanoseconds: 1_000)
+                return 0
+            }.flatMap {
+                Static($0 + 1)
+            }
+        }
+    }
+
     // MARK: Loops
 
     func testLoop() async throws {

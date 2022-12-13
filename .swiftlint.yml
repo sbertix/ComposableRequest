@@ -44,7 +44,6 @@ opt_in_rules:
     - lower_acl_than_parent
     - missing_docs
     - modifier_order
-    - multiline_function_chains
     - multiline_parameters
     - number_separator
     - operator_usage_whitespace
