@@ -57,3 +57,19 @@ public struct Response<Input, Output> {
     }
     #endif
 }
+
+public extension Response where Output == AnyDecodable {
+    /// Init.
+    ///
+    /// - parameters:
+    ///     - output: The `Output` type.
+    ///     - shouldConvertFromSnakeCase: Whether it should convert keys to camel case (e.g. "some\_key" to "someKey").
+    ///     - decoder: A valid `JSONDecoder`. Defaults to `.init`.
+    init(
+        _ output: Output.Type,
+        convertingFromSnakeCase shouldConvertFromSnakeCase: Bool,
+        decoder: JSONDecoder = .init()
+    ) where Input == DefaultResponse, Output: Decodable {
+        self.init { try decoder.decode(output, from: $0.data).fromSnakeCase(shouldConvertFromSnakeCase) }
+    }
+}

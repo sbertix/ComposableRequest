@@ -274,7 +274,7 @@ final class APItests: XCTestCase {
                 Path("raw")
                 Path("1da47924f034d21f87797edbe836abbe7c73dfd5")
                 Path($0)
-                Response(AnyDecodable.self)
+                Response(AnyDecodable.self, convertingFromSnakeCase: true)
             } next: {
                 ($0.next.string?.components(separatedBy: "/").last).flatMap(NextAction.advance) ?? .break
             }.last()

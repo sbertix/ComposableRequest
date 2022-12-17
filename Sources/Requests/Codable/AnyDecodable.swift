@@ -81,11 +81,21 @@ public struct AnyDecodable {
 
     /// Change all keys to be decoded using camel case.
     ///
-    /// "someKey" -> "some_key".
+    /// "some\_key" -> "someKey".
     ///
-    /// - returns: Some `AnyEncodable`.
+    /// - returns: Some `AnyDecodable`.
     public func fromSnakeCase() -> AnyDecodable {
-        .init(decodedValue, convertFromSnakeCase: true)
+        fromSnakeCase(true)
+    }
+
+    /// Change all keys to be decoded using camel case.
+    ///
+    /// "some\_key" -> "someKey".
+    ///
+    /// - parameter shouldConvertFromSnakeCase: Whether it should convert to camel case or not (e.g. "some\_key" to "someKey").
+    /// - returns: Some `AnyDecodable`.
+    public func fromSnakeCase(_ shouldConvertFromSnakeCase: Bool) -> AnyDecodable {
+        .init(decodedValue, convertFromSnakeCase: shouldConvertFromSnakeCase)
     }
 
     /// Look up a specific key inside
