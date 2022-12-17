@@ -43,14 +43,6 @@ public protocol Endpoint<Output> {
 }
 
 public extension Endpoint {
-    /// Map the output to some convenience value.
-    ///
-    /// - parameter content: A valid content factory.
-    /// - returns: Some `Endpoint`.
-    func map<O>(_ content: @escaping (Output) throws -> O) -> Map<Self, O> {
-        .init({ self }, to: content)
-    }
-
     /// Catch the error and compose a new endpoint.
     ///
     /// - parameter content: A valid content factory.
@@ -61,11 +53,28 @@ public extension Endpoint {
         .init({ self }, to: content)
     }
 
+    /// Handle success and failures.
+    ///
+    /// - parameter handler: A valid event handler.
+    /// - returns: Some `Endpoint`.
+    func handleEvents(_ result: @escaping (Result<Output, any Error>) -> Void) -> HandleEvents<Self> {
+        .init({ self }, with: result)
+    }
+
+    /// Map the output to some convenience value.
+    ///
+    /// - parameter content: A valid content factory.
+    /// - returns: Some `Endpoint`.
+    func map<O>(_ content: @escaping (Output) throws -> O) -> Map<Self, O> {
+        .init({ self }, to: content)
+    }
+
     /// Store an item into the appropriate storage.
     ///
     /// - parameter storage: Some `Storage`.
     /// - returns: Some `Endpoint`.
     func store<S: Storage>(in storage: S) -> Map<Self, Output> where S.Item == Output {
+        // `HandleEvents` cannot throw, so we're relying on `Map`, instead.
         map { try storage.insert($0); return $0 }
     }
 }
