@@ -66,6 +66,6 @@ public extension Endpoint {
     /// - parameter storage: Some `Storage`.
     /// - returns: Some `Endpoint`.
     func store<S: Storage>(in storage: S) -> Map<Self, Output> where S.Item == Output {
-        map { try S.store($0, in: storage) }
+        map { try storage.insert($0); return $0 }
     }
 }

@@ -15,7 +15,7 @@ struct Item: Equatable, Codable, Storable {
     // swiftlint:disable force_unwrapping
     /// A default `Item`.
     static let `default` = Item(
-        label: "item",
+        id: "item",
         cookies: [CodableHTTPCookie(properties: [.name: "ds_user_id",
                                                  .path: "test",
                                                  .value: "test",
@@ -32,7 +32,7 @@ struct Item: Equatable, Codable, Storable {
     // swiftlint:enable force_unwrapping
 
     /// The underlying label.
-    let label: String
+    let id: String
     /// The underlying user info.
-    let cookies: [CodableHTTPCookie]
+    var cookies: [CodableHTTPCookie]
 }

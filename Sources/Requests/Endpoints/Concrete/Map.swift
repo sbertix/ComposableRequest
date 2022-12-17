@@ -5,11 +5,11 @@
 //  Created by Stefano Bertagno on 07/12/22.
 //
 
-import Foundation
-
 #if canImport(Combine)
 import Combine
 #endif
+
+import Foundation
 
 /// A `struct` defining a custom endpoint
 /// implementation handling an output generated

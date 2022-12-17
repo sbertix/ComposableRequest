@@ -1,85 +1,79 @@
 //
 //  AnyStorage.swift
-//  ComposableRequest
+//  Storages
 //
-//  Created by Stefano Bertagno on 10/04/21.
+//  Created by Stefano Bertagno on 17/12/22.
 //
 
 import Foundation
 
-/// A `struct` defining a type-erased `Storage`.
-public struct AnyStorage<Item: Storable>: Storage {
-    /// Retreive a single item.
-    private let retreiver: (String) throws -> Item?
-    /// Retreieve all items.
-    private let exhauster: () throws -> [Item]
-    /// Store a single item.
-    private let persister: (Item) throws -> Item
-    /// Discard a single item.
-    private let remover: (String) throws -> Item?
-    /// Wipe the entire storage.
-    private let wiper: () throws -> Void
+/// A `struct` defining a type-erased instance of `Storage`.
+public struct AnyStorage<Item: Storable> {
+    /// Insert a new item.
+    private let _insert: (Item) throws -> (inserted: Bool, memberAfterInsert: Item)
+    /// Remove the associated item, if it exists.
+    private let _removeValue: (Item.ID) throws -> Item?
+    /// Get the associated item, if it exists.
+    private let _value: (Item.ID) throws -> Item?
+    /// Remove all associated item.
+    private let _removeAll: () throws -> Void
+    /// The iterator.
+    private let _iterator: () -> AnyIterator<Item>
 
     /// Init.
     ///
-    /// - parameter storage: A valid `Storage`.
+    /// - parameter storage: Some `Storage`.
     public init<S: Storage>(_ storage: S) where S.Item == Item {
-        self.retreiver = { try S.item(matching: $0, in: storage) }
-        self.exhauster = { try S.items(in: storage) }
-        self.persister = { try S.store($0, in: storage) }
-        self.remover = { try S.discard($0, in: storage) }
-        self.wiper = { try S.empty(storage) }
+        self._insert = { try storage.insert($0) }
+        self._removeValue = { try storage.removeValue(forKey: $0) }
+        self._value = { try storage[$0] }
+        self._removeAll = { try storage.removeAll() }
+        self._iterator = { AnyIterator(storage.makeIterator()) }
     }
+}
 
-    /// Return the first `Item` matching `label`, `nil` if none was found.
+extension AnyStorage: Sequence {
+    /// Compose the iterator.
     ///
-    /// - parameters:
-    ///     - label: A valid `String`.
-    ///     - storage: A valid `Storage`.
-    /// - returns: An optional `Item`.
-    /// - throws: Some `Error`.
-    public static func item(matching label: String, in storage: Self) throws -> Item? {
-        try storage.retreiver(label)
+    /// - returns: Some `IteratorProtocol`.
+    public func makeIterator() -> AnyIterator<Item> {
+        _iterator()
     }
+}
 
-    /// Return all stored `Item`s.
+extension AnyStorage: Storage {
+    /// Insert a new item.
     ///
-    /// - parameter storage: A valid `Storage`.
-    /// - returns: An order collection of `Item`s.
-    /// - throws: Some `Error`.
-    public static func items(in storage: Self) throws -> [Item] {
-        try storage.exhauster()
-    }
-
-    /// Store some `Item`, overwriting the ones matching its `label`.
-    ///
-    /// - parameters:
-    ///     - item: A valid `Item`.
-    ///     - storage: A valid `Storage`.
-    /// - returns: `item`.
-    /// - throws: Some `Error`.
+    /// - parameter item: Some `Item`.
+    /// - returns: A tuple indicating whether a previous value existed, and what this value was.
     @discardableResult
-    public static func store(_ item: Item, in storage: Self) throws -> Item {
-        try storage.persister(item)
+    public func insert(_ item: Item) throws -> (inserted: Bool, memberAfterInsert: Item) {
+        try _insert(item)
     }
 
-    /// Return an `Item`, if found, then removes it from storage.
+    /// Remove the associated item, if it exists.
     ///
-    /// - parameters:
-    ///     - label: A valid `String`.
-    ///     - storage: A valid `Storage`.
-    /// - returns: An optional `Item`.
-    /// - throws: Some `Error`.
+    /// - parameter key: Some `Item.ID`.
+    /// - throws: Any `Error`.
+    /// - returns: The removed `Item`, if it exists.
     @discardableResult
-    public static func discard(_ label: String, in storage: Self) throws -> Item? {
-        try storage.remover(label)
+    public func removeValue(forKey key: Item.ID) throws -> Item? {
+        try _removeValue(key)
     }
 
-    /// Empty storage.
+    /// Remove all associated items.
+    public func removeAll() throws {
+        try _removeAll()
+    }
+
+    /// Get the assocaited item, if it exists.
     ///
-    /// - parameter storage: A valid `Storage`.
-    /// - throws: Some `Error`.
-    public static func empty(_ storage: Self) throws {
-        try storage.wiper()
+    /// - parameter key: Some `Item.ID`.
+    /// - throws: Any `Error`.
+    /// - returns: Some optional `Item`.
+    public subscript(_ key: Item.ID) -> Item? {
+        get throws {
+            try _value(key)
+        }
     }
 }

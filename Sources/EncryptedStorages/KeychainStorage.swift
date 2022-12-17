@@ -9,31 +9,17 @@ import Foundation
 
 import KeychainAccess
 import protocol Storages.Storable
-import protocol Storages.ThrowingStorage
+import protocol Storages.Storage
 
 /// A `typealias` for `KeychainAccess.Keychain`.
-///
-/// - note:
-///     We prefer this to `import @_exported`, as we can't guarantee `@_exported`
-///     to stick with future versions of **Swift**.
 public typealias Keychain = KeychainAccess.Keychain
-
 /// A `typealias` for `KeychainAccess.Accessibility`.
-///
-/// - note:
-///     We prefer this to `import @_exported`, as we can't guarantee `@_exported`
-///     to stick with future versions of **Swift**.
 public typealias Accessibility = KeychainAccess.Accessibility
-
 /// A `typealias` for `KeychainAccess.AuthenticationPolicy`.
-///
-/// - note:
-///     We prefer this to `import @_exported`, as we can't guarantee `@_exported`
-///     to stick with future versions of **Swift**.
 public typealias AuthenticationPolicy = KeychainAccess.AuthenticationPolicy
 
 /// A `struct` defining a `Storage` caching `Item`s **safely** inside the user's **Keychain**.
-public struct KeychainStorage<Item: Storable>: ThrowingStorage {
+public struct KeychainStorage<Item: Storable> {
     /// The underlying keychain.
     private let keychain: Keychain
 
@@ -45,10 +31,12 @@ public struct KeychainStorage<Item: Storable>: ThrowingStorage {
     ///     - group: An optional `String` identifying the service name for the keychain instance. Defaults to `nil`.
     ///     - accessibility: A valid `Accessibility` value. Defaults to `.whenUnlocked`.
     ///     - isSynchronizable: A `Bool` representing whether the `Secret` should be shared through iCloud Keychain or not. Defaults to `false`.
-    public init(service: String? = nil,
-                group: String? = nil,
-                accessibility: Accessibility = .whenUnlocked,
-                isSynchronizable: Bool = false) {
+    public init(
+        service: String? = nil,
+        group: String? = nil,
+        accessibility: Accessibility = .whenUnlocked,
+        isSynchronizable: Bool = false
+    ) {
         let service = service ?? Bundle.main.bundleIdentifier ?? "Swiftagram"
         self.keychain = (group.flatMap { Keychain(service: service, accessGroup: $0) } ?? Keychain(service: service))
             .synchronizable(isSynchronizable)
@@ -63,67 +51,110 @@ public struct KeychainStorage<Item: Storable>: ThrowingStorage {
     ///     - accessibility: A valid `Accessibility` value. Defaults to `.whenUnlocked`.
     ///     - authentication: A valid `Authentication` value. Defaults to empty.
     ///     - isSynchronizable: A `Bool` representing whether the `Secret` should be shared through iCloud Keychain or not. Defaults to `false`.
-    public init(service: String? = nil,
-                group: String? = nil,
-                accessibility: Accessibility = .whenUnlocked,
-                authentication: AuthenticationPolicy = [],
-                isSynchronizable: Bool = false) {
+    public init(
+        service: String? = nil,
+        group: String? = nil,
+        accessibility: Accessibility = .whenUnlocked,
+        authentication: AuthenticationPolicy = [],
+        isSynchronizable: Bool = false
+    ) {
         let service = service ?? Bundle.main.bundleIdentifier ?? "Swiftagram"
         self.keychain = (group.flatMap { Keychain(service: service, accessGroup: $0) } ?? Keychain(service: service))
             .synchronizable(isSynchronizable)
             .accessibility(accessibility, authenticationPolicy: authentication)
     }
     #endif
+}
 
-    // MARK: Storable
-
-    /// Return the first `Item` matching `label`, `nil` if none was found.
+extension KeychainStorage: Sequence {
+    /// Compose the iterator.
     ///
-    /// - parameter label: A valid `String`.
-    /// - returns: An optional `Item`.
-    /// - throws: Some `Error`.
-    public func item(matching label: String) throws -> Item? {
-        try keychain.getData(label).flatMap { try? Item.decoding($0) }
+    /// - returns: Some `IteratorProtocol`.
+    public func makeIterator() -> Iterator {
+        Iterator(keychain: keychain)
     }
+}
 
-    /// Return all stored `Item`s.
+extension KeychainStorage: Storage {
+    /// Insert a new item.
     ///
-    /// - returns: An order collection of `Item`s.
-    /// - throws: Some `Error`.
-    public func items() throws -> [Item] {
-        try keychain.allKeys().compactMap(item)
-    }
-
-    /// Store some `Item`, overwriting the ones matching its `label`.
-    ///
-    /// - parameter item: A valid `Item`.
-    /// - returns: `item`.
-    /// - throws: Some `Error`.
+    /// - parameter item: Some `Item`.
+    /// - returns: A tuple indicating whether a previous value existed, and what this value was.
     @discardableResult
-    public func store(_ item: Item) throws -> Item {
-        try keychain.set(Item.encoding(item), key: item.label)
-        return item
+    public func insert(_ item: Item) throws -> (inserted: Bool, memberAfterInsert: Item) {
+        // Prepare the previous value, making
+        // sure we do not throw on failures.
+        let formerItem = try? self[item.id]
+        // Insert the new item.
+        try keychain.set(item.encoded(), key: item.id)
+        return (formerItem == nil, formerItem ?? item)
     }
 
-    /// Return an `Item`, if found, then removes it from storage.
+    /// Remove the associated item, if it exists.
     ///
-    /// - parameter label: A valid `String`.
-    /// - returns: An optional `Item`.
-    /// - throws: Some `Error`.
+    /// - parameter key: Some `Item.ID`.
+    /// - throws: Any `Error`.
+    /// - returns: The removed `Item`, if it exists.
     @discardableResult
-    public func discard(_ label: String) throws -> Item? {
-        guard let item = try? item(matching: label) else { return nil }
-        try keychain.remove(label)
-        return item
+    public func removeValue(forKey key: Item.ID) throws -> Item? {
+        // Prepare the previous value, making
+        // sure we do not throw on failures.
+        let formerItem = try? self[key]
+        // Remove the item.
+        try keychain.remove(key)
+        return formerItem
     }
 
-    /// Empty storage.
+    /// Get the assocaited item, if it exists.
     ///
-    /// - throws: Some `Error`.
-    public func empty() throws {
-        // Delete matching `Storables`.
-        let labels = try items().map(\.label)
-        guard labels.isEmpty else { return }
-        try labels.forEach { try keychain.remove($0) }
+    /// - parameter key: Some `Item.ID`.
+    /// - throws: Any `Error`.
+    /// - returns: Some optional `Item`.
+    public subscript(_ key: Item.ID) -> Item? {
+        get throws {
+            try keychain
+                .getData(key)
+                .flatMap(Item.init(decoding:))
+        }
+    }
+}
+
+public extension KeychainStorage {
+    /// A `struct` defining a `KeychainStorage` iterator.
+    struct Iterator: IteratorProtocol {
+        /// The underlying keychain instance.
+        private let keychain: Keychain
+        /// The keys inside the keychain.
+        private let keys: [String]
+        /// The current offset.
+        private var offset: Array<String>.Index
+
+        /// Init.
+        ///
+        /// - parameter keychain: Some `Keychain`.
+        init(keychain: Keychain) {
+            self.keychain = keychain
+            self.keys = keychain.allKeys()
+            self.offset = self.keys.startIndex
+        }
+
+        /// Return the next value.
+        ///
+        /// - returns: Some optional `Item`.
+        public mutating func next() -> Item? {
+            // Return the first value actually
+            // encoding an `Item` instance.
+            var item: Item?
+            repeat {
+                // Make sure we're withing bounds.
+                guard offset < keys.endIndex else { break }
+                // Find the item and attempt to decode it.
+                item = try? keychain.getData(keys[offset]).flatMap(Item.init(decoding:))
+                offset = keys.index(after: offset)
+            } while item == nil
+            // Return the first match,
+            // or `nil` if none can be found.
+            return item
+        }
     }
 }
