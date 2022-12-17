@@ -11,6 +11,7 @@ import XCTest
 
 @_spi(Private)
 @testable import Requests
+@testable import Storages
 
 /// A `class` defining tests for composition `protocol`s.
 final class APItests: XCTestCase {
@@ -296,6 +297,41 @@ final class APItests: XCTestCase {
                 ($0.next.string?.components(separatedBy: "/").last).flatMap(NextAction.advance) ?? .break
             }.collect()
         }
+    }
+
+    func testHandleEvents() async throws {
+        try await test(expecting: 1) {
+            HandleEvents {
+                Path("https://gist.githubusercontent.com")
+                Path("sbertix")
+                Path("18271e0e549cac1f6a0d4276bf369c6e")
+                Path("raw")
+                Path("1da47924f034d21f87797edbe836abbe7c73dfd5")
+                Path("one.json")
+                Response(AnyDecodable.self)
+                Response<AnyDecodable, _>(\.value.int!)
+            } with: {
+                XCTAssertEqual(try! $0.get(), 1) // swiftlint:disable:this force_try
+            }
+        }
+    }
+
+    func testStore() async throws {
+        try await test(expecting: Item.default) {
+            Single<Int> {
+                Path("https://gist.githubusercontent.com")
+                Path("sbertix")
+                Path("18271e0e549cac1f6a0d4276bf369c6e")
+                Path("raw")
+                Path("1da47924f034d21f87797edbe836abbe7c73dfd5")
+                Path("one.json")
+                Response(AnyDecodable.self)
+                Response<AnyDecodable, _>(\.value.int!)
+            }
+            .map { _ in Item.default }
+            .store(in: .userDefaults())
+        }
+        XCTAssertEqual(Array(UserDefaultsStorage<Item>()), [.default])
     }
 
     func testSyncFuture() async throws {

@@ -44,3 +44,12 @@
      /// - returns: Some optional `Item`.
      public subscript(_ key: Item.ID) -> Item? { nil }
 }
+
+public extension Storage {
+    /// Compose an instance of `TransientStorage`.
+    ///
+    /// - returns: An instance of `Self`.
+    static func transient<I: Storable>() -> Self where Self == TransientStorage<I> {
+        .init()
+    }
+}

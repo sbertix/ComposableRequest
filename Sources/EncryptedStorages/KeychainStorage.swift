@@ -158,3 +158,52 @@ public extension KeychainStorage {
         }
     }
 }
+
+public extension Storage {
+    #if os(watchOS)
+    /// Compose an instance of `KeychainStorage`.
+    ///
+    /// - parameters:
+    ///     - service: An optional `String` identifying the service name for the keychain instance.
+    ///     - group: An optional `String` identifying the service name for the keychain instance. Defaults to `nil`.
+    ///     - accessibility: A valid `Accessibility` value. Defaults to `.whenUnlocked`.
+    ///     - isSynchronizable: A `Bool` representing whether the `Secret` should be shared through iCloud Keychain or not. Defaults to `false`.
+    static func keychain<I: Storable>(
+        service: String? = nil,
+        group: String? = nil,
+        accessibility: Accessibility = .whenUnlocked,
+        isSynchronizable: Bool = false
+    ) -> Self where Self == KeychainStorage<I> {
+        .init(
+            service: service,
+            group: group,
+            accessibility: accessibility,
+            isSynchronizable: isSynchronizable
+        )
+    }
+    #else
+    /// Compose an instance of `KeychainStorage`.
+    ///
+    /// - parameters:
+    ///     - service: An optional `String` identifying the service name for the keychain instance.
+    ///     - group: An optional `String` identifying the service name for the keychain instance. Defaults to `nil`.
+    ///     - accessibility: A valid `Accessibility` value. Defaults to `.whenUnlocked`.
+    ///     - authentication: A valid `Authentication` value. Defaults to empty.
+    ///     - isSynchronizable: A `Bool` representing whether the `Secret` should be shared through iCloud Keychain or not. Defaults to `false`.
+    static func keychain<I: Storable>(
+        service: String? = nil,
+        group: String? = nil,
+        accessibility: Accessibility = .whenUnlocked,
+        authentication: AuthenticationPolicy = [],
+        isSynchronizable: Bool = false
+    ) -> Self where Self == KeychainStorage<I> {
+        .init(
+            service: service,
+            group: group,
+            accessibility: accessibility,
+            authentication: authentication,
+            isSynchronizable: isSynchronizable
+        )
+    }
+    #endif
+}

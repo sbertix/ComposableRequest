@@ -110,3 +110,14 @@ public extension UserDefaultsStorage {
         }
     }
 }
+
+public extension Storage {
+    /// Compose an instance of `UserDefaultsStorage`.
+    ///
+    /// - parameter userDefaults: Some `UserDefaults`. Defaults to `.standard`.
+    /// - returns: An instance of `Self`.
+    static func userDefaults<I: Storable>(_ userDefaults: UserDefaults = .standard) -> Self
+    where Self == UserDefaultsStorage<I> {
+        .init(userDefaults: userDefaults)
+    }
+}
