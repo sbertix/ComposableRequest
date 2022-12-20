@@ -38,9 +38,9 @@ extension Prefix: LoopEndpoint {
     /// Fetch responses, from a given
     /// `Input` and `URLSession`.
     ///
-    /// - parameter session: The `URLSession` used to fetch the response.
+    /// - parameter session: The `EndpointResolver` used to fetch the response.
     /// - returns: Some `AsyncStream`.
-    public func resolve(with session: URLSession) -> AsyncThrowingStream<Output, any Error> {
+    public func resolve<R: EndpointResolver>(with session: R) -> AsyncThrowingStream<Output, any Error> {
         var iterator = parent.resolve(with: session).prefix(count).makeAsyncIterator()
         return .init { try await iterator.next() }
     }
@@ -49,9 +49,9 @@ extension Prefix: LoopEndpoint {
     /// Fetch the response, from a given
     /// `Input` and `URLSession`.
     ///
-    /// - parameter session: The `URLSession` used to fetch the response.
+    /// - parameter session: The `EndpointResolver` used to fetch the response.
     /// - returns: Some `AnyPublisher`.
-    public func resolve(with session: URLSession) -> AnyPublisher<Output, any Error> {
+    public func resolve<R: EndpointResolver>(with session: R) -> AnyPublisher<Output, any Error> {
         parent.resolve(with: session)
             .prefix(count)
             .eraseToAnyPublisher()

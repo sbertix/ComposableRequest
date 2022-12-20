@@ -48,27 +48,26 @@ public struct Single<Output> {
 extension Single: SingleEndpoint {
     /// Resolve the current endpoint.
     ///
-    /// - parameter session: A valid `URLSession`.
+    /// - parameter session: A valid `EndpointResolver`.
     /// - throws: Any `Error`.
     /// - returns: Some `Output`.
-    public func resolve(with session: URLSession) async throws -> Output {
+    public func resolve<R: EndpointResolver>(with session: R) async throws -> Output {
         guard let request = URLRequest(path: path, components: components) else { throw EndpointError.invalidRequest }
-        let (data, response) = try await session._data(for: request)
-        return try output(.init(response: response, data: data))
+        return try output(await session.resolve(request))
     }
 
     #if canImport(Combine)
     /// Fetch the response, from a given
     /// `Input` and `URLSession`.
     ///
-    /// - parameter session: The `URLSession` used to fetch the response.
+    /// - parameter session: The `EndpointResolver` used to fetch the response.
     /// - returns: Some `AnyPublisher`.
-    public func resolve(with session: URLSession) -> AnyPublisher<Output, any Error> {
+    public func resolve<R: EndpointResolver>(with session: R) -> AnyPublisher<Output, any Error> {
         guard let request = URLRequest(path: path, components: components) else {
             return Fail(error: EndpointError.invalidRequest)
                 .eraseToAnyPublisher()
         }
-        return session.dataTaskPublisher(for: request)
+        return session.resolve(request)
             .tryMap { try output(.init(response: $0.response, data: $0.data)) }
             .eraseToAnyPublisher()
     }

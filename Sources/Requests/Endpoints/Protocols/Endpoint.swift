@@ -24,10 +24,10 @@ public protocol Endpoint<Output> {
     ///
     /// - note:
     ///     You should prefer calling higher-level `protocol`s' `resolve` functions.
-    /// - parameter session: The `URLSession` used to fetch the response.
+    /// - parameter session: The `EndpointResolver` used to fetch the response.
     /// - returns: Some `AsyncStream`.
     @_spi(Private)
-    func _resolve(with session: URLSession) -> AsyncThrowingStream<Output, any Error>
+    func _resolve<R: EndpointResolver>(with session: R) -> AsyncThrowingStream<Output, any Error>
 
     #if canImport(Combine)
     /// Fetch responses, from a given
@@ -35,10 +35,10 @@ public protocol Endpoint<Output> {
     ///
     /// - note:
     ///     You should prefer calling higher-level `protocol`s' `resolve` functions.
-    /// - parameter session: The `URLSession` used to fetch the response.
+    /// - parameter session: The `EndpointResolver` used to fetch the response.
     /// - returns: Some `Publisher`.
     @_spi(Private)
-    func _resolve(with session: URLSession) -> AnyPublisher<Output, any Error>
+    func _resolve<R: EndpointResolver>(with session: R) -> AnyPublisher<Output, any Error>
     #endif
 }
 

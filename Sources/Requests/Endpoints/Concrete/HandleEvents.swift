@@ -40,10 +40,10 @@ extension HandleEvents: Endpoint {
     ///
     /// - note:
     ///     You should prefer calling higher-level `protocol`s' `resolve` functions.
-    /// - parameter session: The `URLSession` used to fetch the response.
+    /// - parameter session: The `EndpointResolver` used to fetch the response.
     /// - returns: Some `AsyncStream`.
     @_spi(Private)
-    public func _resolve(with session: URLSession) -> AsyncThrowingStream<Parent.Output, any Error> {
+    public func _resolve<R: EndpointResolver>(with session: R) -> AsyncThrowingStream<Parent.Output, any Error> {
         var iterator = parent._resolve(with: session).makeAsyncIterator()
         return .init {
             do {
@@ -63,10 +63,10 @@ extension HandleEvents: Endpoint {
     ///
     /// - note:
     ///     You should prefer calling higher-level `protocol`s' `resolve` functions.
-    /// - parameter session: The `URLSession` used to fetch the response.
+    /// - parameter session: The `EndpointResolver` used to fetch the response.
     /// - returns: Some `AsyncStream`.
     @_spi(Private)
-    public func _resolve(with session: URLSession) -> AnyPublisher<Parent.Output, any Error> {
+    public func _resolve<R: EndpointResolver>(with session: R) -> AnyPublisher<Parent.Output, any Error> {
         parent._resolve(with: session)
             .handleEvents(
                 receiveOutput: {
@@ -86,10 +86,10 @@ extension HandleEvents: SingleEndpoint where Parent: SingleEndpoint {
     /// Fetch the response, from a given
     /// `Input` and `URLSession`.
     ///
-    /// - parameter session: The `URLSession` used to fetch the response.
+    /// - parameter session: The `EndpointResolver` used to fetch the response.
     /// - throws: Any `Error`.
     /// - returns: Some `Output`.
-    public func resolve(with session: URLSession) async throws -> Parent.Output {
+    public func resolve<R: EndpointResolver>(with session: R) async throws -> Parent.Output {
         do {
             let result = try await parent.resolve(with: session)
             handler(.success(result))
@@ -104,9 +104,9 @@ extension HandleEvents: SingleEndpoint where Parent: SingleEndpoint {
     /// Fetch the response, from a given
     /// `Input` and `URLSession`.
     ///
-    /// - parameter session: The `URLSession` used to fetch the response.
+    /// - parameter session: The `EndpointResolver` used to fetch the response.
     /// - returns: Some `AnyPublisher`.
-    public func resolve(with session: URLSession) -> AnyPublisher<Parent.Output, any Error> {
+    public func resolve<R: EndpointResolver>(with session: R) -> AnyPublisher<Parent.Output, any Error> {
         _resolve(with: session)
     }
     #endif
@@ -116,9 +116,9 @@ extension HandleEvents: LoopEndpoint where Parent: LoopEndpoint {
     /// Fetch responses, from a given
     /// `Input` and `URLSession`.
     ///
-    /// - parameter session: The `URLSession` used to fetch the response.
+    /// - parameter session: The `EndpointResolver` used to fetch the response.
     /// - returns: Some `AsyncStream`.
-    public func resolve(with session: URLSession) -> AsyncThrowingStream<Parent.Output, any Error> {
+    public func resolve<R: EndpointResolver>(with session: R) -> AsyncThrowingStream<Parent.Output, any Error> {
         _resolve(with: session)
     }
 
@@ -126,9 +126,9 @@ extension HandleEvents: LoopEndpoint where Parent: LoopEndpoint {
     /// Fetch the response, from a given
     /// `Input` and `URLSession`.
     ///
-    /// - parameter session: The `URLSession` used to fetch the response.
+    /// - parameter session: The `EndpointResolver` used to fetch the response.
     /// - returns: Some `AnyPublisher`.
-    public func resolve(with session: URLSession) -> AnyPublisher<Parent.Output, any Error> {
+    public func resolve<R: EndpointResolver>(with session: R) -> AnyPublisher<Parent.Output, any Error> {
         _resolve(with: session)
     }
     #endif

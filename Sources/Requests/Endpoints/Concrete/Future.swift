@@ -33,7 +33,7 @@ extension Future: SingleEndpoint {
     /// - parameter session: A valid `URLSession`.
     /// - throws: Any `Error`.
     /// - returns: Some `Output`.
-    public func resolve(with session: URLSession) async throws -> Output {
+    public func resolve<R: EndpointResolver>(with session: R) async throws -> Output {
         try await content()
     }
 }

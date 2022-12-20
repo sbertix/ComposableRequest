@@ -33,10 +33,10 @@ extension Collect: SingleEndpoint {
     /// Fetch the response, from a given
     /// `Input` and `URLSession`.
     ///
-    /// - parameter session: The `URLSession` used to fetch the response.
+    /// - parameter session: The `EndpointResolver` used to fetch the response.
     /// - throws: Any `Error`.
     /// - returns: Some `Output`.
-    public func resolve(with session: URLSession) async throws -> Output {
+    public func resolve<R: EndpointResolver>(with session: R) async throws -> Output {
         var responses: [Parent.Output] = []
         for try await response in parent.resolve(with: session) {
             responses.append(response)
@@ -48,9 +48,9 @@ extension Collect: SingleEndpoint {
     /// Fetch the response, from a given
     /// `Input` and `URLSession`.
     ///
-    /// - parameter session: The `URLSession` used to fetch the response.
+    /// - parameter session: The `EndpointResolver` used to fetch the response.
     /// - returns: Some `AnyPublisher`.
-    public func resolve(with session: URLSession) -> AnyPublisher<Output, any Error> {
+    public func resolve<R: EndpointResolver>(with session: R) -> AnyPublisher<Output, any Error> {
         parent.resolve(with: session)
             .collect()
             .eraseToAnyPublisher()

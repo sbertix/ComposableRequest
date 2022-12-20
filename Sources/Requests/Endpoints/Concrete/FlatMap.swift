@@ -51,10 +51,10 @@ extension FlatMap: Endpoint {
     ///
     /// - note:
     ///     You should prefer calling higher-level `protocol`s' `resolve` functions.
-    /// - parameter session: The `URLSession` used to fetch the response.
+    /// - parameter session: The `EndpointResolver` used to fetch the response.
     /// - returns: Some `AsyncStream`.
     @_spi(Private)
-    public func _resolve(with session: URLSession) -> AsyncThrowingStream<Output, any Error> {
+    public func _resolve<R: EndpointResolver>(with session: R) -> AsyncThrowingStream<Output, any Error> {
         var iterator: AsyncThrowingStream<Child.Output, any Error>.AsyncIterator?
         return .init {
             if iterator == nil {
@@ -71,10 +71,10 @@ extension FlatMap: Endpoint {
     ///
     /// - note:
     ///     You should prefer calling higher-level `protocol`s' `resolve` functions.
-    /// - parameter session: The `URLSession` used to fetch the response.
+    /// - parameter session: The `EndpointResolver` used to fetch the response.
     /// - returns: Some `AsyncStream`.
     @_spi(Private)
-    public func _resolve(with session: URLSession) -> AnyPublisher<Output, any Error> {
+    public func _resolve<R: EndpointResolver>(with session: R) -> AnyPublisher<Output, any Error> {
         parent.resolve(with: session)
             .flatMap { child($0)._resolve(with: session) }
             .eraseToAnyPublisher()
@@ -86,10 +86,10 @@ extension FlatMap: SingleEndpoint where Child: SingleEndpoint {
     /// Fetch the response, from a given
     /// `Input` and `URLSession`.
     ///
-    /// - parameter session: The `URLSession` used to fetch the response.
+    /// - parameter session: The `EndpointResolver` used to fetch the response.
     /// - throws: Any `Error`.
     /// - returns: Some `Output`.
-    public func resolve(with session: URLSession) async throws -> Output {
+    public func resolve<R: EndpointResolver>(with session: R) async throws -> Output {
         try await child(try await parent.resolve(with: session)).resolve(with: session)
     }
 
@@ -97,9 +97,9 @@ extension FlatMap: SingleEndpoint where Child: SingleEndpoint {
     /// Fetch the response, from a given
     /// `Input` and `URLSession`.
     ///
-    /// - parameter session: The `URLSession` used to fetch the response.
+    /// - parameter session: The `EndpointResolver` used to fetch the response.
     /// - returns: Some `AnyPublisher`.
-    public func resolve(with session: URLSession) -> AnyPublisher<Output, any Error> {
+    public func resolve<R: EndpointResolver>(with session: R) -> AnyPublisher<Output, any Error> {
         parent.resolve(with: session)
             .flatMap { child($0).resolve(with: session) }
             .eraseToAnyPublisher()
@@ -111,9 +111,9 @@ extension FlatMap: LoopEndpoint where Child: LoopEndpoint {
     /// Fetch responses, from a given
     /// `Input` and `URLSession`.
     ///
-    /// - parameter session: The `URLSession` used to fetch the response.
+    /// - parameter session: The `EndpointResolver` used to fetch the response.
     /// - returns: Some `AsyncStream`.
-    public func resolve(with session: URLSession) -> AsyncThrowingStream<Output, any Error> {
+    public func resolve<R: EndpointResolver>(with session: R) -> AsyncThrowingStream<Output, any Error> {
         _resolve(with: session)
     }
 
@@ -121,9 +121,9 @@ extension FlatMap: LoopEndpoint where Child: LoopEndpoint {
     /// Fetch the response, from a given
     /// `Input` and `URLSession`.
     ///
-    /// - parameter session: The `URLSession` used to fetch the response.
+    /// - parameter session: The `EndpointResolver` used to fetch the response.
     /// - returns: Some `AnyPublisher`.
-    public func resolve(with session: URLSession) -> AnyPublisher<Output, any Error> {
+    public func resolve<R: EndpointResolver>(with session: R) -> AnyPublisher<Output, any Error> {
         _resolve(with: session)
     }
     #endif

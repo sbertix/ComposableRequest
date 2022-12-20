@@ -22,9 +22,9 @@ import Foundation
 /// construction.
 public struct AnySingleEndpoint<Output> {
     /// The task factory.
-    private let task: (URLSession) async throws -> Output
+    private let task: (AnyEndpointResolver) async throws -> Output
     /// The publisher factory.
-    private let publisher: ((URLSession) -> Any)?
+    private let publisher: ((AnyEndpointResolver) -> Any)?
 
     /// Init.
     ///
@@ -51,21 +51,21 @@ extension AnySingleEndpoint: SingleEndpoint {
     /// Fetch the response, from a given
     /// `Input` and `URLSession`.
     ///
-    /// - parameter session: The `URLSession` used to fetch the response.
+    /// - parameter session: The `EndpointResolver` used to fetch the response.
     /// - throws: Any `Error`.
     /// - returns: Some `Output`.
-    public func resolve(with session: URLSession) async throws -> Output {
-        try await task(session)
+    public func resolve<R: EndpointResolver>(with session: R) async throws -> Output {
+        try await task(.init(session))
     }
 
     #if canImport(Combine)
     /// Fetch the response, from a given
     /// `Input` and `URLSession`.
     ///
-    /// - parameter session: The `URLSession` used to fetch the response.
+    /// - parameter session: The `EndpointResolver` used to fetch the response.
     /// - returns: Some `AnyPublisher`.
-    public func resolve(with session: URLSession) -> AnyPublisher<Output, any Error> {
-        guard let publisher = publisher?(session) as? AnyPublisher<Output, any Error> else {
+    public func resolve<R: EndpointResolver>(with session: R) -> AnyPublisher<Output, any Error> {
+        guard let publisher = publisher?(.init(session)) as? AnyPublisher<Output, any Error> else {
             return Fail(error: EndpointError.invalidPublisherType).eraseToAnyPublisher()
         }
         return publisher

@@ -22,9 +22,9 @@ import Foundation
 /// construction.
 public struct AnyLoopEndpoint<Output> {
     /// The stream factory.
-    private let stream: (URLSession) -> AsyncThrowingStream<Output, any Error>
+    private let stream: (AnyEndpointResolver) -> AsyncThrowingStream<Output, any Error>
     /// The publisher factory.
-    private let publisher: ((URLSession) -> Any)?
+    private let publisher: ((AnyEndpointResolver) -> Any)?
 
     /// Init.
     ///
@@ -51,20 +51,20 @@ extension AnyLoopEndpoint: LoopEndpoint {
     /// Fetch the response, from a given
     /// `Input` and `URLSession`.
     ///
-    /// - parameter session: The `URLSession` used to fetch the response.
+    /// - parameter session: The `EndpointResolver` used to fetch the response.
     /// - returns: Some `AsyncStream`.
-    public func resolve(with session: URLSession) -> AsyncThrowingStream<Output, any Error> {
-        stream(session)
+    public func resolve<R: EndpointResolver>(with session: R) -> AsyncThrowingStream<Output, any Error> {
+        stream(.init(session))
     }
 
     #if canImport(Combine)
     /// Fetch the response, from a given
     /// `Input` and `URLSession`.
     ///
-    /// - parameter session: The `URLSession` used to fetch the response.
+    /// - parameter session: The `EndpointResolver` used to fetch the response.
     /// - returns: Some `AnyPublisher`.
-    public func resolve(with session: URLSession) -> AnyPublisher<Output, any Error> {
-        guard let publisher = publisher?(session) as? AnyPublisher<Output, any Error> else {
+    public func resolve<R: EndpointResolver>(with session: R) -> AnyPublisher<Output, any Error> {
+        guard let publisher = publisher?(.init(session)) as? AnyPublisher<Output, any Error> else {
             return Fail(error: EndpointError.invalidPublisherType).eraseToAnyPublisher()
         }
         return publisher

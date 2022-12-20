@@ -17,18 +17,18 @@ public protocol SingleEndpoint<Output>: Endpoint {
     /// Fetch the response, from a given
     /// `Input` and `URLSession`.
     ///
-    /// - parameter session: The `URLSession` used to fetch the response.
+    /// - parameter session: The `EndpointResolver` used to fetch the response.
     /// - throws: Any `Error`.
     /// - returns: Some `Output`.
-    func resolve(with session: URLSession) async throws -> Output
+    func resolve<R: EndpointResolver>(with session: R) async throws -> Output
 
     #if canImport(Combine)
     /// Fetch the response, from a given
     /// `Input` and `URLSession`.
     ///
-    /// - parameter session: The `URLSession` used to fetch the response.
+    /// - parameter session: The `EndpointResolver` used to fetch the response.
     /// - returns: Some `AnyPublisher`.
-    func resolve(with session: URLSession) -> AnyPublisher<Output, any Error>
+    func resolve<R: EndpointResolver>(with session: R) -> AnyPublisher<Output, any Error>
     #endif
 }
 
@@ -37,9 +37,9 @@ public extension SingleEndpoint {
     /// Fetch the response, from a given
     /// `Input` and `URLSession`.
     ///
-    /// - parameter session: The `URLSession` used to fetch the response.
+    /// - parameter session: The `EndpointResolver` used to fetch the response.
     /// - returns: Some `AnyPublisher`.
-    func resolve(with session: URLSession) -> AnyPublisher<Output, any Error> {
+    func resolve<R: EndpointResolver>(with session: R) -> AnyPublisher<Output, any Error> {
         // Hold reference to the task, so we can cancel
         // it according to the `Publisher` stream.
         var task: Task<Void, Never>?
@@ -61,10 +61,10 @@ public extension SingleEndpoint {
     ///
     /// - note:
     ///     You should prefer calling higher-level `protocol`s' `resolve` functions.
-    /// - parameter session: The `URLSession` used to fetch the response.
+    /// - parameter session: The `EndpointResolver` used to fetch the response.
     /// - returns: Some `AsyncStream`.
     @_spi(Private)
-    func _resolve(with session: URLSession) -> AsyncThrowingStream<Output, any Error> {
+    func _resolve<R: EndpointResolver>(with session: R) -> AsyncThrowingStream<Output, any Error> {
         // You should only ever return one
         // item.
         // We could use `prefix`, but we
@@ -85,10 +85,10 @@ public extension SingleEndpoint {
     /// Fetch the response, from a given
     /// `Input` and `URLSession`.
     ///
-    /// - parameter session: The `URLSession` used to fetch the response.
+    /// - parameter session: The `EndpointResolver` used to fetch the response.
     /// - returns: Some `AnyPublisher`.
     @_spi(Private)
-    func _resolve(with session: URLSession) -> AnyPublisher<Output, any Error> {
+    func _resolve<R: EndpointResolver>(with session: R) -> AnyPublisher<Output, any Error> {
         resolve(with: session)
     }
     #endif

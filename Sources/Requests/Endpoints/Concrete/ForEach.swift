@@ -53,9 +53,9 @@ extension ForEach: LoopEndpoint {
     /// Fetch responses, from a given
     /// `Input` and `URLSession`.
     ///
-    /// - parameter session: The `URLSession` used to fetch the response.
+    /// - parameter session: The `EndpointResolver` used to fetch the response.
     /// - returns: Some `AsyncStream`.
-    public func resolve(with session: URLSession) -> AsyncThrowingStream<Output, any Error> {
+    public func resolve<R: EndpointResolver>(with session: R) -> AsyncThrowingStream<Output, any Error> {
         // Hold reference to next input,
         // so we can paginate properly.
         let nextInput: NextInput<Int> = .init(0)
@@ -72,9 +72,9 @@ extension ForEach: LoopEndpoint {
     /// Fetch responses, from a given
     /// `Input` and `URLSession`.
     ///
-    /// - parameter session: The `URLSession` used to fetch the response.
+    /// - parameter session: The `EndpointResolver` used to fetch the response.
     /// - returns: Some `AsyncStream`.
-    public func resolve(with session: URLSession) -> AnyPublisher<Output, any Error> {
+    public func resolve<R: EndpointResolver>(with session: R) -> AnyPublisher<Output, any Error> {
         // Hold reference to next input,
         // so we can paginate properly.
         // swiftlint:disable:next private_subject
