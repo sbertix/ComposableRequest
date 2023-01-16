@@ -13,128 +13,87 @@ import Requests
 @testable import EncryptedStorages
 @testable import Storages
 
-/// A static item.
-private let item = Item.default
-
 /// A `class` defining all `Storage` test cases.
-internal final class StorageTests: XCTestCase {
-    // MARK: Processors
+final class StorageTests: XCTestCase {
+    // MARK: Generic
 
-    /// Process a `NonThrowingStorage`.
-    ///
-    /// - parameters:
-    ///     - storage: A valid `NonThrowingStorage`.
-    ///     - function: The function from where it was called.
-    private func process<S: NonThrowingStorage>(_ storage: S, function: String = #function) where S.Item == Item {
-        // Empty.
-        storage.empty()
-        XCTAssert(storage.items().isEmpty, "\(storage) did not empty (\(function), #\(#line))")
-        // Store `item`.
-        XCTAssert(storage.store(item) == item, "Stored \(item) did not match (\(function), #\(#line))")
-        XCTAssert(storage.item(matching: item.label) == item, "\(storage) did not cache item (\(function), #\(#line))")
-        XCTAssert(!storage.items().isEmpty, "\(storage) should not be empty (\(function), #\(#line))")
-        // Delete `item`.
-        XCTAssert(storage.discard(item.label) == item, "\(storage) did not discard item (\(function), #\(#line))")
-        XCTAssert(storage.item(matching: item.label) == nil, "\(storage) did not discard item (\(function), #\(#line))")
-        XCTAssert(storage.items().isEmpty, "\(storage) did not discard item (\(function), #\(#line))")
-        // Empty.
-        XCTAssert(storage.store(item) == item, "Stored \(item) did not match (\(function), #\(#line))")
-        XCTAssert(storage.item(matching: item.label) == item, "\(storage) did not cache item (\(function), #\(#line))")
-        XCTAssert(!storage.items().isEmpty, "\(storage) should not be empty (\(function), #\(#line))")
-        storage.empty()
-        XCTAssert(storage.item(matching: item.label) == nil, "\(storage) did not empty item (\(function), #\(#line))")
-        XCTAssert(storage.items().isEmpty, "\(storage) did not empty (\(function), #\(#line))")
-        // `Storable` accessories.
-        XCTAssert(item.store(in: storage) == item, "Stored \(item) did not match (\(function), #\(#line))")
-        XCTAssert(Item.matching(item.label, in: storage) == item, "Stored \(item) did not match (\(function), #\(#line))")
+    private func test<S: Storage>(
+        _ storage: S,
+        item: Item = .default,
+        file: StaticString = #file,
+        function: StaticString = #function,
+        line: UInt = #line
+    ) throws where S.Item == Item {
+        // Empty the storage.
+        try storage.removeAll()
+        XCTAssertTrue(Array(storage).isEmpty)
+        // Store the item.
+        var (inserted, value) = try storage.insert(item)
+        XCTAssertTrue(inserted)
+        XCTAssertEqual(value, item)
+        XCTAssertEqual(Array(storage), [item])
+        // Update an existing item.
+        var updatedItem = item
+        updatedItem.cookies.removeAll()
+        (inserted, value) = try storage.insert(updatedItem)
+        XCTAssertFalse(inserted)
+        XCTAssertEqual(value, item)
+        XCTAssertEqual(Array(storage), [updatedItem])
+        // Delete an existing item.
+        XCTAssertEqual(try storage.removeValue(forKey: item.id), updatedItem)
+        // Store the item again.
+        (inserted, value) = try storage.insert(updatedItem)
+        XCTAssertTrue(inserted)
+        XCTAssertEqual(value, updatedItem)
+        // Delete existing items.
+        try storage.removeAll()
+        XCTAssertTrue(Array(storage).isEmpty)
+
+        // Test type-erased storage.
+        guard !(storage is AnyStorage<Item>) else { return }
+        try test(AnyStorage(storage), item: item, file: file, function: function, line: line)
     }
 
-    /// Process a `ThrowingStorage`.
-    ///
-    /// - parameters:
-    ///     - storage: A valid `NonThrowingStorage`.
-    ///     - function: The function from where it was called.
-    private func process<S: ThrowingStorage>(_ storage: S, function: String = #function) throws where S.Item == Item {
-        // Empty.
-        try storage.empty()
-        try XCTAssert(storage.items().isEmpty, "\(storage) did not empty (\(function), #\(#line))")
-        // Store `item`.
-        try XCTAssert(storage.store(item) == item, "Stored \(item) did not match (\(function), #\(#line))")
-        try XCTAssert(storage.item(matching: item.label) == item, "\(storage) did not cache item (\(function), #\(#line))")
-        try XCTAssert(!storage.items().isEmpty, "\(storage) should not be empty (\(function), #\(#line))")
-        // Delete `item`.
-        try XCTAssert(storage.discard(item.label) == item, "\(storage) did not discard item (\(function), #\(#line))")
-        try XCTAssert(storage.item(matching: item.label) == nil, "\(storage) did not discard item (\(function), #\(#line))")
-        try XCTAssert(storage.items().isEmpty, "\(storage) did not discard item (\(function), #\(#line))")
-        // Empty.
-        try XCTAssert(storage.store(item) == item, "Stored \(item) did not match (\(function), #\(#line))")
-        try XCTAssert(storage.item(matching: item.label) == item, "\(storage) did not cache item (\(function), #\(#line))")
-        try XCTAssert(!storage.items().isEmpty, "\(storage) should not be empty (\(function), #\(#line))")
-        try storage.empty()
-        try XCTAssert(storage.item(matching: item.label) == nil, "\(storage) did not empty item (\(function), #\(#line))")
-        try XCTAssert(storage.items().isEmpty, "\(storage) did not empty (\(function), #\(#line))")
-        // `Storable` accessories.
-        XCTAssert(try item.store(in: storage) == item, "Stored \(item) did not match (\(function), #\(#line))")
-        XCTAssert(try Item.matching(item.label, in: storage) == item, "Stored \(item) did not match (\(function), #\(#line))")
+    private func test<S: Storage>(
+        transient storage: S,
+        item: Item = .default,
+        file: StaticString = #file,
+        function: StaticString = #function,
+        line: UInt = #line
+    ) throws where S.Item == Item {
+        // Empty the storage.
+        try storage.removeAll()
+        XCTAssertTrue(Array(storage).isEmpty)
+        // "Store" the item.
+        var (inserted, value) = try storage.insert(.default)
+        XCTAssertFalse(inserted)
+        XCTAssertEqual(value, .default)
+        XCTAssertTrue(Array(storage).isEmpty)
+        // "Delete" an "existing" item.
+        XCTAssertNil(try storage.removeValue(forKey: Item.default.id))
+        // "Store" the item again.
+        (inserted, value) = try storage.insert(.default)
+        XCTAssertFalse(inserted)
+        XCTAssertEqual(value, .default)
+        XCTAssertTrue(Array(storage).isEmpty)
+        // "Delete" "existing" items.
+        try storage.removeAll()
+        XCTAssertTrue(Array(storage).isEmpty)
+
+        // Test type-erased storage.
+        guard !(storage is AnyStorage<Item>) else { return }
+        try test(transient: AnyStorage(storage), item: item, file: file, function: function, line: line)
     }
 
-    /// Process some `Storage`.
-    ///
-    /// - parameters:
-    ///     - storage: A valid `Storage`.
-    ///     - function: The function from where it was called.
-    private func process<S: Storage>(storage: S, function: String = #function, line: Int = #line) throws where S.Item == Item {
-        // Empty.
-        try S.empty(storage)
-        try XCTAssert(S.items(in: storage).isEmpty, "\(storage) did not empty (\(function), #\(#line))")
-        // Store `item`.
-        try XCTAssert(S.store(item, in: storage) == item, "Stored \(item) did not match (\(function), #\(#line))")
-        try XCTAssert(S.item(matching: item.label, in: storage) == item, "\(storage) did not cache item (\(function), #\(#line))")
-        try XCTAssert(!S.items(in: storage).isEmpty, "\(storage) should not be empty (\(function), #\(#line)")
-        // Delete `item`.
-        try XCTAssert(S.discard(item.label, in: storage) == item, "\(storage) did not discard item (\(function), #\(#line))")
-        try XCTAssert(S.item(matching: item.label, in: storage) == nil, "\(storage) did not discard item (\(function), #\(#line))")
-        try XCTAssert(S.items(in: storage).isEmpty, "\(storage) did not discard item (\(function), #\(#line))")
-        // Empty.
-        try XCTAssert(S.store(item, in: storage) == item, "Stored \(item) did not match (\(function), #\(#line)")
-        try XCTAssert(S.item(matching: item.label, in: storage) == item, "\(storage) did not cache item (\(function), #\(#line))")
-        try XCTAssert(!S.items(in: storage).isEmpty, "\(storage) should not be empty (\(function), #\(#line))")
-        try S.empty(storage)
-        try XCTAssert(S.item(matching: item.label, in: storage) == nil, "\(storage) did not empty item (\(function), #\(#line))")
-        try XCTAssert(S.items(in: storage).isEmpty, "\(storage) did not empty (\(function), #\(#line))")
-    }
-
-    // MARK: Cases
-
-    //    /// Test `KeychainStorage`.
-    //    func testKeychainStorage() throws {
-    //        let storage = KeychainStorage<Item>()
-    //        try process(storage)
-    //        try process(storage: storage)
-    //        try process(storage: AnyStorage(storage))
-    //    }
+    // MARK: Concrete
 
     /// Test `TransientStorage`.
-    func testTransientStorage() {
-        let storage = TransientStorage<Item>()
-        // Empty.
-        storage.empty()
-        XCTAssert(storage.items().isEmpty, "\(storage) did not empty (\(#function), #\(#line))")
-        // Store `item`.
-        XCTAssert(storage.store(item) == item, "Stored \(item) did not match (\(#function), #\(#line))")
-        XCTAssert(storage.item(matching: item.label) == nil, "\(storage) did not empty (\(#function), #\(#line))")
-        XCTAssert(storage.items().isEmpty, "\(storage) did not empty (\(#function), #\(#line))")
-        // Delete `item`.
-        XCTAssert(storage.discard(item.label) == nil, "\(storage) did not empty (\(#function), #\(#line))")
-        XCTAssert(storage.item(matching: item.label) == nil, "\(storage) did not empty (\(#function), #\(#line))")
-        XCTAssert(storage.items().isEmpty, "\(storage) did not empty (\(#function), #\(#line))")
+    func testTransientStorage() throws {
+        try test(transient: TransientStorage())
     }
 
     /// Test `UserDefaultsStorage`.
     func testUserDefaultsStorage() throws {
-        let storage = UserDefaultsStorage<Item>()
-        process(storage)
-        try process(storage: storage)
-        try process(storage: AnyStorage(storage))
+        try test(UserDefaultsStorage())
     }
 }

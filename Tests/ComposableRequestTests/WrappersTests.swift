@@ -15,82 +15,29 @@ import CoreGraphics
 @testable import Requests
 
 /// A `class` defining all models test cases.
-internal final class WrappersTests: XCTestCase {
-    /// A `struct` defining a custom `Wrapped`.
-    private struct Wrapped: Requests.Wrapped {
-        /// The underlying wrapper.
-        var wrapper: () -> Wrapper
-
-        /// Init.
-        ///
-        /// - parameter wrapper: A valid closure.
-        init(wrapper: @escaping () -> Wrapper) { self.wrapper = wrapper }
-    }
-
-    /// Test `Wrappable`.
-    func testWrappable() {
-        XCTAssert(true.wrapped.bool() == true)
-        XCTAssert(1.wrapped.int() == 1)
-        XCTAssert(Float(2.1).wrapped.double().flatMap(Float.init) == 2.1)
-        XCTAssert(Double(2.1).wrapped.double() == 2.1)
-        XCTAssert("test".wrapped.string() == "test")
-        XCTAssert(NSNull().wrapped.isEmpty)
-        XCTAssert((Int?.none).wrapped.isEmpty == true)
-        XCTAssert(Int?.some(2)?.wrapped.int() == 2)
-        XCTAssert(["test"].wrapped.array() == ["test"])
-        XCTAssert(["key": "value"].wrapped.dictionary() == ["key": "value"])
-        XCTAssert(1.wrapped.wrapped.int() == 1)
-        #if canImport(CoreGraphics)
-        XCTAssert(CGFloat(2.1).wrapped.double() == 2.1)
-        #endif
-    }
-
-    /// Test `Wrapped`.
-    func testWrapped() throws {
-        let array = Wrapped(wrapper: [["key": 2]]).wrapped
-        XCTAssert(array[0].dictionary() == ["key": 2])
-        XCTAssert(try JSONDecoder().decode(Wrapped.self, from: JSONEncoder().encode(array))[0]
-                    .dictionary() == ["key": 2])
-        let dictionary = Wrapped(wrapper: ["key": 2])
-        XCTAssert(dictionary["key"] == 2)
-        XCTAssert(dictionary.key == 2)
-    }
-
-    /// Test `Wrapper`.
-    func testWrapper() throws {
-        let value: Wrapper = [["integer": 1,
-                               "null": NSNull().wrapped,
-                               "camel_case_string": "",
-                               "bool": true,
-                               "double": 2.3,
-                               "url": "https://google.com"]]
-        let data = try value.encode()
-        var response = try Wrapper.decode(data)
-        let first = response.array()?.first
-        XCTAssert(first == response[0])
-        XCTAssert(first?.integer.int() == 1, "Int is not `Int`.")
-        XCTAssert(first?.camelCaseString.string() == "", "String is not `String`.")
-        XCTAssert(first?["bool"].bool() == true, "Bool is not `Bool`.")
-        XCTAssert(first?.dictionary()?["double"]?.double() == 2.3, "`Double` is not `Double`.")
-        XCTAssert(first?["url"].url() != nil, "`URL` is not `URL`.")
-        XCTAssert(value.wrapped == value)
-        // check literals.
-        response = .empty
-        XCTAssert(response.description == "<null>")
-        response = false
-        XCTAssert(response.bool() == false)
-        response = ["key": "o\u{306}"]
-        XCTAssert(response.key.string() == "o\u{306}")
-        response = "test"
-        XCTAssert(response.string() == "test")
-        response = 2.3
-        XCTAssert(response.double() == 2.3)
-        response = 2
-        XCTAssert(response.int() == 2)
-        response = [1, 2]
-        XCTAssert(response[1].int() == 2)
-        response = 1_000
-        XCTAssert(response.date()?.timeIntervalSince1970 == 1_000)
-        response = .empty
+final class WrappersTests: XCTestCase {
+    func testCodable() throws {
+        // Prepare the encoding.
+        let encodables: AnyEncodable = .init([
+            "boolean": false,
+            "float": 3.0,
+            "integer": 1,
+            "text": "string",
+            "listArray": [2, true],
+            "listDictionary": ["text": 1]
+        ])
+        .toSnakeCase()
+        let data = try JSONEncoder().encode(encodables)
+        // Prepare the decoding.
+        let decoded = try JSONDecoder()
+            .decode(AnyDecodable.self, from: data)
+            .fromSnakeCase()
+        XCTAssertEqual(decoded.boolean.bool, false)
+        XCTAssertEqual(decoded.float.double, 3.0)
+        XCTAssertEqual(decoded.integer.int, 1)
+        XCTAssertEqual(decoded.text.string, "string")
+        XCTAssertEqual(decoded.listArray[0].int, 2)
+        XCTAssertEqual(decoded.listArray[1].bool, true)
+        XCTAssertEqual(decoded.listDictionary.text.int, 1)
     }
 }
