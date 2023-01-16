@@ -25,7 +25,7 @@
     <nav>
         <div class="wrapper">
             <h2>On This Page</h2>
-            <ol><li><a href="#classes">Classes</a></li><li><a href="#structures">Structures</a></li><li><a href="#enumerations">Enumerations</a></li><li><a href="#protocols">Protocols</a></li><li><a href="#typealiases">Typealiases</a></li><li><a href="#extensions">Extensions</a></li></ol>
+            <ol><li><a href="#classes">Classes</a></li><li><a href="#structures">Structures</a></li><li><a href="#enumerations">Enumerations</a></li><li><a href="#protocols">Protocols</a></li><li><a href="#typealiases">Typealiases</a></li><li><a href="#functions">Functions</a></li><li><a href="#extensions">Extensions</a></li></ol>
         </div>
     </nav>
 
@@ -43,77 +43,12 @@
     <p>A <code>subclass</code> of <code>HTTPCookie</code> conforming to <code>Codable</code>.</p>
 
 </dd>
-<dt class="class">
-    <a href="https://sbertix.github.io/ComposableRequest/StorageCrypto/Atomic" title="class - Atomic">
-        Atomic
-    </a>
-</dt>
-<dd>
-    <p>A <code>class</code> defining an atomic reference to some value.</p>
-
-</dd>
-<dt class="class">
-    <a href="https://sbertix.github.io/ComposableRequest/StorageCrypto/Reference" title="class - Reference">
-        Reference
-    </a>
-</dt>
-<dd>
-    <p>A <code>class</code> defining a reference-typed rapper
-for some value.</p>
-
-</dd>
         </dl>
     </section>
     <section id="structures">
         <h2>Structures</h2>
         <dl>
             <dt class="structure">
-    <a href="https://sbertix.github.io/ComposableRequest/StorageCrypto/Logger_Level" title="structure - Logger.Level">
-        Logger.​Level
-    </a>
-</dt>
-<dd>
-    <p>An <code>enum</code>-like <code>struct</code> listing the different
-levels of logging.</p>
-
-</dd>
-<dt class="structure">
-    <a href="https://sbertix.github.io/ComposableRequest/StorageCrypto/Logger" title="structure - Logger">
-        Logger
-    </a>
-</dt>
-<dd>
-    <p>A <code>struct</code> defining an instance handling <code>Request</code> logs.</p>
-
-</dd>
-<dt class="structure">
-    <a href="https://sbertix.github.io/ComposableRequest/StorageCrypto/Request_Response" title="structure - Request.Response">
-        Request.​Response
-    </a>
-</dt>
-<dd>
-    <p>A <code>struct</code> defining the associated response type.</p>
-
-</dd>
-<dt class="structure">
-    <a href="https://sbertix.github.io/ComposableRequest/StorageCrypto/Request" title="structure - Request">
-        Request
-    </a>
-</dt>
-<dd>
-    <p>A <code>struct</code> defining a declerateive request stream.</p>
-
-</dd>
-<dt class="structure">
-    <a href="https://sbertix.github.io/ComposableRequest/StorageCrypto/Wrapper" title="structure - Wrapper">
-        Wrapper
-    </a>
-</dt>
-<dd>
-    <p>A <code>struct</code> defining a generic and abstract <code>Codable</code> value.</p>
-
-</dd>
-<dt class="structure">
     <a href="https://sbertix.github.io/ComposableRequest/StorageCrypto/KeychainStorage" title="structure - KeychainStorage">
         Keychain​Storage
     </a>
@@ -123,12 +58,334 @@ levels of logging.</p>
 
 </dd>
 <dt class="structure">
+    <a href="https://sbertix.github.io/ComposableRequest/StorageCrypto/KeychainStorage_Iterator" title="structure - KeychainStorage.Iterator">
+        Keychain​Storage.​Iterator
+    </a>
+</dt>
+<dd>
+    <p>A <code>struct</code> defining a <code>KeychainStorage</code> iterator.</p>
+
+</dd>
+<dt class="structure">
+    <a href="https://sbertix.github.io/ComposableRequest/StorageCrypto/EndpointBuilder" title="structure - EndpointBuilder">
+        Endpoint​Builder
+    </a>
+</dt>
+<dd>
+    <p>A <code>struct</code> defining a result builder capable of generating a single
+endpoint from a collection of components.</p>
+
+</dd>
+<dt class="structure">
+    <a href="https://sbertix.github.io/ComposableRequest/StorageCrypto/Path" title="structure - Path">
+        Path
+    </a>
+</dt>
+<dd>
+    <p>A <code>struct</code> defining the path
+component for a given endpoint.</p>
+
+</dd>
+<dt class="structure">
+    <a href="https://sbertix.github.io/ComposableRequest/StorageCrypto/Response" title="structure - Response">
+        Response
+    </a>
+</dt>
+<dd>
+    <p>A <code>struct</code> defining the response
+transformation.</p>
+
+</dd>
+<dt class="structure">
+    <a href="https://sbertix.github.io/ComposableRequest/StorageCrypto/Tuple3Item" title="structure - Tuple3Item">
+        Tuple3Item
+    </a>
+</dt>
+<dd>
+    <p>A <code>struct</code> used to hold together
+partial blocks inside the endpoint builder.</p>
+
+</dd>
+<dt class="structure">
+    <a href="https://sbertix.github.io/ComposableRequest/StorageCrypto/TupleItem" title="structure - TupleItem">
+        Tuple​Item
+    </a>
+</dt>
+<dd>
+    <p>A <code>struct</code> used to hold together
+partial blocks inside the endpoint builder.</p>
+
+</dd>
+<dt class="structure">
+    <a href="https://sbertix.github.io/ComposableRequest/StorageCrypto/AnyEncodable" title="structure - AnyEncodable">
+        Any​Encodable
+    </a>
+</dt>
+<dd>
+    <p>A <code>struct</code> defining an instance
+capable of being parsed into some
+generic JSON file.</p>
+
+</dd>
+<dt class="structure">
+    <a href="https://sbertix.github.io/ComposableRequest/StorageCrypto/AnyDecodable" title="structure - AnyDecodable">
+        Any​Decodable
+    </a>
+</dt>
+<dd>
+    <p>A <code>struct</code> defining an instance
+capable of parsing some generic
+JSON file.</p>
+
+</dd>
+<dt class="structure">
+    <a href="https://sbertix.github.io/ComposableRequest/StorageCrypto/Cellular" title="structure - Cellular">
+        Cellular
+    </a>
+</dt>
+<dd>
+    <p>A <code>struct</code> defining whether the request
+for a given endpoint can run on cellular or not.
+Defaults to <code>true</code>.</p>
+
+</dd>
+<dt class="structure">
+    <a href="https://sbertix.github.io/ComposableRequest/StorageCrypto/Constrained" title="structure - Constrained">
+        Constrained
+    </a>
+</dt>
+<dd>
+    <p>A <code>struct</code> defining whether the request
+for a given endpoint should run on a constrained
+network.
+Defaults to <code>true</code>.</p>
+
+</dd>
+<dt class="structure">
+    <a href="https://sbertix.github.io/ComposableRequest/StorageCrypto/Expensive" title="structure - Expensive">
+        Expensive
+    </a>
+</dt>
+<dd>
+    <p>A <code>struct</code> defining whether the request
+for a given endpoint is considered expensive.
+Defaults to <code>true</code>.</p>
+
+</dd>
+<dt class="structure">
+    <a href="https://sbertix.github.io/ComposableRequest/StorageCrypto/Service" title="structure - Service">
+        Service
+    </a>
+</dt>
+<dd>
+    <p>A <code>struct</code> defining the request network
+service type for a specific endpoint.
+/// Defaults to <code>.default</code>.</p>
+
+</dd>
+<dt class="structure">
+    <a href="https://sbertix.github.io/ComposableRequest/StorageCrypto/Timeout" title="structure - Timeout">
+        Timeout
+    </a>
+</dt>
+<dd>
+    <p>A <code>struct</code> defining when the request
+for a given endpoint can timeout.
+Defaults to <code>60</code>.</p>
+
+</dd>
+<dt class="structure">
+    <a href="https://sbertix.github.io/ComposableRequest/StorageCrypto/Body" title="structure - Body">
+        Body
+    </a>
+</dt>
+<dd>
+    <p>A <code>struct</code> defining the request body for a given endpoint.
+Defaults to <code>nil</code>.</p>
+
+</dd>
+<dt class="structure">
+    <a href="https://sbertix.github.io/ComposableRequest/StorageCrypto/Headers" title="structure - Headers">
+        Headers
+    </a>
+</dt>
+<dd>
+    <p>A <code>struct</code> defining the request
+headers for a given endpoint.
+Defaults to empty.</p>
+
+</dd>
+<dt class="structure">
+    <a href="https://sbertix.github.io/ComposableRequest/StorageCrypto/Method" title="structure - Method">
+        Method
+    </a>
+</dt>
+<dd>
+    <p>A <code>struct</code> defining the request
+HTTP method for a given endpoint.</p>
+
+</dd>
+<dt class="structure">
+    <a href="https://sbertix.github.io/ComposableRequest/StorageCrypto/Query" title="structure - Query">
+        Query
+    </a>
+</dt>
+<dd>
+    <p>A <code>struct</code> defining the query
+items for a given endpoint.
+Defaults to empty.</p>
+
+</dd>
+<dt class="structure">
+    <a href="https://sbertix.github.io/ComposableRequest/StorageCrypto/Catch" title="structure - Catch">
+        Catch
+    </a>
+</dt>
+<dd>
+    <p>A <code>struct</code> defining a custom endpoint
+implementation handling a request generated
+by an error in the previous one.</p>
+
+</dd>
+<dt class="structure">
+    <a href="https://sbertix.github.io/ComposableRequest/StorageCrypto/Collect" title="structure - Collect">
+        Collect
+    </a>
+</dt>
+<dd>
+    <p>A <code>struct</code> defining a custom endpoint
+implementation returning a wrapper for the
+reduced output of a loop endpoint.</p>
+
+</dd>
+<dt class="structure">
+    <a href="https://sbertix.github.io/ComposableRequest/StorageCrypto/First" title="structure - First">
+        First
+    </a>
+</dt>
+<dd>
+    <p>A <code>struct</code> defining a custom endpoint
+implementation returning a wrapper for the
+first output of a loop endpoint.</p>
+
+</dd>
+<dt class="structure">
+    <a href="https://sbertix.github.io/ComposableRequest/StorageCrypto/FlatMap" title="structure - FlatMap">
+        Flat​Map
+    </a>
+</dt>
+<dd>
+    <p>A <code>struct</code> defining a custom endpoint
+implementation handling a request generated
+by the response of a previous one.</p>
+
+</dd>
+<dt class="structure">
+    <a href="https://sbertix.github.io/ComposableRequest/StorageCrypto/ForEach" title="structure - ForEach">
+        For​Each
+    </a>
+</dt>
+<dd>
+    <p>A <code>struct</code> defining a custom endpoint
+implementation handling a sequence of
+requests.</p>
+
+</dd>
+<dt class="structure">
+    <a href="https://sbertix.github.io/ComposableRequest/StorageCrypto/HandleEvents" title="structure - HandleEvents">
+        Handle​Events
+    </a>
+</dt>
+<dd>
+    <p>A <code>struct</code> defining a custom endpoint
+implementation handling success and failures
+of an existing one, without modifying them.</p>
+
+</dd>
+<dt class="structure">
+    <a href="https://sbertix.github.io/ComposableRequest/StorageCrypto/Last" title="structure - Last">
+        Last
+    </a>
+</dt>
+<dd>
+    <p>A <code>struct</code> defining a custom endpoint
+implementation returning a wrapper for the
+last output of a loop endpoint.</p>
+
+</dd>
+<dt class="structure">
+    <a href="https://sbertix.github.io/ComposableRequest/StorageCrypto/Loop" title="structure - Loop">
+        Loop
+    </a>
+</dt>
+<dd>
+    <p>A <code>struct</code> defining a custom endpoint
+implementation handling a paginated request.</p>
+
+</dd>
+<dt class="structure">
+    <a href="https://sbertix.github.io/ComposableRequest/StorageCrypto/Map" title="structure - Map">
+        Map
+    </a>
+</dt>
+<dd>
+    <p>A <code>struct</code> defining a custom endpoint
+implementation handling an output generated
+from an existing one.</p>
+
+</dd>
+<dt class="structure">
+    <a href="https://sbertix.github.io/ComposableRequest/StorageCrypto/Prefix" title="structure - Prefix">
+        Prefix
+    </a>
+</dt>
+<dd>
+    <p>A <code>struct</code> defining a custom endpoint
+implementation returning a wrapper for the
+first <code>count</code> output of a loop endpoint.</p>
+
+</dd>
+<dt class="structure">
+    <a href="https://sbertix.github.io/ComposableRequest/StorageCrypto/Static" title="structure - Static">
+        Static
+    </a>
+</dt>
+<dd>
+    <p>A <code>struct</code> defining some external
+value to appear inside an endpoint
+chain (e.g. returning a single value,
+returning an error, etc).</p>
+
+</dd>
+<dt class="structure">
+    <a href="https://sbertix.github.io/ComposableRequest/StorageCrypto/AnyLoopEndpoint" title="structure - AnyLoopEndpoint">
+        Any​Loop​Endpoint
+    </a>
+</dt>
+<dd>
+    <p>A <code>struct</code> defining a loop endpoint
+erasing all its transformations and mapping,
+similar to <code>AnyPublisher</code>.</p>
+
+</dd>
+<dt class="structure">
+    <a href="https://sbertix.github.io/ComposableRequest/StorageCrypto/DefaultResponse" title="structure - DefaultResponse">
+        Default​Response
+    </a>
+</dt>
+<dd>
+    <p>The default URL response.</p>
+
+</dd>
+<dt class="structure">
     <a href="https://sbertix.github.io/ComposableRequest/StorageCrypto/Providers_Lock" title="structure - Providers.Lock">
         Providers.​Lock
     </a>
 </dt>
 <dd>
-    <p>A <code>struct</code> defining an authenticator.</p>
+    <p>A <code>struct</code> defining an instance
+abstracting a lock, a padlock, requiring
+some key to be opened.</p>
 
 </dd>
 <dt class="structure">
@@ -137,208 +394,9 @@ levels of logging.</p>
     </a>
 </dt>
 <dd>
-    <p>A <code>struct</code> defining a page offseter.</p>
-
-</dd>
-<dt class="structure">
-    <a href="https://sbertix.github.io/ComposableRequest/StorageCrypto/Providers_Requester" title="structure - Providers.Requester">
-        Providers.​Requester
-    </a>
-</dt>
-<dd>
-    <p>A <code>struct</code> defining a requester provider.</p>
-
-</dd>
-<dt class="structure">
-    <a href="https://sbertix.github.io/ComposableRequest/StorageCrypto/Receivables_FlatMap" title="structure - Receivables.FlatMap">
-        Receivables.​Flat​Map
-    </a>
-</dt>
-<dd>
-    <p>A <code>struct</code> defining a requestable flat mapper.</p>
-
-</dd>
-<dt class="structure">
-    <a href="https://sbertix.github.io/ComposableRequest/StorageCrypto/Receivables_FlatMapError" title="structure - Receivables.FlatMapError">
-        Receivables.​Flat​Map​Error
-    </a>
-</dt>
-<dd>
-    <p>A <code>struct</code> defining a requestable flat mapper for failures.</p>
-
-</dd>
-<dt class="structure">
-    <a href="https://sbertix.github.io/ComposableRequest/StorageCrypto/Receivables_Future" title="structure - Receivables.Future">
-        Receivables.​Future
-    </a>
-</dt>
-<dd>
-    <p>A <code>struct</code> defining a future receivable.</p>
-
-</dd>
-<dt class="structure">
-    <a href="https://sbertix.github.io/ComposableRequest/StorageCrypto/Receivables_If" title="structure - Receivables.If">
-        Receivables.​If
-    </a>
-</dt>
-<dd>
-    <p>A <code>struct</code> defining a requestable conditional statement.</p>
-
-</dd>
-<dt class="structure">
-    <a href="https://sbertix.github.io/ComposableRequest/StorageCrypto/Receivables_Map" title="structure - Receivables.Map">
-        Receivables.​Map
-    </a>
-</dt>
-<dd>
-    <p>A <code>struct</code> defining a requestable mapper.</p>
-
-</dd>
-<dt class="structure">
-    <a href="https://sbertix.github.io/ComposableRequest/StorageCrypto/Receivables_MapError" title="structure - Receivables.MapError">
-        Receivables.​Map​Error
-    </a>
-</dt>
-<dd>
-    <p>A <code>struct</code> defining a requestable mapper for failures.</p>
-
-</dd>
-<dt class="structure">
-    <a href="https://sbertix.github.io/ComposableRequest/StorageCrypto/Receivables_Once" title="structure - Receivables.Once">
-        Receivables.​Once
-    </a>
-</dt>
-<dd>
-    <p>A <code>struct</code> defining a <code>Requester</code>-based receivable
-receiving immediately either a success or failure.</p>
-
-</dd>
-<dt class="structure">
-    <a href="https://sbertix.github.io/ComposableRequest/StorageCrypto/Pages_Input" title="structure - Pages.Input">
-        Pages.​Input
-    </a>
-</dt>
-<dd>
-    <p>A <code>struct</code> defining a pager's setup.</p>
-
-</dd>
-<dt class="structure">
-    <a href="https://sbertix.github.io/ComposableRequest/StorageCrypto/Receivables_Pager" title="structure - Receivables.Pager">
-        Receivables.​Pager
-    </a>
-</dt>
-<dd>
-    <p>A <code>struct</code> defining a requestable pager.</p>
-
-</dd>
-<dt class="structure">
-    <a href="https://sbertix.github.io/ComposableRequest/StorageCrypto/Receivables_Print" title="structure - Receivables.Print">
-        Receivables.​Print
-    </a>
-</dt>
-<dd>
-    <p>A <code>struct</code> defining a requestable printer.</p>
-
-</dd>
-<dt class="structure">
-    <a href="https://sbertix.github.io/ComposableRequest/StorageCrypto/Receivables_Requested" title="structure - Receivables.Requested">
-        Receivables.​Requested
-    </a>
-</dt>
-<dd>
-    <p>A <code>struct</code> defining a type-erased, <code>Requester</code>-based receivable.</p>
-
-</dd>
-<dt class="structure">
-    <a href="https://sbertix.github.io/ComposableRequest/StorageCrypto/Receivables_Switch" title="structure - Receivables.Switch">
-        Receivables.​Switch
-    </a>
-</dt>
-<dd>
-    <p>A <code>struct</code> defining a requestable switcher.</p>
-
-</dd>
-<dt class="structure">
-    <a href="https://sbertix.github.io/ComposableRequest/StorageCrypto/URLSessionAsyncRequester_Input" title="structure - URLSessionAsyncRequester.Input">
-        URLSession​Async​Requester.​Input
-    </a>
-</dt>
-<dd>
-    <p>A <code>struct</code> defining a valid requester input.</p>
-
-</dd>
-<dt class="structure">
-    <a href="https://sbertix.github.io/ComposableRequest/StorageCrypto/URLSessionAsyncRequester_Response" title="structure - URLSessionAsyncRequester.Response">
-        URLSession​Async​Requester.​Response
-    </a>
-</dt>
-<dd>
-    <p>A <code>struct</code> defining the output for a <code>URLSessionAsyncRequester</code>.</p>
-
-</dd>
-<dt class="structure">
-    <a href="https://sbertix.github.io/ComposableRequest/StorageCrypto/URLSessionAsyncRequester" title="structure - URLSessionAsyncRequester">
-        URLSession​Async​Requester
-    </a>
-</dt>
-<dd>
-    <p>A <code>struct</code> defining a concrete implementation of <code>Requester</code>
-through <em>structured cuncurrency</em>.</p>
-
-</dd>
-<dt class="structure">
-    <a href="https://sbertix.github.io/ComposableRequest/StorageCrypto/URLSessionCombineRequester_Input" title="structure - URLSessionCombineRequester.Input">
-        URLSession​Combine​Requester.​Input
-    </a>
-</dt>
-<dd>
-    <p>A <code>struct</code> defining a valid requester input.</p>
-
-</dd>
-<dt class="structure">
-    <a href="https://sbertix.github.io/ComposableRequest/StorageCrypto/URLSessionCombineRequester_Response" title="structure - URLSessionCombineRequester.Response">
-        URLSession​Combine​Requester.​Response
-    </a>
-</dt>
-<dd>
-    <p>A <code>struct</code> defining the output for a <code>URLSessionCombineRequester</code>.</p>
-
-</dd>
-<dt class="structure">
-    <a href="https://sbertix.github.io/ComposableRequest/StorageCrypto/URLSessionCombineRequester" title="structure - URLSessionCombineRequester">
-        URLSession​Combine​Requester
-    </a>
-</dt>
-<dd>
-    <p>A <code>struct</code> defining a concrete implementation of <code>Requester</code> with <strong>Combine</strong>.</p>
-
-</dd>
-<dt class="structure">
-    <a href="https://sbertix.github.io/ComposableRequest/StorageCrypto/URLSessionCompletionRequester_Input" title="structure - URLSessionCompletionRequester.Input">
-        URLSession​Completion​Requester.​Input
-    </a>
-</dt>
-<dd>
-    <p>A <code>struct</code> defining a valid requester input.</p>
-
-</dd>
-<dt class="structure">
-    <a href="https://sbertix.github.io/ComposableRequest/StorageCrypto/URLSessionCompletionRequester_Response" title="structure - URLSessionCompletionRequester.Response">
-        URLSession​Completion​Requester.​Response
-    </a>
-</dt>
-<dd>
-    <p>A <code>struct</code> defining the output for a <code>URLSessionCompletionRequester</code>.</p>
-
-</dd>
-<dt class="structure">
-    <a href="https://sbertix.github.io/ComposableRequest/StorageCrypto/URLSessionCompletionRequester" title="structure - URLSessionCompletionRequester">
-        URLSession​Completion​Requester
-    </a>
-</dt>
-<dd>
-    <p>A <code>struct</code> defining a concrete implementation of <code>Requester</code>
-through <em>completion handlers</em>.</p>
+    <p>A <code>struct</code> defining an instance
+abstracting a page reference,
+identified by some bookmark.</p>
 
 </dd>
 <dt class="structure">
@@ -347,7 +405,7 @@ through <em>completion handlers</em>.</p>
     </a>
 </dt>
 <dd>
-    <p>A <code>struct</code> defining a type-erased <code>Storage</code>.</p>
+    <p>A <code>struct</code> defining a type-erased instance of <code>Storage</code>.</p>
 
 </dd>
 <dt class="structure">
@@ -365,7 +423,16 @@ through <em>completion handlers</em>.</p>
     </a>
 </dt>
 <dd>
-    <p>A <code>struct</code> defining a <code>Storage</code> caching <code>Item</code>s inside <code>UserDefaults</code>.</p>
+    <p>A <code>struct</code> defining a <code>Storage</code> caching <code>Item</code>s in <code>UserDefaults</code>.</p>
+
+</dd>
+<dt class="structure">
+    <a href="https://sbertix.github.io/ComposableRequest/StorageCrypto/UserDefaultsStorage_Iterator" title="structure - UserDefaultsStorage.Iterator">
+        User​Defaults​Storage.​Iterator
+    </a>
+</dt>
+<dd>
+    <p>A <code>struct</code> defining a <code>UserDefaultsStorage</code> iterator.</p>
 
 </dd>
         </dl>
@@ -379,34 +446,38 @@ through <em>completion handlers</em>.</p>
     </a>
 </dt>
 <dd>
-    <p>An <code>enum</code> listing all <code>URLRequest</code> allowed <code>httpMethod</code>s.</p>
+    <p>An <code>enum</code> listing all <code>URLRequest</code> allowed <code>httpMethod</code>s.
+Defaults to <code>.default</code>.</p>
 
 </dd>
 <dt class="enumeration">
-    <a href="https://sbertix.github.io/ComposableRequest/StorageCrypto/Logger_Level_Request" title="enumeration - Logger.Level.Request">
-        Logger.​Level.​Request
+    <a href="https://sbertix.github.io/ComposableRequest/StorageCrypto/Endpoints" title="enumeration - Endpoints">
+        Endpoints
     </a>
 </dt>
 <dd>
-    <p>A <code>module</code>-like <code>enum</code> defining request-based <code>Level</code>s.</p>
+    <p>A module-like <code>enum</code> encapsulating all
+concrete <code>Endpoint</code> implementations.</p>
 
 </dd>
 <dt class="enumeration">
-    <a href="https://sbertix.github.io/ComposableRequest/StorageCrypto/Logger_Level_Response" title="enumeration - Logger.Level.Response">
-        Logger.​Level.​Response
+    <a href="https://sbertix.github.io/ComposableRequest/StorageCrypto/EndpointError" title="enumeration - EndpointError">
+        Endpoint​Error
     </a>
 </dt>
 <dd>
-    <p>A <code>module</code>-like <code>enum</code> defining response-based <code>Level</code>s.</p>
+    <p>An <code>enum</code> listing all available
+<code>Endpoint</code>-related erros.</p>
 
 </dd>
 <dt class="enumeration">
-    <a href="https://sbertix.github.io/ComposableRequest/StorageCrypto/Request_Error" title="enumeration - Request.Error">
-        Request.​Error
+    <a href="https://sbertix.github.io/ComposableRequest/StorageCrypto/NextAction" title="enumeration - NextAction">
+        Next​Action
     </a>
 </dt>
 <dd>
-    <p>An <code>enum</code> listing error values.</p>
+    <p>An <code>enum</code> listing all possible
+<code>Loop</code> actions.</p>
 
 </dd>
 <dt class="enumeration">
@@ -418,295 +489,19 @@ through <em>completion handlers</em>.</p>
     <p>A module-like <code>enum</code> listing all providers.</p>
 
 </dd>
-<dt class="enumeration">
-    <a href="https://sbertix.github.io/ComposableRequest/StorageCrypto/Pages" title="enumeration - Pages">
-        Pages
-    </a>
-</dt>
-<dd>
-    <p>A module-like <code>enum</code> listing all pager receivables support definitions.</p>
-
-</dd>
-<dt class="enumeration">
-    <a href="https://sbertix.github.io/ComposableRequest/StorageCrypto/Pages_Instruction" title="enumeration - Pages.Instruction">
-        Pages.​Instruction
-    </a>
-</dt>
-<dd>
-    <p>An <code>enum</code> listing a pager available instructions.</p>
-
-</dd>
-<dt class="enumeration">
-    <a href="https://sbertix.github.io/ComposableRequest/StorageCrypto/Receivables" title="enumeration - Receivables">
-        Receivables
-    </a>
-</dt>
-<dd>
-    <p>A module-like <code>enum</code> listing all available receivables.</p>
-
-</dd>
         </dl>
     </section>
     <section id="protocols">
         <h2>Protocols</h2>
         <dl>
             <dt class="protocol">
-    <a href="https://sbertix.github.io/ComposableRequest/StorageCrypto/Body" title="protocol - Body">
-        Body
+    <a href="https://sbertix.github.io/ComposableRequest/StorageCrypto/Component" title="protocol - Component">
+        Component
     </a>
 </dt>
 <dd>
-    <p>A <code>protocol</code> describing an instance providing the body of a <code>URLRequest</code>.</p>
-
-</dd>
-<dt class="protocol">
-    <a href="https://sbertix.github.io/ComposableRequest/StorageCrypto/Header" title="protocol - Header">
-        Header
-    </a>
-</dt>
-<dd>
-    <p>A <code>protocol</code> describing an instance providing the header fields of a <code>URLRequest</code>.</p>
-
-</dd>
-<dt class="protocol">
-    <a href="https://sbertix.github.io/ComposableRequest/StorageCrypto/Method" title="protocol - Method">
-        Method
-    </a>
-</dt>
-<dd>
-    <p>A <code>protocol</code> describing an instance providing the method of a <code>URLRequest</code>.</p>
-
-</dd>
-<dt class="protocol">
-    <a href="https://sbertix.github.io/ComposableRequest/StorageCrypto/Path" title="protocol - Path">
-        Path
-    </a>
-</dt>
-<dd>
-    <p>A <code>protocol</code> describing an instance providing the <code>URL</code> to some resouce in a <code>URLRequest</code>.</p>
-
-</dd>
-<dt class="protocol">
-    <a href="https://sbertix.github.io/ComposableRequest/StorageCrypto/Query" title="protocol - Query">
-        Query
-    </a>
-</dt>
-<dd>
-    <p>A <code>protocol</code> describing an instance providing the query items of a <code>URLRequest</code>.</p>
-
-</dd>
-<dt class="protocol">
-    <a href="https://sbertix.github.io/ComposableRequest/StorageCrypto/Timeout" title="protocol - Timeout">
-        Timeout
-    </a>
-</dt>
-<dd>
-    <p>A <code>protocol</code> describing an instace providing the timeout interval for a <code>URLRequest</code>.</p>
-
-</dd>
-<dt class="protocol">
-    <a href="https://sbertix.github.io/ComposableRequest/StorageCrypto/ComposableNonNilType" title="protocol - ComposableNonNilType">
-        Composable​Non​Nil​Type
-    </a>
-</dt>
-<dd>
-    <p>A <code>protocol</code> defining a <code>ComposableRequest</code> abstraction for <code>nil</code>-checking <code>Optional</code>s.</p>
-
-</dd>
-<dt class="protocol">
-    <a href="https://sbertix.github.io/ComposableRequest/StorageCrypto/ComposableOptionalType" title="protocol - ComposableOptionalType">
-        Composable​Optional​Type
-    </a>
-</dt>
-<dd>
-    <p>A <code>protocol</code> defining a <code>ComposableRequest</code> abtrasction into <code>Optional</code>.</p>
-
-</dd>
-<dt class="protocol">
-    <a href="https://sbertix.github.io/ComposableRequest/StorageCrypto/URLComponentsRepresentable" title="protocol - URLComponentsRepresentable">
-        URLComponents​Representable
-    </a>
-</dt>
-<dd>
-    <p>A <code>protcol</code> defining a <code>URLComponents</code> generator.</p>
-
-</dd>
-<dt class="protocol">
-    <a href="https://sbertix.github.io/ComposableRequest/StorageCrypto/URLRepresentable" title="protocol - URLRepresentable">
-        URLRepresentable
-    </a>
-</dt>
-<dd>
-    <p>A <code>protocol</code> defining a <code>URL</code> generator.</p>
-
-</dd>
-<dt class="protocol">
-    <a href="https://sbertix.github.io/ComposableRequest/StorageCrypto/URLRequestRepresentable" title="protocol - URLRequestRepresentable">
-        URLRequest​Representable
-    </a>
-</dt>
-<dd>
-    <p>A <code>protocol</code> defining a <code>URLRequest</code> generator.</p>
-
-</dd>
-<dt class="protocol">
-    <a href="https://sbertix.github.io/ComposableRequest/StorageCrypto/Wrappable" title="protocol - Wrappable">
-        Wrappable
-    </a>
-</dt>
-<dd>
-    <p>A <code>protocol</code> allowing to <code>init</code> <code>Wrapper</code>s.</p>
-
-</dd>
-<dt class="protocol">
-    <a href="https://sbertix.github.io/ComposableRequest/StorageCrypto/Wrapped" title="protocol - Wrapped">
-        Wrapped
-    </a>
-</dt>
-<dd>
-    <p>A <code>protocol</code> defining a type initiable through <code>Response</code>.</p>
-
-</dd>
-<dt class="protocol">
-    <a href="https://sbertix.github.io/ComposableRequest/StorageCrypto/Provider" title="protocol - Provider">
-        Provider
-    </a>
-</dt>
-<dd>
-    <p>A <code>protocol</code> defining a value provider.</p>
-
-</dd>
-<dt class="protocol">
-    <a href="https://sbertix.github.io/ComposableRequest/StorageCrypto/LockProvider" title="protocol - LockProvider">
-        Lock​Provider
-    </a>
-</dt>
-<dd>
-    <p>A <code>protocol</code> defining a provider lock type.</p>
-
-</dd>
-<dt class="protocol">
-    <a href="https://sbertix.github.io/ComposableRequest/StorageCrypto/OffsetProvider" title="protocol - OffsetProvider">
-        Offset​Provider
-    </a>
-</dt>
-<dd>
-    <p>A <code>protocol</code> defining a provider offset type.</p>
-
-</dd>
-<dt class="protocol">
-    <a href="https://sbertix.github.io/ComposableRequest/StorageCrypto/RequesterProvider" title="protocol - RequesterProvider">
-        Requester​Provider
-    </a>
-</dt>
-<dd>
-    <p>A <code>protocol</code> defining a provider requester type.</p>
-
-</dd>
-<dt class="protocol">
-    <a href="https://sbertix.github.io/ComposableRequest/StorageCrypto/Receivable" title="protocol - Receivable">
-        Receivable
-    </a>
-</dt>
-<dd>
-    <p>A <code>protocol</code> defining an instance returned by a <code>Requester</code>.</p>
-
-</dd>
-<dt class="protocol">
-    <a href="https://sbertix.github.io/ComposableRequest/StorageCrypto/PagerInput" title="protocol - PagerInput">
-        Pager​Input
-    </a>
-</dt>
-<dd>
-    <p>A <code>protocol</code> defining an instance providing basic support for setting up a pager.</p>
-
-</dd>
-<dt class="protocol">
-    <a href="https://sbertix.github.io/ComposableRequest/StorageCrypto/Paginatable" title="protocol - Paginatable">
-        Paginatable
-    </a>
-</dt>
-<dd>
-    <p>A <code>protocol</code> defining an instance capable of being paginated.</p>
-
-</dd>
-<dt class="protocol">
-    <a href="https://sbertix.github.io/ComposableRequest/StorageCrypto/URLSessionAsyncMockReceivable" title="protocol - URLSessionAsyncMockReceivable">
-        URLSession​Async​Mock​Receivable
-    </a>
-</dt>
-<dd>
-    <p>A <code>protocol</code> defining a mock <code>URLSessionAsyncReceivable</code>.</p>
-
-</dd>
-<dt class="protocol">
-    <a href="https://sbertix.github.io/ComposableRequest/StorageCrypto/URLSessionAsyncReceivable" title="protocol - URLSessionAsyncReceivable">
-        URLSession​Async​Receivable
-    </a>
-</dt>
-<dd>
-    
-</dd>
-<dt class="protocol">
-    <a href="https://sbertix.github.io/ComposableRequest/StorageCrypto/URLSessionCombineMockReceivable" title="protocol - URLSessionCombineMockReceivable">
-        URLSession​Combine​Mock​Receivable
-    </a>
-</dt>
-<dd>
-    <p>A <code>protocol</code> defining a mock <code>URLSessionCombineReceivable</code>.</p>
-
-</dd>
-<dt class="protocol">
-    <a href="https://sbertix.github.io/ComposableRequest/StorageCrypto/URLSessionCombineReceivable" title="protocol - URLSessionCombineReceivable">
-        URLSession​Combine​Receivable
-    </a>
-</dt>
-<dd>
-    
-</dd>
-<dt class="protocol">
-    <a href="https://sbertix.github.io/ComposableRequest/StorageCrypto/URLSessionCompletionMockReceivable" title="protocol - URLSessionCompletionMockReceivable">
-        URLSession​Completion​Mock​Receivable
-    </a>
-</dt>
-<dd>
-    <p>A <code>protocol</code> defining a mock <code>URLSessionCompletionReceivable</code>.</p>
-
-</dd>
-<dt class="protocol">
-    <a href="https://sbertix.github.io/ComposableRequest/StorageCrypto/URLSessionCompletionReceivable" title="protocol - URLSessionCompletionReceivable">
-        URLSession​Completion​Receivable
-    </a>
-</dt>
-<dd>
-    <p>A <code>protocol</code> defining a generic completion receivable.</p>
-
-</dd>
-<dt class="protocol">
-    <a href="https://sbertix.github.io/ComposableRequest/StorageCrypto/Requester" title="protocol - Requester">
-        Requester
-    </a>
-</dt>
-<dd>
-    <p>A <code>protocol</code> defining an instance capable of initiating network <code>Request</code>s.</p>
-
-</dd>
-<dt class="protocol">
-    <a href="https://sbertix.github.io/ComposableRequest/StorageCrypto/RequesterInput" title="protocol - RequesterInput">
-        Requester​Input
-    </a>
-</dt>
-<dd>
-    <p>A <code>protocol</code> defining the input for a <code>Requester</code>.</p>
-
-</dd>
-<dt class="protocol">
-    <a href="https://sbertix.github.io/ComposableRequest/StorageCrypto/NonThrowingStorage" title="protocol - NonThrowingStorage">
-        Non​Throwing​Storage
-    </a>
-</dt>
-<dd>
-    <p>A <code>protocol</code> defining an instance capable of caching <code>Storable</code>s.</p>
+    <p>A <code>protocol</code> defining a unique identifier
+for a specific request component.</p>
 
 </dd>
 <dt class="protocol">
@@ -716,25 +511,7 @@ through <em>completion handlers</em>.</p>
 </dt>
 <dd>
     <p>A <code>protocol</code> defining an instance capable of being turned into
-some <code>Data</code>, while being identified by some <code>String</code>.</p>
-
-</dd>
-<dt class="protocol">
-    <a href="https://sbertix.github.io/ComposableRequest/StorageCrypto/Storage" title="protocol - Storage">
-        Storage
-    </a>
-</dt>
-<dd>
-    <p>A <code>protocol</code> defining an instance capable of caching <code>Storable</code>s.</p>
-
-</dd>
-<dt class="protocol">
-    <a href="https://sbertix.github.io/ComposableRequest/StorageCrypto/ThrowingStorage" title="protocol - ThrowingStorage">
-        Throwing​Storage
-    </a>
-</dt>
-<dd>
-    <p>A <code>protocol</code> defining an instance capable of caching <code>Storable</code>s.</p>
+some <code>Data</code>, while being identified by some <code>Label</code>.</p>
 
 </dd>
         </dl>
@@ -769,20 +546,269 @@ some <code>Data</code>, while being identified by some <code>String</code>.</p>
     <p>A <code>typealias</code> for <code>KeychainAccess.AuthenticationPolicy</code>.</p>
 
 </dd>
+<dt class="typealias">
+    <a href="https://sbertix.github.io/ComposableRequest/StorageCrypto/TupleEndpoint" title="typealias - TupleEndpoint">
+        Tuple​Endpoint
+    </a>
+</dt>
+<dd>
+    <p>The default <code>Tuple3Item</code>.</p>
+
+</dd>
+        </dl>
+    </section>
+    <section id="functions">
+        <h2>Functions</h2>
+        <dl>
+            <dt class="function">
+    <a href="https://sbertix.github.io/ComposableRequest/StorageCrypto/resolve(with_)" title="function - resolve(with:)">
+        resolve(with:​)
+    </a>
+</dt>
+<dd>
+    <p>Fetch the response, from a given
+<code>Input</code> and <code>URLSession</code>.</p>
+
+</dd>
+<dt class="function">
+    <a href="https://sbertix.github.io/ComposableRequest/StorageCrypto/resolve(with_)" title="function - resolve(with:)">
+        resolve(with:​)
+    </a>
+</dt>
+<dd>
+    <p>Fetch the response, from a given
+<code>Input</code> and <code>URLSession</code>.</p>
+
+</dd>
+<dt class="function">
+    <a href="https://sbertix.github.io/ComposableRequest/StorageCrypto/resolve(with_)" title="function - resolve(with:)">
+        resolve(with:​)
+    </a>
+</dt>
+<dd>
+    <p>Fetch the response, from a given
+<code>Input</code> and <code>URLSession</code>.</p>
+
+</dd>
+<dt class="function">
+    <a href="https://sbertix.github.io/ComposableRequest/StorageCrypto/resolve(with_)" title="function - resolve(with:)">
+        resolve(with:​)
+    </a>
+</dt>
+<dd>
+    <p>Fetch the response, from a given
+<code>Input</code> and <code>URLSession</code>.</p>
+
+</dd>
+<dt class="function">
+    <a href="https://sbertix.github.io/ComposableRequest/StorageCrypto/resolve(with_)" title="function - resolve(with:)">
+        resolve(with:​)
+    </a>
+</dt>
+<dd>
+    <p>Fetch the response, from a given
+<code>Input</code> and <code>URLSession</code>.</p>
+
+</dd>
+<dt class="function">
+    <a href="https://sbertix.github.io/ComposableRequest/StorageCrypto/resolve(with_)" title="function - resolve(with:)">
+        resolve(with:​)
+    </a>
+</dt>
+<dd>
+    <p>Fetch the response, from a given
+<code>Input</code> and <code>URLSession</code>.</p>
+
+</dd>
+<dt class="function">
+    <a href="https://sbertix.github.io/ComposableRequest/StorageCrypto/resolve(with_)" title="function - resolve(with:)">
+        resolve(with:​)
+    </a>
+</dt>
+<dd>
+    <p>Fetch the response, from a given
+<code>Input</code> and <code>URLSession</code>.</p>
+
+</dd>
+<dt class="function">
+    <a href="https://sbertix.github.io/ComposableRequest/StorageCrypto/resolve(with_)" title="function - resolve(with:)">
+        resolve(with:​)
+    </a>
+</dt>
+<dd>
+    <p>Fetch the response, from a given
+<code>Input</code> and <code>URLSession</code>.</p>
+
+</dd>
+<dt class="function">
+    <a href="https://sbertix.github.io/ComposableRequest/StorageCrypto/resolve(with_)" title="function - resolve(with:)">
+        resolve(with:​)
+    </a>
+</dt>
+<dd>
+    <p>Resolve the current endpoint.</p>
+
+</dd>
+<dt class="function">
+    <a href="https://sbertix.github.io/ComposableRequest/StorageCrypto/resolve(with_)" title="function - resolve(with:)">
+        resolve(with:​)
+    </a>
+</dt>
+<dd>
+    <p>Fetch the response, from a given
+<code>Input</code> and <code>URLSession</code>.</p>
+
+</dd>
+<dt class="function">
+    <a href="https://sbertix.github.io/ComposableRequest/StorageCrypto/resolve(with_)" title="function - resolve(with:)">
+        resolve(with:​)
+    </a>
+</dt>
+<dd>
+    <p>Fetch the response, from a given
+<code>Input</code> and <code>URLSession</code>.</p>
+
+</dd>
+<dt class="function">
+    <a href="https://sbertix.github.io/ComposableRequest/StorageCrypto/resolve(with_)" title="function - resolve(with:)">
+        resolve(with:​)
+    </a>
+</dt>
+<dd>
+    <p>Fetch the response, from a given
+<code>Input</code> and <code>URLSession</code>.</p>
+
+</dd>
+<dt class="function">
+    <a href="https://sbertix.github.io/ComposableRequest/StorageCrypto/resolve(with_)" title="function - resolve(with:)">
+        resolve(with:​)
+    </a>
+</dt>
+<dd>
+    <p>Fetch the response, from a given
+<code>Input</code> and <code>URLSession</code>.</p>
+
+</dd>
+<dt class="function">
+    <a href="https://sbertix.github.io/ComposableRequest/StorageCrypto/resolve(with_)" title="function - resolve(with:)">
+        resolve(with:​)
+    </a>
+</dt>
+<dd>
+    <p>Fetch the response, from a given
+<code>Input</code> and <code>URLSession</code>.</p>
+
+</dd>
+<dt class="function">
+    <a href="https://sbertix.github.io/ComposableRequest/StorageCrypto/resolve(with_)" title="function - resolve(with:)">
+        resolve(with:​)
+    </a>
+</dt>
+<dd>
+    <p>Fetch the response, from a given
+<code>Input</code> and <code>URLSession</code>.</p>
+
+</dd>
+<dt class="function">
+    <a href="https://sbertix.github.io/ComposableRequest/StorageCrypto/resolve(with_)" title="function - resolve(with:)">
+        resolve(with:​)
+    </a>
+</dt>
+<dd>
+    <p>Resolve the current endpoint.</p>
+
+</dd>
+<dt class="function">
+    <a href="https://sbertix.github.io/ComposableRequest/StorageCrypto/resolve(with_)" title="function - resolve(with:)">
+        resolve(with:​)
+    </a>
+</dt>
+<dd>
+    <p>Fetch the response, from a given
+<code>Input</code> and <code>URLSession</code>.</p>
+
+</dd>
+<dt class="function">
+    <a href="https://sbertix.github.io/ComposableRequest/StorageCrypto/resolve(with_)" title="function - resolve(with:)">
+        resolve(with:​)
+    </a>
+</dt>
+<dd>
+    <p>Resolve the current endpoint.</p>
+
+</dd>
+<dt class="function">
+    <a href="https://sbertix.github.io/ComposableRequest/StorageCrypto/resolve(with_)" title="function - resolve(with:)">
+        resolve(with:​)
+    </a>
+</dt>
+<dd>
+    <p>Fetch the response, from a given
+<code>Input</code> and <code>URLSession</code>.</p>
+
+</dd>
+<dt class="function">
+    <a href="https://sbertix.github.io/ComposableRequest/StorageCrypto/resolve(__)" title="function - resolve(_:)">
+        resolve(_:​)
+    </a>
+</dt>
+<dd>
+    <p>Compose the <code>DefaultResponse</code>.</p>
+
+</dd>
+<dt class="function">
+    <a href="https://sbertix.github.io/ComposableRequest/StorageCrypto/resolve(__)" title="function - resolve(_:)">
+        resolve(_:​)
+    </a>
+</dt>
+<dd>
+    <p>Compose the <code>DefaultResponse</code>.</p>
+
+</dd>
+<dt class="function">
+    <a href="https://sbertix.github.io/ComposableRequest/StorageCrypto/resolve(__)" title="function - resolve(_:)">
+        resolve(_:​)
+    </a>
+</dt>
+<dd>
+    <p>Compose the <code>DefaultResponse</code>.</p>
+
+</dd>
+<dt class="function">
+    <a href="https://sbertix.github.io/ComposableRequest/StorageCrypto/resolve(__)" title="function - resolve(_:)">
+        resolve(_:​)
+    </a>
+</dt>
+<dd>
+    <p>Compose the <code>DefaultResponse</code>.</p>
+
+</dd>
+<dt class="function">
+    <a href="https://sbertix.github.io/ComposableRequest/StorageCrypto/resolve(with_)" title="function - resolve(with:)">
+        resolve(with:​)
+    </a>
+</dt>
+<dd>
+    <p>Fetch the response, from a given
+<code>Input</code> and <code>URLSession</code>.</p>
+
+</dd>
+<dt class="function">
+    <a href="https://sbertix.github.io/ComposableRequest/StorageCrypto/resolve(with_)" title="function - resolve(with:)">
+        resolve(with:​)
+    </a>
+</dt>
+<dd>
+    <p>Fetch the response, from a given
+<code>Input</code> and <code>URLSession</code>.</p>
+
+</dd>
         </dl>
     </section>
 <section id="extensions">
     <h2>Extensions</h2>
     <dl>
     <dt class="extension">
-    <a href="https://sbertix.github.io/ComposableRequest/StorageCrypto/Array">Array</a>
-</dt>
-<dd></dd>
-<dt class="extension">
-    <a href="https://sbertix.github.io/ComposableRequest/StorageCrypto/Bool">Bool</a>
-</dt>
-<dd></dd>
-<dt class="extension">
     <a href="https://sbertix.github.io/ComposableRequest/StorageCrypto/CharacterSet">CharacterSet</a>
 </dt>
 <dd></dd>
@@ -791,15 +817,11 @@ some <code>Data</code>, while being identified by some <code>String</code>.</p>
 </dt>
 <dd></dd>
 <dt class="extension">
-    <a href="https://sbertix.github.io/ComposableRequest/StorageCrypto/Dictionary">Dictionary</a>
+    <a href="https://sbertix.github.io/ComposableRequest/StorageCrypto/Endpoint">Endpoint</a>
 </dt>
 <dd></dd>
 <dt class="extension">
-    <a href="https://sbertix.github.io/ComposableRequest/StorageCrypto/Double">Double</a>
-</dt>
-<dd></dd>
-<dt class="extension">
-    <a href="https://sbertix.github.io/ComposableRequest/StorageCrypto/Float">Float</a>
+    <a href="https://sbertix.github.io/ComposableRequest/StorageCrypto/EndpointResolver">EndpointResolver</a>
 </dt>
 <dd></dd>
 <dt class="extension">
@@ -807,31 +829,31 @@ some <code>Data</code>, while being identified by some <code>String</code>.</p>
 </dt>
 <dd></dd>
 <dt class="extension">
-    <a href="https://sbertix.github.io/ComposableRequest/StorageCrypto/Int">Int</a>
+    <a href="https://sbertix.github.io/ComposableRequest/StorageCrypto/LockProvider">LockProvider</a>
 </dt>
 <dd></dd>
 <dt class="extension">
-    <a href="https://sbertix.github.io/ComposableRequest/StorageCrypto/NSNull">NSNull</a>
+    <a href="https://sbertix.github.io/ComposableRequest/StorageCrypto/LoopEndpoint">LoopEndpoint</a>
 </dt>
 <dd></dd>
 <dt class="extension">
-    <a href="https://sbertix.github.io/ComposableRequest/StorageCrypto/Optional">Optional</a>
+    <a href="https://sbertix.github.io/ComposableRequest/StorageCrypto/OffsetProvider">OffsetProvider</a>
+</dt>
+<dd></dd>
+<dt class="extension">
+    <a href="https://sbertix.github.io/ComposableRequest/StorageCrypto/Provider">Provider</a>
+</dt>
+<dd></dd>
+<dt class="extension">
+    <a href="https://sbertix.github.io/ComposableRequest/StorageCrypto/SingleEndpoint">SingleEndpoint</a>
+</dt>
+<dd></dd>
+<dt class="extension">
+    <a href="https://sbertix.github.io/ComposableRequest/StorageCrypto/Storage">Storage</a>
 </dt>
 <dd></dd>
 <dt class="extension">
     <a href="https://sbertix.github.io/ComposableRequest/StorageCrypto/String">String</a>
-</dt>
-<dd></dd>
-<dt class="extension">
-    <a href="https://sbertix.github.io/ComposableRequest/StorageCrypto/URL">URL</a>
-</dt>
-<dd></dd>
-<dt class="extension">
-    <a href="https://sbertix.github.io/ComposableRequest/StorageCrypto/URLComponents">URLComponents</a>
-</dt>
-<dd></dd>
-<dt class="extension">
-    <a href="https://sbertix.github.io/ComposableRequest/StorageCrypto/URLRequest">URLRequest</a>
 </dt>
 <dd></dd>
     </dl>
@@ -841,7 +863,7 @@ some <code>Data</code>, while being identified by some <code>String</code>.</p>
 
     <footer>
         <p>
-    Generated on <time datetime="2021-08-27T20:13:14+0000">August 27, 2021</time> using <a href="https://github.com/SwiftDocOrg/swift-doc">swift-doc</a> <span class="version">1.0.0-rc.1</span>.
+    Generated on <time datetime="2023-01-16T15:53:23+0000">January 16, 2023</time> using <a href="https://github.com/SwiftDocOrg/swift-doc">swift-doc</a> <span class="version">1.0.0-rc.1</span>.
 </p>
     </footer>
 </body>

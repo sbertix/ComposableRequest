@@ -2,8 +2,7 @@
 <img alt="Header" src="https://raw.githubusercontent.com/sbertix/ComposableRequest/master/Resources/header.png" height="72" />
 <br />
 
-[![Swift](https://img.shields.io/badge/Swift-5.2-%23DE5C43?style=flat&logo=swift)](https://swift.org)
-[![codecov](https://codecov.io/gh/sbertix/ComposableRequest/branch/main/graph/badge.svg)](https://codecov.io/gh/sbertix/ComposableRequest)
+[![Swift](https://img.shields.io/badge/Swift-5.7-%23DE5C43?style=flat&logo=swift)](https://swift.org)
 <br />
 ![iOS](https://img.shields.io/badge/iOS-13.0-8CFF96)
 ![macOS](https://img.shields.io/badge/macOS-10.15-8CFF96)
@@ -14,7 +13,7 @@
 
 **ComposableRequest** is a networking layer based on a declarative interface, written in (modern) **Swift**.
 
-It abstracts away `URLSession` implementation (or your preferred custom networking library), in order to provide concise and powerful endpoint representations, supporting, out-of-the-box, completion handlers, **Combine** `Publisher`s and _structured concurrencty_ (`async`/`await`) with a single definition. 
+It abstracts away `URLSession` implementation, in order to provide concise and powerful endpoint representations (both for their requests and responses), supporting, out-of-the-box, **Combine** `Publisher`s and _structured concurrency_ (`async`/`await`) with a single definition. 
 
 It comes with `Storage` (inside of **Storage**), a way of caching `Storable` items, and related concrete implementations (e.g. `UserDefaultsStorage`, `KeychainStorage` – for which you're gonna need to add **StorageCrypto**, depending on [**KeychainAccess**](https://github.com/kishikawakatsumi/KeychainAccess), together with the ability to provide the final user of your API wrapper to inject code through `Provider`s.
 
@@ -72,51 +71,41 @@ public extension Request {
     /// Delete one of your own posts, matching `identifier`.
     /// Checkout https://github.com/sbertix/Swiftagram for more info.
     ///
-    /// - parameter identifier: String
-    /// - returns: A locked `AnyObservable`, waiting for authentication `HTTPCookie`s.
-    func delete<R: Requester>(_ identifier: String) -> Providers.LockRequester<[HTTPCookie], R, R.Requested<Bool>> {
+    /// - parameter identifier: A valid `String`.
+    /// - returns: A locked `AnySingleEndpoint`, waiting for authentication `HTTPCookie`s.
+    func delete(_ identifier: String) -> Providers.Lock<[HTTPCookie], AnySingleEndpoint<Bool>> {
         // Wait for user defined values.
-        .init { cookies, requester in
+        .init { cookies in
             // Fetch first info about the post to learn if it's a video or picture
             // as they have slightly different endpoints for deletion.
-            Request("https://i.instagram.com/api/v1/media")
-                .path(appending: identifier)
-                .info   // Equal to `.path(appending: "info")`.
-                // Wait for the user to `inject` an array of `HTTPCookie`s.
+            Single {
+                Path("https://i.instagram.com/api/v1/media/\(identifier)/info")
+                 // Wait for the user to `inject` an array of `HTTPCookie`s.
                 // You should implement your own `model` to abstract away
                 // authentication cookies, but as this is just an example
                 // we leave it to you.
-                .header(appending: HTTPCookie.requestHeaderFields(with: cookies))
-                // Prepare for the actual request.
-                .prepare(with: requester)
-                // Check it returned a valid media.
-                .map(\.data)
-                // Decode it inside a `Wrapper`, allowing to interrogate JSON
+                Headers(HTTPCookie.requestHeaderFields(with: cookies))
+                // Decode it inside an `AnyDecodable`, allowing to interrogate JSON
                 // representations of object without knowing them in advance.
-                // (It's literally the missing `AnyCodable`).
-                .decode()
-                // Switch to a new request.
-                .switch { wrapper throws -> R.Requested<Bool> in
-                    guard let type = wrapper["items"][0].mediaType.int(),
-                          [1, 2, 8].contains(type) else {
+                Response {
+                    let output = try JSONDecoder().decode(AnyDecodable.self, from: $0)
+                    guard let type = output.items[0].mediaType.int,
+                                [1,2, 8].contains(type) else { 
                         throw DeleteError.invalid
                     }
-                    // Actually delete it now that we have all data.
-                    return Request("https://i.instagram.com/api/v1/media")
-                        .path(appending: identifier)
-                        .path(appending: "delete/")
-                        .query(appending: type == 2 ? "VIDEO" : "PHOTO", forKey: "media_type")
-                        // This will be applied exactly as before, but you can add whaterver
-                        // you need to it, as it will only affect this `Request`.
-                        .header(appending: HTTPCookie.requestHeaderFields(with: cookies))
-                        // Create the `Publisher`.
-                        .prepare(with: requester)
-                        .map(\.data)
-                        .decode()
-                        .map { $0.status == "ok" }
-                        .requested(by: requester)
+                    return type
                 }
-                .requested(by: requester)
+            }.switch { 
+                Path("https://i.instagram.com/api/v1/media/\(identifier)/delete")
+                Query($0 == 2 ? "VIDEO" : "PHOTO", forKey: "media_type")
+                // This will be applied exactly as before, but you can add whaterver
+                // you need to it, as it will only affect this `Request`.
+                Headers(HTTPCookie.requestHeaderFields(with: cookies))
+                Response {
+                    let output = try JSONDecoder().decode(AnyDecodable.self, from: $0)
+                    return $0.status.bool ?? false
+                }
+            }
         }
     }
 }
@@ -136,19 +125,10 @@ let cookies: [HTTPCookie] = /* an array of HTTPCookies */
 /// A *retained* collection of `AnyCancellable`s.
 var bin: Set<AnyCancellable> = []
 
-/// Delete it using completion handlers.
-Request.delete(identifier)
-    .unlock(with: cookies)
-    .prepare(with: URLSessionCompletionRequester(session: .shared))
-    .onSuccess { _ in } onFailure: { _ in }
-    .resume()
-    
-[…]
-
 /// Delete it using **Combine**.
 Request.delete(identifier)
     .unlock(with: cookies)
-    .prepare(with: URLSessionCombineRequester(session: .shared))    
+    .resolve(with: .shared)     // The shared `URLSession`.
     .sink { _ in } receiveValue: { print($0) }
     .store(in: &bin)
 
@@ -157,7 +137,7 @@ Request.delete(identifier)
 /// Delete it using _async/await_.
 let result = try await Request.delete(identifier)
     .unlock(with: cookies)
-    .prepare(with: .async(session: .shared))
+    .resolve(with: .shared)
 ```
 
 ### Resume and cancel requests

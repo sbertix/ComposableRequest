@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Requests - First</title>
+    <link rel="stylesheet" type="text/css" href="https://sbertix.github.io/ComposableRequest/Requests/all.css" media="all" />
+</head>
+<body>
+    <header>
+        <a href="https://sbertix.github.io/ComposableRequest/Requests/">
+            <strong>
+                Requests
+            </strong>
+            <span>Documentation</span>
+        </a>
+    </header>
+
+    <!--
+    <form class="search">
+        <input type="search" placeholder="Search" />
+    </form>
+    -->
+
+    <nav>
+        <div class="wrapper">
+            <h2>On This Page</h2>
+            <ol><li><a href="#nested type aliases">Nested Type Aliases</a><ul><li class="typealias"><a href="#first.output">Output</a></li></ul></li><li><a href="#initializers">Initializers</a><ul><li class="initializer"><a href="#first.init(_:)">init(_:​)</a></li></ul></li></ol>
+        </div>
+    </nav>
+
+    <main>
+        <article>
+            <h1>
+    <small>Structure</small>
+    <code class="name">First</code>
+</h1>
+
+<div class="declaration">
+<pre class="highlight"><code><html><body><span class="keyword">public</span> <span class="keyword">struct</span> <span class="type">First</span>&lt;<span class="variable">Parent</span>: <span class="type">LoopEndpoint</span>&gt;  </body></html></code></pre>
+</div>
+<div class="summary" role="doc-abstract">
+    <p>A <code>struct</code> defining a custom endpoint
+implementation returning a wrapper for the
+first output of a loop endpoint.</p>
+
+</div>
+
+    <section id="nested type aliases">
+        <h2>Nested Type Aliases</h2>
+
+        <div role="article" class="typealias" id="first.output">
+    <h3>
+        <code><a href="#first.output">Output</a></code>
+    </h3>
+    <div class="declaration">
+<pre class="highlight"><code><html><body><span class="keyword">public</span> <span class="keyword">typealias</span> <span class="variable">Output</span> = <span class="type">Parent</span>.<span class="type">Output</span></body></html></code></pre>
+</div>
+<div class="summary" role="doc-abstract">
+    <p>The associated output type.</p>
+
+</div>
+</div>
+    </section>
+    <section id="initializers">
+        <h2>Initializers</h2>
+
+        <div role="article" class="initializer" id="first.init(_:)">
+    <h3>
+        <code><a href="#first.init(_:)">init(_:​)</a></code>
+    </h3>
+    <div class="declaration">
+<pre class="highlight"><code><html><body><span class="keyword">public</span> <span class="keyword">init</span>(<span class="attribute">@</span><a href="https://sbertix.github.io/ComposableRequest/Requests/EndpointBuilder"><span class="type">EndpointBuilder</span></a> <span class="keyword">_</span> <span class="variable">parent</span>: () -&gt; <span class="type">Parent</span>)  </body></html></code></pre>
+</div>
+<div class="summary" role="doc-abstract">
+    <p>Init.</p>
+
+</div>
+<h4>Parameters</h4>
+
+<table class="parameters">
+  <thead hidden>
+  <tr>
+      <th>Name</th>
+      <th>Type</th>
+      <th>Description</th>
+  </tr>
+  </thead>
+  <tbody>
+    <tr>
+    <th>parent</th>
+    <td><code class="type">() -&gt; Parent</code></td>
+    <td><p>A valid <code>Parent</code> factory.</p>
+</td>
+</tr>
+  </tbody>
+</table>
+</div>
+    </section>
+
+
+
+        </article>
+    </main>
+
+    <footer>
+        <p>
+    Generated on <time datetime="2023-01-16T15:53:20+0000">January 16, 2023</time> using <a href="https://github.com/SwiftDocOrg/swift-doc">swift-doc</a> <span class="version">1.0.0-rc.1</span>.
+</p>
+    </footer>
+</body>
+</html>

@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StorageCrypto - Response</title>
+    <link rel="stylesheet" type="text/css" href="https://sbertix.github.io/ComposableRequest/StorageCrypto/all.css" media="all" />
+</head>
+<body>
+    <header>
+        <a href="https://sbertix.github.io/ComposableRequest/StorageCrypto/">
+            <strong>
+                StorageCrypto
+            </strong>
+            <span>Documentation</span>
+        </a>
+    </header>
+
+    <!--
+    <form class="search">
+        <input type="search" placeholder="Search" />
+    </form>
+    -->
+
+    <nav>
+        <div class="wrapper">
+            <h2>On This Page</h2>
+            <ol><li><a href="#initializers">Initializers</a><ul><li class="initializer"><a href="#response.init(_:)">init(_:​)</a></li><li class="initializer"><a href="#response.init(_:)">init(_:​)</a></li><li class="initializer"><a href="#response.init(_:decoder:)">init(_:​decoder:​)</a></li><li class="initializer"><a href="#response.init(_:decoder:)">init(_:​decoder:​)</a></li></ul></li></ol>
+        </div>
+    </nav>
+
+    <main>
+        <article>
+            <h1>
+    <small>Structure</small>
+    <code class="name">Response</code>
+</h1>
+
+<div class="declaration">
+<pre class="highlight"><code><html><body><span class="keyword">public</span> <span class="keyword">struct</span> <span class="type">Response</span>&lt;<span class="variable">Input</span>, <span class="variable">Output</span>&gt;  </body></html></code></pre>
+</div>
+<div class="summary" role="doc-abstract">
+    <p>A <code>struct</code> defining the response
+transformation.</p>
+
+</div>
+
+    <section id="initializers">
+        <h2>Initializers</h2>
+
+        <div role="article" class="initializer" id="response.init(_:)">
+    <h3>
+        <code><a href="#response.init(_:)">init(_:​)</a></code>
+    </h3>
+    <div class="declaration">
+<pre class="highlight"><code><html><body><span class="keyword">public</span> <span class="keyword">init</span>(<span class="keyword">_</span> <span class="variable">content</span>: <span class="attribute">@</span><span class="attribute">escaping</span> (<span class="type">Input</span>) <span class="keyword">throws</span> -&gt; <span class="type">Output</span>)  </body></html></code></pre>
+</div>
+<div class="summary" role="doc-abstract">
+    <p>Init.</p>
+
+</div>
+<h4>Parameters</h4>
+
+<table class="parameters">
+  <thead hidden>
+  <tr>
+      <th>Name</th>
+      <th>Type</th>
+      <th>Description</th>
+  </tr>
+  </thead>
+  <tbody>
+    <tr>
+    <th>content</th>
+    <td><code class="type">@escaping (Input) throws -&gt; Output</code></td>
+    <td><p>A valid content factory.</p>
+</td>
+</tr>
+  </tbody>
+</table>
+</div>
+<div role="article" class="initializer" id="response.init(_:)">
+    <h3>
+        <code><a href="#response.init(_:)">init(_:​)</a></code>
+    </h3>
+    <div class="declaration">
+<pre class="highlight"><code><html><body><span class="keyword">public</span> <span class="keyword">init</span>(<span class="keyword">_</span> <span class="variable">content</span>: <span class="attribute">@</span><span class="attribute">escaping</span> (<span class="type">Data</span>) <span class="keyword">throws</span> -&gt; <span class="type">Output</span>) <span class="keyword">where</span> <span class="type">Input</span> == <a href="https://sbertix.github.io/ComposableRequest/StorageCrypto/DefaultResponse"><span class="type">DefaultResponse</span></a>  </body></html></code></pre>
+</div>
+<div class="summary" role="doc-abstract">
+    <p>Init.</p>
+
+</div>
+<h4>Parameters</h4>
+
+<table class="parameters">
+  <thead hidden>
+  <tr>
+      <th>Name</th>
+      <th>Type</th>
+      <th>Description</th>
+  </tr>
+  </thead>
+  <tbody>
+    <tr>
+    <th>content</th>
+    <td><code class="type">@escaping (Data) throws -&gt; Output</code></td>
+    <td><p>A simplified content factory, only accounting for the actual output.</p>
+</td>
+</tr>
+  </tbody>
+</table>
+</div>
+<div role="article" class="initializer" id="response.init(_:decoder:)">
+    <h3>
+        <code><a href="#response.init(_:decoder:)">init(_:​decoder:​)</a></code>
+    </h3>
+    <div class="declaration">
+<pre class="highlight"><code><html><body><span class="keyword">public</span> <span class="keyword">init</span>(
+        <span class="keyword">_</span> <span class="variable">output</span>: <span class="type">Output</span>.<span class="type">Type</span>,
+        <span class="variable">decoder</span>: <span class="type">JSONDecoder</span> = .<span class="variable">init</span>()
+    ) <span class="keyword">where</span> <span class="type">Input</span> == <a href="https://sbertix.github.io/ComposableRequest/StorageCrypto/DefaultResponse"><span class="type">DefaultResponse</span></a>, <span class="type">Output</span>: <span class="type">Decodable</span>  </body></html></code></pre>
+</div>
+<div class="summary" role="doc-abstract">
+    <p>Init.</p>
+
+</div>
+<h4>Parameters</h4>
+
+<table class="parameters">
+  <thead hidden>
+  <tr>
+      <th>Name</th>
+      <th>Type</th>
+      <th>Description</th>
+  </tr>
+  </thead>
+  <tbody>
+    <tr>
+    <th>output</th>
+    <td><code class="type">Output.​Type</code></td>
+    <td><p>The <code>Output</code> type.</p>
+</td>
+</tr>
+<tr>
+    <th>decoder</th>
+    <td><code class="type">JSONDecoder</code></td>
+    <td><p>A valid <code>JSONDecoder</code>. Defaults to <code>.init</code>.</p>
+</td>
+</tr>
+  </tbody>
+</table>
+</div>
+<div role="article" class="initializer" id="response.init(_:decoder:)">
+    <h3>
+        <code><a href="#response.init(_:decoder:)">init(_:​decoder:​)</a></code>
+    </h3>
+    <div class="declaration">
+<pre class="highlight"><code><html><body><span class="keyword">public</span> <span class="keyword">init</span>&lt;<span class="variable">D</span>: <span class="type">TopLevelDecoder</span>&gt;(
+        <span class="keyword">_</span> <span class="variable">output</span>: <span class="type">Output</span>.<span class="type">Type</span>,
+        <span class="variable">decoder</span>: <span class="type">D</span>
+    ) <span class="keyword">where</span> <span class="type">Input</span> == <a href="https://sbertix.github.io/ComposableRequest/StorageCrypto/DefaultResponse"><span class="type">DefaultResponse</span></a>, <span class="type">Output</span>: <span class="type">Decodable</span>, <span class="type">D</span>.<span class="type">Input</span> == <span class="type">Data</span>  </body></html></code></pre>
+</div>
+<div class="summary" role="doc-abstract">
+    <p>Init.</p>
+
+</div>
+<h4>Parameters</h4>
+
+<table class="parameters">
+  <thead hidden>
+  <tr>
+      <th>Name</th>
+      <th>Type</th>
+      <th>Description</th>
+  </tr>
+  </thead>
+  <tbody>
+    <tr>
+    <th>output</th>
+    <td><code class="type">Output.​Type</code></td>
+    <td><p>The <code>Output</code> type.</p>
+</td>
+</tr>
+<tr>
+    <th>decoder</th>
+    <td><code class="type">D</code></td>
+    <td><p>Some <code>TopLevelDecoder</code>.</p>
+</td>
+</tr>
+  </tbody>
+</table>
+</div>
+    </section>
+
+
+
+        </article>
+    </main>
+
+    <footer>
+        <p>
+    Generated on <time datetime="2023-01-16T15:53:22+0000">January 16, 2023</time> using <a href="https://github.com/SwiftDocOrg/swift-doc">swift-doc</a> <span class="version">1.0.0-rc.1</span>.
+</p>
+    </footer>
+</body>
+</html>
