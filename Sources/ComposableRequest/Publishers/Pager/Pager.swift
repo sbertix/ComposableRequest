@@ -96,12 +96,12 @@ public extension Publishers {
                             return current
                                 .append(Deferred { Pager(count - 1, offset: next, delay: delay, generator: generator) })
                                 .eraseToAnyPublisher()
-                        case let delay:
+                        case let currentDelay:
                             return current
                                 .append(
                                     Just(())
                                         .setFailureType(to: Failure.self)
-                                        .delay(for: delay, scheduler: RunLoop.main)
+                                        .delay(for: currentDelay, scheduler: RunLoop.main)
                                         .flatMap { _ in Pager(count - 1, offset: next, delay: delay, generator: generator) }
                                 )
                                 .eraseToAnyPublisher()
